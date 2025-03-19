@@ -1,0 +1,88 @@
+Below is Gherkin which clause provided from the prompt
+Can you describe this in granular gherkin please such as when i type "Genesis 1:1" in the text field i see ... text message
+--
+Feature: Bible Reference Testing Application
+
+  Background:
+    Given I have launched the Reference Testing app
+    And I see a verse displayed on the screen
+    And the verse reference is hidden
+    And the "References Due Today" counter shows "5"
+    And the Past Questions section shows "No previous questions yet"
+
+  Scenario: Successfully identifying a verse reference
+    When I type "Genesis 1:1" in the reference input field
+    Then I see auto-suggestions for "Genesis" appear below the input
+    When I select "Genesis" from the suggestions
+    Then the input field is populated with "Genesis " with the cursor after the space
+    When I continue typing "1:1"
+    And I tap the "Submit" button
+    Then I see a green checkmark icon in the input field
+    And I see "Correct!" text below the input field
+    And I see a green SnackBar message: "Great job! You correctly identified this verse as Genesis 1:1."
+    And the "References Due Today" counter decreases to "4"
+    And in the Past Questions section I see "Genesis 1:1-[Genesis 1:1] Correct!" in green bold text
+    And after 1.5 seconds, a new verse is automatically displayed
+    And the input field is cleared
+
+  Scenario: Identifying a verse with correct book and chapter but wrong verse
+    When I type "Philippians 4:12" in the reference input field
+    And the actual reference is "Philippians 4:13"
+    And I tap the "Submit" button
+    Then I see an orange warning icon in the input field
+    And I see an orange SnackBar message: "You got the book and chapter right, but the verse is incorrect. The correct reference is Philippians 4:13."
+    And in the Past Questions section I see "Philippians 4:12-[Philippians 4:13] Correct book and chapter" in orange bold text
+    And the "References Due Today" counter remains at "5"
+    And after 1.5 seconds, a new verse is automatically displayed
+    And the input field is cleared
+
+  Scenario: Identifying a verse with correct book but wrong chapter and verse
+    When I type "Romans 7:28" in the reference input field
+    And the actual reference is "Romans 8:28"
+    And I tap the "Submit" button
+    Then I see an orange warning icon in the input field
+    And I see an orange SnackBar message: "You got the book right, but the chapter is incorrect. The correct reference is Romans 8:28."
+    And in the Past Questions section I see "Romans 7:28-[Romans 8:28] Correct book" in orange bold text
+    And the "References Due Today" counter remains at "5"
+    And after 1.5 seconds, a new verse is automatically displayed
+    And the input field is cleared
+
+  Scenario: Identifying a verse with completely incorrect reference
+    When I type "Matthew 5:5" in the reference input field
+    And the actual reference is "John 3:16"
+    And I tap the "Submit" button
+    Then I see an orange warning icon in the input field
+    And I see an orange SnackBar message: "The book you entered is incorrect. The correct reference is John 3:16."
+    And in the Past Questions section I see "Matthew 5:5-[John 3:16] Incorrect" in orange bold text
+    And the "References Due Today" counter remains at "5"
+    And after 1.5 seconds, a new verse is automatically displayed
+    And the input field is cleared
+
+  Scenario: Entering an invalid reference format
+    When I type "Genesis" in the reference input field
+    And I tap the "Submit" button
+    Then I see a red error message: "Format should be 'Book Chapter:Verse'"
+    And no SnackBar appears
+    And no new entry is added to the Past Questions section
+    And the "References Due Today" counter remains unchanged
+    And the current verse remains displayed
+
+  Scenario: Viewing reference recall progress
+    Given I have correctly identified 3 verses
+    When I look at the Reference Recall meter
+    Then I see a circular progress indicator showing my success rate
+    And the percentage displayed in the center reflects my average score
+    And the gauge is colored according to my performance:
+      | Performance Range | Color  |
+      | Below 33%         | Red    |
+      | 33% to 66%        | Orange |
+      | Above 66%         | Green  |
+
+  Scenario: Tracking previous answers
+    Given I have answered 6 verse references
+    When I look at the Past Questions section
+    Then I see only the 5 most recent answers
+    And each answer shows the format: "MyAnswer-[CorrectReference] FeedbackType"
+    And correct answers are displayed in green text
+    And incorrect answers are displayed in orange text
+    And the most recent answer is displayed in bold text

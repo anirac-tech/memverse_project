@@ -1,68 +1,131 @@
 import 'package:flutter/material.dart';
-import 'package:memverse/l10n/l10n.dart';
-
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: const RefTestScreen(),
-    );
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        ),
+        home: const RefTestScreen(),
+      );
 }
 
 class RefTestScreen extends StatefulWidget {
   const RefTestScreen({super.key});
 
   @override
-  _RefTestScreenState createState() => _RefTestScreenState();
+  RefTestScreenState createState() => RefTestScreenState();
 }
 
-class _RefTestScreenState extends State<RefTestScreen> {
+class RefTestScreenState extends State<RefTestScreen> {
   String pageTitle = 'Reference Test';
   int questionNumber = 1;
-  String verseText = "In the beginning God created the heavens and the earth.";
-  String verseAttribution = "NLT";
-  String expectedReference = "Genesis 1:1";
+  String verseText = 'In the beginning God created the heavens and the earth.';
+  String verseAttribution = 'NLT';
+  String expectedReference = 'Genesis 1:1';
   final TextEditingController answerController = TextEditingController();
-  double referenceRecallGrade = 60.0;
+  double referenceRecallGrade = 60;
   int overdueReferences = 5;
   List<String> pastQuestions = [];
-  String memverseUserID = 'user123';
+  String memVerseUserID = 'user123';
   int currentVerseIndex = 0;
   final List<Map<String, String>> versesList = [
     {
-      "text": "In the beginning God created the heavens and the earth.",
-      "reference": "Genesis 1:1"
+      'text': 'In the beginning God created the heavens and the earth.',
+      'reference': 'Genesis 1:1',
     },
     {
-      "text": "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
-      "reference": "John 3:16"
+      'text': 'For God so loved the world that he gave his one and only Son, '
+          'that whoever believes in him shall not perish '
+          'but have eternal life.',
+      'reference': 'John 3:16',
     },
     {
-      "text": "Trust in the LORD with all your heart; do not depend on your own understanding.",
-      "reference": "Proverbs 3:5"
+      'text':
+          'Trust in the LORD with all your heart; do not depend on your own '
+              'understanding.',
+      'reference': 'Proverbs 3:5',
     },
     {
-      "text": "I can do everything through Christ, who gives me strength.",
-      "reference": "Philippians 4:13"
+      'text': 'I can do everything through Christ, who gives me strength.',
+      'reference': 'Philippians 4:13',
     },
     {
-      "text": "And we know that God causes everything to work together for the good of those who love God and are called according to his purpose for them.",
-      "reference": "Romans 8:28"
+      'text': 'And we know that God causes everything to work together for the'
+          ' good of those who love God and are called according to '
+          'his purpose for them.',
+      'reference': 'Romans 8:28',
     }
   ];
   final List<String> bookSuggestions = [
-    'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
-    '1 Kings', '2 Kings','1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalm', 'Proverbs',
-    'Ecclesiastes', 'Song of Songs', 'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel',
-    'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew',
-    'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians',
-    'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews', 'James',
-    '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation'
+    'Genesis',
+    'Exodus',
+    'Leviticus',
+    'Numbers',
+    'Deuteronomy',
+    'Joshua',
+    'Judges',
+    'Ruth',
+    '1 Samuel',
+    '2 Samuel',
+    '1 Kings',
+    '2 Kings',
+    '1 Chronicles',
+    '2 Chronicles',
+    'Ezra',
+    'Nehemiah',
+    'Esther',
+    'Job',
+    'Psalm',
+    'Proverbs',
+    'Ecclesiastes',
+    'Song of Songs',
+    'Isaiah',
+    'Jeremiah',
+    'Lamentations',
+    'Ezekiel',
+    'Daniel',
+    'Hosea',
+    'Joel',
+    'Amos',
+    'Obadiah',
+    'Jonah',
+    'Micah',
+    'Nahum',
+    'Habakkuk',
+    'Zephaniah',
+    'Haggai',
+    'Zechariah',
+    'Malachi',
+    'Matthew',
+    'Mark',
+    'Luke',
+    'John',
+    'Acts',
+    'Romans',
+    '1 Corinthians',
+    '2 Corinthians',
+    'Galatians',
+    'Ephesians',
+    'Philippians',
+    'Colossians',
+    '1 Thessalonians',
+    '2 Thessalonians',
+    '1 Timothy',
+    '2 Timothy',
+    'Titus',
+    'Philemon',
+    'Hebrews',
+    'James',
+    '1 Peter',
+    '2 Peter',
+    '1 John',
+    '2 John',
+    '3 John',
+    'Jude',
+    'Revelation',
   ];
   final FocusNode answerFocusNode = FocusNode();
 
@@ -91,16 +154,15 @@ class _RefTestScreenState extends State<RefTestScreen> {
       return false;
     }
 
-    final bookChapterVersePattern = RegExp(
-        r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$'
-    );
+    final bookChapterVersePattern =
+        RegExp(r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$');
 
     if (bookChapterVersePattern.hasMatch(text)) {
       final match = bookChapterVersePattern.firstMatch(text);
       final bookName = match?.group(1)?.trim() ?? '';
 
-      if (bookSuggestions.any((book) =>
-      book.toLowerCase() == bookName.toLowerCase())) {
+      if (bookSuggestions
+          .any((book) => book.toLowerCase() == bookName.toLowerCase())) {
         setState(() {
           isReferenceValid = true;
           validationMessage = '';
@@ -128,7 +190,8 @@ class _RefTestScreenState extends State<RefTestScreen> {
     }
 
     if (userAnswer.trim().toLowerCase() == expectedReference.toLowerCase()) {
-      return 'Great job! You correctly identified this verse as $expectedReference.';
+      return 'Great job! '
+          'You correctly identified this verse as $expectedReference.';
     }
 
     // Try to parse the references
@@ -137,27 +200,38 @@ class _RefTestScreenState extends State<RefTestScreen> {
 
     // If either parsing fails, return a generic message
     if (expectedParts == null || userParts == null) {
-      return 'That\'s not quite right. The correct reference is $expectedReference.';
+      return "That's not quite right. "
+          'The correct reference is $expectedReference.';
     }
 
     // Debug output to verify parsing
-    debugPrint('Expected: ${expectedParts.book}, ${expectedParts.chapter}:${expectedParts.verse}');
-    debugPrint('User: ${userParts.book}, ${userParts.chapter}:${userParts.verse}');
+    debugPrint(
+      'Expected: ${expectedParts.book}, '
+          '\${expectedParts.chapter}:${expectedParts.verse}',
+    );
+    debugPrint(
+      'User: ${userParts.book}, ${userParts.chapter}:${userParts.verse}',
+    );
 
     // Compare individual components
-    bool bookMatch = userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
-    bool chapterMatch = userParts.chapter == expectedParts.chapter;
-    bool verseMatch = userParts.verse == expectedParts.verse;
+    final bookMatch =
+        userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
+    final chapterMatch = userParts.chapter == expectedParts.chapter;
+    final verseMatch = userParts.verse == expectedParts.verse;
 
     if (bookMatch && chapterMatch && !verseMatch) {
-      return 'You got the book and chapter right, but the verse is incorrect. The correct reference is $expectedReference.';
+      return 'You got the book and chapter right, but the verse is incorrect. '
+          'The correct reference is $expectedReference.';
     } else if (bookMatch && !chapterMatch) {
-      return 'You got the book right, but the chapter is incorrect. The correct reference is $expectedReference.';
+      return 'You got the book right, but the chapter is incorrect. '
+          'The correct reference is $expectedReference.';
     } else if (!bookMatch) {
-      return 'The book you entered is incorrect. The correct reference is $expectedReference.';
+      return 'The book you entered is incorrect. '
+          'The correct reference is $expectedReference.';
     } else {
       // Fallback for unexpected cases
-      return 'That\'s not quite right. The correct reference is $expectedReference.';
+      return "That's not quite right. "
+          'The correct reference is $expectedReference.';
     }
   }
 
@@ -165,7 +239,7 @@ class _RefTestScreenState extends State<RefTestScreen> {
   ParsedReference? _parseReference(String reference) {
     try {
       final bookChapterVersePattern = RegExp(
-          r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$'
+        r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$',
       );
 
       final match = bookChapterVersePattern.firstMatch(reference);
@@ -187,24 +261,25 @@ class _RefTestScreenState extends State<RefTestScreen> {
     final userParts = _parseReference(userAnswer);
 
     if (userParts == null || expectedParts == null) {
-      return "$userAnswer-[$expectedRef] Incorrect format";
+      return '$userAnswer-[$expectedRef] Incorrect format';
     }
 
     if (userAnswer.trim().toLowerCase() == expectedRef.toLowerCase()) {
-      return "$userAnswer-[$expectedRef] Correct!";
+      return '$userAnswer-[$expectedRef] Correct!';
     }
 
     // Compare components
-    bool bookMatch = userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
-    bool chapterMatch = userParts.chapter == expectedParts.chapter;
-    bool verseMatch = userParts.verse == expectedParts.verse;
+    final bookMatch =
+        userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
+    final chapterMatch = userParts.chapter == expectedParts.chapter;
+    final verseMatch = userParts.verse == expectedParts.verse;
 
     if (bookMatch && chapterMatch && !verseMatch) {
-      return "$userAnswer-[$expectedRef] Correct book and chapter";
+      return '$userAnswer-[$expectedRef] Correct book and chapter';
     } else if (bookMatch && !chapterMatch) {
-      return "$userAnswer-[$expectedRef] Correct book";
+      return '$userAnswer-[$expectedRef] Correct book';
     } else {
-      return "$userAnswer-[$expectedRef] Incorrect";
+      return '$userAnswer-[$expectedRef] Incorrect';
     }
   }
 
@@ -219,12 +294,14 @@ class _RefTestScreenState extends State<RefTestScreen> {
 
         if (expectedParts != null && userParts != null) {
           // Check for exact match
-          isAnswerCorrect = userParts.book.toLowerCase() == expectedParts.book.toLowerCase() &&
+          isAnswerCorrect = userParts.book.toLowerCase() ==
+                  expectedParts.book.toLowerCase() &&
               userParts.chapter == expectedParts.chapter &&
               userParts.verse == expectedParts.verse;
         } else {
           // Fall back to string comparison if parsing fails
-          isAnswerCorrect = answerController.text.trim().toLowerCase() == expectedReference.toLowerCase();
+          isAnswerCorrect = answerController.text.trim().toLowerCase() ==
+              expectedReference.toLowerCase();
         }
 
         if (isAnswerCorrect) {
@@ -238,7 +315,9 @@ class _RefTestScreenState extends State<RefTestScreen> {
         }
 
         // Add the feedback summary to past questions
-        pastQuestions.add(_generateFeedbackSummary(answerController.text, expectedReference));
+        pastQuestions.add(
+          _generateFeedbackSummary(answerController.text, expectedReference),
+        );
         // Keep only the last 5 questions
         if (pastQuestions.length > 5) {
           pastQuestions = pastQuestions.sublist(pastQuestions.length - 5);
@@ -246,8 +325,9 @@ class _RefTestScreenState extends State<RefTestScreen> {
       });
 
       // Show feedback in a snackbar
-      final String detailedFeedback = isAnswerCorrect
-          ? 'Great job! You correctly identified this verse as $expectedReference.'
+      final detailedFeedback = isAnswerCorrect
+          ? 'Great job! '
+          'You correctly identified this verse as $expectedReference.'
           : getDetailedFeedback(answerController.text);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -260,73 +340,88 @@ class _RefTestScreenState extends State<RefTestScreen> {
 
       // Automatically move to next verse after a short delay
       // regardless of whether the answer was correct
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        _loadNextVerse();
-      });
+      Future.delayed(const Duration(milliseconds: 1500), _loadNextVerse);
 
-      debugPrint('Answer submitted: ${answerController.text}, Correct: $isAnswerCorrect');
+      debugPrint(
+        'Answer submitted: ${answerController.text}, Correct: $isAnswerCorrect',
+      );
     } else {
       debugPrint('Invalid reference: ${answerController.text}');
     }
   }
 
   InputDecoration getInputDecoration() {
-    final bool showSuccessStyle = hasSubmittedAnswer && isAnswerCorrect;
-    final bool showErrorStyle = hasSubmittedAnswer && !isAnswerCorrect;
+    final showSuccessStyle = hasSubmittedAnswer && isAnswerCorrect;
+    final showErrorStyle = hasSubmittedAnswer && !isAnswerCorrect;
 
     return InputDecoration(
       border: OutlineInputBorder(
         borderSide: BorderSide(
-          color: showSuccessStyle ? Colors.green :
-          showErrorStyle ? Colors.orange :
-          Colors.grey[300]!,
+          color: showSuccessStyle
+              ? Colors.green
+              : showErrorStyle
+                  ? Colors.orange
+                  : Colors.grey[300]!,
           width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color: showSuccessStyle ? Colors.green :
-          showErrorStyle ? Colors.orange :
-          Colors.grey[300]!,
+          color: showSuccessStyle
+              ? Colors.green
+              : showErrorStyle
+                  ? Colors.orange
+                  : Colors.grey[300]!,
           width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color: showSuccessStyle ? Colors.green :
-          showErrorStyle ? Colors.orange :
-          Colors.blue,
-          width: 2.0,
+          color: showSuccessStyle
+              ? Colors.green
+              : showErrorStyle
+                  ? Colors.orange
+                  : Colors.blue,
+          width: 2,
         ),
       ),
       hintText: 'Enter reference (e.g., Genesis 1:1)',
       errorText: isReferenceValid ? null : validationMessage,
-      helperText: showSuccessStyle ? 'Correct!' :
-      showErrorStyle ? getDetailedFeedback(answerController.text) :
-      'Format: Book Chapter:Verse',
+      helperText: showSuccessStyle
+          ? 'Correct!'
+          : showErrorStyle
+              ? getDetailedFeedback(answerController.text)
+              : 'Format: Book Chapter:Verse',
       helperStyle: TextStyle(
-        color: showSuccessStyle ? Colors.green :
-        showErrorStyle ? Colors.orange :
-        Colors.grey[600],
-        fontWeight: (showSuccessStyle || showErrorStyle) ? FontWeight.bold : FontWeight.normal,
+        color: showSuccessStyle
+            ? Colors.green
+            : showErrorStyle
+                ? Colors.orange
+                : Colors.grey[600],
+        fontWeight: (showSuccessStyle || showErrorStyle)
+            ? FontWeight.bold
+            : FontWeight.normal,
       ),
       suffixIcon: showSuccessStyle
           ? const Icon(Icons.check_circle, color: Colors.green)
           : showErrorStyle
-          ? const Icon(Icons.cancel, color: Colors.orange)
-          : null,
+              ? const Icon(Icons.cancel, color: Colors.orange)
+              : null,
       filled: showSuccessStyle || showErrorStyle,
-      fillColor: showSuccessStyle ? Colors.green.withOpacity(0.1) :
-      showErrorStyle ? Colors.orange.withOpacity(0.1) :
-      null,
+      fillColor: showSuccessStyle
+          ? Colors.green.withOpacity(0.1)
+          : showErrorStyle
+              ? Colors.orange.withOpacity(0.1)
+              : null,
     );
   }
 
   void _setRandomVerse() {
     setState(() {
-      currentVerseIndex = DateTime.now().millisecondsSinceEpoch % versesList.length;
-      verseText = versesList[currentVerseIndex]["text"]!;
-      expectedReference = versesList[currentVerseIndex]["reference"]!;
+      currentVerseIndex =
+          DateTime.now().millisecondsSinceEpoch % versesList.length;
+      verseText = versesList[currentVerseIndex]['text']!;
+      expectedReference = versesList[currentVerseIndex]['reference']!;
     });
   }
 
@@ -343,8 +438,8 @@ class _RefTestScreenState extends State<RefTestScreen> {
 
       // Move to next verse (cyclically)
       currentVerseIndex = (currentVerseIndex + 1) % versesList.length;
-      verseText = versesList[currentVerseIndex]["text"]!;
-      expectedReference = versesList[currentVerseIndex]["reference"]!;
+      verseText = versesList[currentVerseIndex]['text']!;
+      expectedReference = versesList[currentVerseIndex]['reference']!;
     });
   }
 
@@ -359,7 +454,7 @@ class _RefTestScreenState extends State<RefTestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -368,10 +463,10 @@ class _RefTestScreenState extends State<RefTestScreen> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.3),
@@ -381,38 +476,37 @@ class _RefTestScreenState extends State<RefTestScreen> {
               ),
             ],
           ),
-          margin: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.all(16),
           child: isSmallScreen
               ? Column(
-            children: [
-              _buildQuestionSection(),
-              const SizedBox(height: 24.0),
-              _buildStatsAndHistorySection(),
-            ],
-          )
+                  children: [
+                    _buildQuestionSection(),
+                    const SizedBox(height: 24),
+                    _buildStatsAndHistorySection(),
+                  ],
+                )
               : Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(child: _buildQuestionSection()),
-              const SizedBox(width: 16.0),
-              Expanded(child: _buildStatsAndHistorySection()),
-            ],
-          ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(child: _buildQuestionSection()),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildStatsAndHistorySection()),
+                  ],
+                ),
         ),
       ),
     );
   }
 
-  Widget _buildQuestionSection() {
-    return Column(
+  Widget _buildQuestionSection() => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.only(bottom: 12.0),
+          padding: const EdgeInsets.only(bottom: 12),
           child: RichText(
             text: TextSpan(
               style: const TextStyle(
-                fontSize: 18.0,
+                fontSize: 18,
                 color: Colors.black,
               ),
               children: <TextSpan>[
@@ -426,15 +520,15 @@ class _RefTestScreenState extends State<RefTestScreen> {
           ),
         ),
 
-        // Verse text with NLT attribution - explicitly above the reference field
+        // Verse text with NLT attributionexplicitly above the reference field
         Container(
           key: const Key('reftestVerse'),
           width: double.infinity,
-          padding: const EdgeInsets.all(16.0),
-          margin: const EdgeInsets.only(bottom: 24.0),
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.only(bottom: 24),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(5),
             color: Colors.grey[50],
           ),
           child: Column(
@@ -443,24 +537,27 @@ class _RefTestScreenState extends State<RefTestScreen> {
               Text(
                 verseText,
                 style: const TextStyle(
-                  fontSize: 18.0,
+                  fontSize: 18,
                   fontStyle: FontStyle.italic,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(4.0),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     verseAttribution,
                     style: TextStyle(
-                      fontSize: 12.0,
+                      fontSize: 12,
                       color: Colors.grey[700],
                       fontWeight: FontWeight.bold,
                     ),
@@ -473,11 +570,11 @@ class _RefTestScreenState extends State<RefTestScreen> {
 
         // Reference label
         Container(
-          padding: const EdgeInsets.only(bottom: 8.0),
+          padding: const EdgeInsets.only(bottom: 8),
           child: const Text(
             'Reference:',
             style: TextStyle(
-              fontSize: 18.0,
+              fontSize: 18,
               color: Colors.black,
             ),
           ),
@@ -543,7 +640,7 @@ class _RefTestScreenState extends State<RefTestScreen> {
           ],
         ),
 
-        const SizedBox(height: 16.0),
+        const SizedBox(height: 16),
 
         // Submit button
         Align(
@@ -552,7 +649,7 @@ class _RefTestScreenState extends State<RefTestScreen> {
             key: const Key('submit-ref'),
             onPressed: submitAnswer,
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
             ),
@@ -563,7 +660,7 @@ class _RefTestScreenState extends State<RefTestScreen> {
         // Success/failure message (only shown after submission)
         if (hasSubmittedAnswer)
           Padding(
-            padding: const EdgeInsets.only(top: 16.0),
+            padding: const EdgeInsets.only(top: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -577,7 +674,9 @@ class _RefTestScreenState extends State<RefTestScreen> {
                     Expanded(
                       child: Text(
                         isAnswerCorrect
-                            ? 'Great job! You correctly identified this verse as $expectedReference.'
+                            ? 'Great job! '
+                            'You correctly identified this verse as '
+                            '$expectedReference.'
                             : getDetailedFeedback(answerController.text),
                         style: TextStyle(
                           color: isAnswerCorrect ? Colors.green : Colors.orange,
@@ -591,12 +690,13 @@ class _RefTestScreenState extends State<RefTestScreen> {
           ),
       ],
     );
-  }
 
   bool _shouldShowSuggestions() {
     // Show suggestions if text is not empty and doesn't contain a space yet
     final text = answerController.text.trim();
-    return text.isNotEmpty && !text.contains(' ') && _getFilteredSuggestions().isNotEmpty;
+    return text.isNotEmpty &&
+        !text.contains(' ') &&
+        _getFilteredSuggestions().isNotEmpty;
   }
 
   List<String> _getFilteredSuggestions() {
@@ -635,10 +735,10 @@ class _RefTestScreenState extends State<RefTestScreen> {
     return Column(
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(5),
           ),
           child: Column(
             children: <Widget>[
@@ -647,24 +747,27 @@ class _RefTestScreenState extends State<RefTestScreen> {
                 height: 160,
                 child: _buildGauge(),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(5.0),
+                  borderRadius: BorderRadius.circular(5),
                   color: Colors.grey[100],
                 ),
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   children: <Widget>[
                     Text(
                       '$overdueReferences',
-                      style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const Text(
                       'References Due Today',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12.0),
+                      style: TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
@@ -672,46 +775,51 @@ class _RefTestScreenState extends State<RefTestScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16.0),
+        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(5),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               const Text(
                 'Prior Questions',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: 8),
               Container(
                 key: const Key('past-questions'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: pastQuestions.isEmpty
-                      ? [const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4.0),
-                    child: Text('No previous questions yet'),
-                  )]
-                      : pastQuestions.map((feedback) {
-                    // Determine if this was a correct answer
-                    final bool wasCorrect = feedback.contains(' Correct!');
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Text(
-                        feedback,
-                        style: TextStyle(
-                          color: wasCorrect ? Colors.green : Colors.orange,
-                          fontWeight: pastQuestions.indexOf(feedback) == pastQuestions.length - 1
-                              ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                      ? [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            child: Text('No previous questions yet'),
+                          ),
+                        ]
+                      : pastQuestions
+                          .map(
+                            (feedback) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(
+                                feedback,
+                                style: TextStyle(
+                                  color: feedback.contains(' Correct!')
+                                      ? Colors.green
+                                      : Colors.orange,
+                                  fontWeight: pastQuestions.indexOf(feedback) ==
+                                          pastQuestions.length - 1
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
                 ),
               ),
             ],
@@ -767,110 +875,13 @@ class _RefTestScreenState extends State<RefTestScreen> {
   }
 }
 
-
-
 class ParsedReference {
+  ParsedReference(this.book, this.chapter, this.verse);
+
   final String book;
   final int chapter;
   final int verse;
 
-  ParsedReference(this.book, this.chapter, this.verse);
-
   @override
-  String toString() {
-    return '$book $chapter:$verse';
-  }
+  String toString() => '$book $chapter:$verse';
 }
-
-
-/*
-Below is Gherkin which clause provided from the prompt
-Can you descrbe this in granular gherkin please such as when i type "Genesis 1:1" in the textfield i see ... text message
---
-Feature: Bible Reference Testing Application
-
-  Background:
-    Given I have launched the Reference Testing app
-    And I see a verse displayed on the screen
-    And the verse reference is hidden
-    And the "References Due Today" counter shows "5"
-    And the Past Questions section shows "No previous questions yet"
-
-  Scenario: Successfully identifying a verse reference
-    When I type "Genesis 1:1" in the reference input field
-    Then I see auto-suggestions for "Genesis" appear below the input
-    When I select "Genesis" from the suggestions
-    Then the input field is populated with "Genesis " with the cursor after the space
-    When I continue typing "1:1"
-    And I tap the "Submit" button
-    Then I see a green checkmark icon in the input field
-    And I see "Correct!" text below the input field
-    And I see a green SnackBar message: "Great job! You correctly identified this verse as Genesis 1:1."
-    And the "References Due Today" counter decreases to "4"
-    And in the Past Questions section I see "Genesis 1:1-[Genesis 1:1] Correct!" in green bold text
-    And after 1.5 seconds, a new verse is automatically displayed
-    And the input field is cleared
-
-  Scenario: Identifying a verse with correct book and chapter but wrong verse
-    When I type "Philippians 4:12" in the reference input field
-    And the actual reference is "Philippians 4:13"
-    And I tap the "Submit" button
-    Then I see an orange warning icon in the input field
-    And I see an orange SnackBar message: "You got the book and chapter right, but the verse is incorrect. The correct reference is Philippians 4:13."
-    And in the Past Questions section I see "Philippians 4:12-[Philippians 4:13] Correct book and chapter" in orange bold text
-    And the "References Due Today" counter remains at "5"
-    And after 1.5 seconds, a new verse is automatically displayed
-    And the input field is cleared
-
-  Scenario: Identifying a verse with correct book but wrong chapter and verse
-    When I type "Romans 7:28" in the reference input field
-    And the actual reference is "Romans 8:28"
-    And I tap the "Submit" button
-    Then I see an orange warning icon in the input field
-    And I see an orange SnackBar message: "You got the book right, but the chapter is incorrect. The correct reference is Romans 8:28."
-    And in the Past Questions section I see "Romans 7:28-[Romans 8:28] Correct book" in orange bold text
-    And the "References Due Today" counter remains at "5"
-    And after 1.5 seconds, a new verse is automatically displayed
-    And the input field is cleared
-
-  Scenario: Identifying a verse with completely incorrect reference
-    When I type "Matthew 5:5" in the reference input field
-    And the actual reference is "John 3:16"
-    And I tap the "Submit" button
-    Then I see an orange warning icon in the input field
-    And I see an orange SnackBar message: "The book you entered is incorrect. The correct reference is John 3:16."
-    And in the Past Questions section I see "Matthew 5:5-[John 3:16] Incorrect" in orange bold text
-    And the "References Due Today" counter remains at "5"
-    And after 1.5 seconds, a new verse is automatically displayed
-    And the input field is cleared
-
-  Scenario: Entering an invalid reference format
-    When I type "Genesis" in the reference input field
-    And I tap the "Submit" button
-    Then I see a red error message: "Format should be 'Book Chapter:Verse'"
-    And no SnackBar appears
-    And no new entry is added to the Past Questions section
-    And the "References Due Today" counter remains unchanged
-    And the current verse remains displayed
-
-  Scenario: Viewing reference recall progress
-    Given I have correctly identified 3 verses
-    When I look at the Reference Recall meter
-    Then I see a circular progress indicator showing my success rate
-    And the percentage displayed in the center reflects my average score
-    And the gauge is colored according to my performance:
-      | Performance Range | Color  |
-      | Below 33%         | Red    |
-      | 33% to 66%        | Orange |
-      | Above 66%         | Green  |
-
-  Scenario: Tracking previous answers
-    Given I have answered 6 verse references
-    When I look at the Past Questions section
-    Then I see only the 5 most recent answers
-    And each answer shows the format: "MyAnswer-[CorrectReference] FeedbackType"
-    And correct answers are displayed in green text
-    And incorrect answers are displayed in orange text
-    And the most recent answer is displayed in bold text
-
- */
