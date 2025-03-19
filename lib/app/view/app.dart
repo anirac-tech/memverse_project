@@ -324,7 +324,7 @@ class RefTestScreenState extends State<RefTestScreen> {
         }
       });
 
-      // Show feedback in a snackbar
+      // Show feedback in a SnackBar
       final detailedFeedback = isAnswerCorrect
           ? 'Great job! '
           'You correctly identified this verse as $expectedReference.'
@@ -520,9 +520,9 @@ class RefTestScreenState extends State<RefTestScreen> {
           ),
         ),
 
-        // Verse text with NLT attributionexplicitly above the reference field
+        // Verse text with NLT attribution explicitly above the reference field
         Container(
-          key: const Key('reftestVerse'),
+          key: const Key('refTestVerse'),
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.only(bottom: 24),
