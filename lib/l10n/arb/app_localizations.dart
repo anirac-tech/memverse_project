@@ -95,11 +95,17 @@ abstract class AppLocalizations {
     Locale('es')
   ];
 
-  /// Text shown in the AppBar of the Counter Page
+  /// Title of app
   ///
   /// In en, this message translates to:
-  /// **'Counter'**
-  String get counterAppBarTitle;
+  /// **'Memverse'**
+  String get appTitle;
+
+  /// Text shown in the AppBar of the Reference Test Page
+  ///
+  /// In en, this message translates to:
+  /// **'Reference Test'**
+  String get referenceTestAppBarTitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

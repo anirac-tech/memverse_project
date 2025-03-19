@@ -9,5 +9,8 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get counterAppBarTitle => 'Contador';
+  String get appTitle => 'Memverse';
+
+  @override
+  String get referenceTestAppBarTitle => 'Reference Test';
 }
