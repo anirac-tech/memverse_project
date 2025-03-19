@@ -409,9 +409,9 @@ class RefTestScreenState extends State<RefTestScreen> {
               : null,
       filled: showSuccessStyle || showErrorStyle,
       fillColor: showSuccessStyle
-          ? Colors.green.withValues(alpha: 0.1)
+          ? Colors.green.withOpacity(0.1)
           : showErrorStyle
-              ? Colors.orange.withValues(alpha: 0.1)
+              ? Colors.orange.withOpacity(0.1)
               : null,
     );
   }
@@ -469,7 +469,7 @@ class RefTestScreenState extends State<RefTestScreen> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.3),
+                color: Colors.grey.withOpacity(0.3),
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: const Offset(0, 3),
@@ -615,7 +615,7 @@ class RefTestScreenState extends State<RefTestScreen> {
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
