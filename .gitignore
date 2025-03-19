@@ -50,6 +50,7 @@ unlinked_spec.ds
 **/android/key.properties
 **/android/.idea/
 **/android/app/debug
+**/android/app/.cxx
 **/android/app/profile
 **/android/app/release
 *.jks
