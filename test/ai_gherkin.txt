@@ -1,5 +1,7 @@
 Below is Gherkin which clause provided from the prompt
 Can you describe this in granular gherkin please such as when i type "Genesis 1:1" in the text field i see ... text message
+// Note: Use dart run build_runner watch --delete-conflicting-outputs
+// see: https://pub.dev/packages/bdd_widget_test
 --
 Feature: Bible Reference Testing Application
 

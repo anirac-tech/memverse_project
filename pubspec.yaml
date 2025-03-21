@@ -4,8 +4,8 @@ version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: ^3.7.0
-  flutter: 3.29.0
+  sdk: 3.7.2
+  flutter: 3.29.2
 
 dependencies:
   flutter:
@@ -16,6 +16,7 @@ dependencies:
 
 dev_dependencies:
   bdd_widget_test: 1.8.1
+  build_runner: 2.4.15
   flutter_test:
     sdk: flutter
   mocktail: 1.0.4
