@@ -471,160 +471,162 @@ class RefTestScreenState extends State<RefTestScreen> {
             ],
           ),
           margin: const EdgeInsets.all(16),
-          child: isSmallScreen
-              ? Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: SingleChildScrollView(child: _buildQuestionSection()),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildStatsAndHistorySection(),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.8,
+          child:
+              isSmallScreen
+                  ? Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.6,
                         child: SingleChildScrollView(child: _buildQuestionSection()),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildStatsAndHistorySection()),
-                  ],
-                ),
+                      const SizedBox(height: 24),
+                      _buildStatsAndHistorySection(),
+                    ],
+                  )
+                  : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: SingleChildScrollView(child: _buildQuestionSection()),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildStatsAndHistorySection()),
+                    ],
+                  ),
         ),
       ),
     );
   }
 
   Widget _buildQuestionSection() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: RichText(
-              text: TextSpan(
-                style: const TextStyle(fontSize: 18, color: Colors.black),
-                children: <TextSpan>[
-                  const TextSpan(text: 'Question: '),
-                  TextSpan(
-                    text: '$questionNumber',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: <Widget>[
+      Container(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: RichText(
+          text: TextSpan(
+            style: const TextStyle(fontSize: 18, color: Colors.black),
+            children: <TextSpan>[
+              const TextSpan(text: 'Question: '),
+              TextSpan(
+                text: '$questionNumber',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
+            ],
           ),
+        ),
+      ),
 
-          // Verse text container
-          SizedBox(
-            height: 180, 
-            child: Container(
-              key: const Key('refTestVerse'),
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(5),
-                color: Colors.grey[50],
-              ),
-              child: Stack(
-                children: [
-                  // Scrollable verse text
-                  Positioned.fill(
-                    bottom: 25, 
-                    child: SingleChildScrollView(
-                      child: Text(
-                        verseText,
-                        style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, height: 1.5),
-                      ),
-                    ),
+      // Verse text container
+      SizedBox(
+        height: 180,
+        child: Container(
+          key: const Key('refTestVerse'),
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.only(bottom: 24),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(5),
+            color: Colors.grey[50],
+          ),
+          child: Stack(
+            children: [
+              // Scrollable verse text
+              Positioned.fill(
+                bottom: 25,
+                child: SingleChildScrollView(
+                  child: Text(
+                    verseText,
+                    style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, height: 1.5),
                   ),
-                  
-                  // Attribution text
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        verseAttribution,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Reference label
-          Container(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: const Text('Reference:', style: TextStyle(fontSize: 18, color: Colors.black)),
-          ),
-
-          // Simple text field with autocomplete options displayed below
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 300), 
-            child: Column(
-              mainAxisSize: MainAxisSize.min, 
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: answerController,
-                  focusNode: answerFocusNode,
-                  decoration: getInputDecoration(),
-                  onChanged: (value) {
-                    // Reset submission state when typing
-                    if (hasSubmittedAnswer) {
-                      setState(() {
-                        hasSubmittedAnswer = false;
-                        isAnswerCorrect = false;
-                      });
-                    }
-
-                    // Show autocomplete suggestions if we're typing a book name
-                    setState(() {});
-                  },
-                  onSubmitted: (value) {
-                    submitAnswer();
-                  },
                 ),
+              ),
 
-                // Show book suggestions if relevant
-                if (_shouldShowSuggestions())
-                  Flexible( 
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+              // Attribution text
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    verseAttribution,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      // Reference label
+      Container(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: const Text('Reference:', style: TextStyle(fontSize: 18, color: Colors.black)),
+      ),
+
+      // Simple text field with autocomplete options displayed below
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 300),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: answerController,
+              focusNode: answerFocusNode,
+              decoration: getInputDecoration(),
+              onChanged: (value) {
+                // Reset submission state when typing
+                if (hasSubmittedAnswer) {
+                  setState(() {
+                    hasSubmittedAnswer = false;
+                    isAnswerCorrect = false;
+                  });
+                }
+
+                // Show autocomplete suggestions if we're typing a book name
+                setState(() {});
+              },
+              onSubmitted: (value) {
+                submitAnswer();
+              },
+            ),
+
+            // Show book suggestions if relevant
+            if (_shouldShowSuggestions())
+              Flexible(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey[300]!),
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                      constraints: const BoxConstraints(maxHeight: 200), 
-                      child: ListView(
-                        shrinkWrap: true, 
-                        children: _getFilteredSuggestions().map((book) {
+                    ],
+                  ),
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children:
+                        _getFilteredSuggestions().map((book) {
                           return ListTile(
                             dense: true,
                             title: Text(book),
@@ -633,61 +635,61 @@ class RefTestScreenState extends State<RefTestScreen> {
                             },
                           );
                         }).toList(),
-                      ),
-                    ),
                   ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Submit button
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              key: const Key('submit-ref'),
-              onPressed: submitAnswer,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
+                ),
               ),
-              child: const Text('Submit'),
-            ),
-          ),
+          ],
+        ),
+      ),
 
-          // Success/failure message (only shown after submission)
-          if (hasSubmittedAnswer)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      const SizedBox(height: 16),
+
+      // Submit button
+      Align(
+        alignment: Alignment.centerRight,
+        child: ElevatedButton(
+          key: const Key('submit-ref'),
+          onPressed: submitAnswer,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('Submit'),
+        ),
+      ),
+
+      // Success/failure message (only shown after submission)
+      if (hasSubmittedAnswer)
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        isAnswerCorrect ? Icons.thumb_up : Icons.error_outline,
-                        color: isAnswerCorrect ? Colors.green : Colors.orange,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          isAnswerCorrect
-                              ? 'Great job! '
-                                  'You correctly identified this verse as '
-                                  '$expectedReference.'
-                              : getDetailedFeedback(answerController.text),
-                          style: TextStyle(color: isAnswerCorrect ? Colors.green : Colors.orange),
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    isAnswerCorrect ? Icons.thumb_up : Icons.error_outline,
+                    color: isAnswerCorrect ? Colors.green : Colors.orange,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      isAnswerCorrect
+                          ? 'Great job! '
+                              'You correctly identified this verse as '
+                              '$expectedReference.'
+                          : getDetailedFeedback(answerController.text),
+                      style: TextStyle(color: isAnswerCorrect ? Colors.green : Colors.orange),
+                    ),
                   ),
                 ],
               ),
-            ),
-        ],
-      );
+            ],
+          ),
+        ),
+    ],
+  );
 
   bool _shouldShowSuggestions() {
     // Show suggestions if text is not empty and doesn't contain a space yet
@@ -738,13 +740,7 @@ class RefTestScreenState extends State<RefTestScreen> {
           ),
           child: Column(
             children: <Widget>[
-              SizedBox(
-                width: 200,
-                height: 160,
-                child: Center(
-                  child: _buildGauge(),
-                ),
-              ),
+              SizedBox(width: 200, height: 160, child: Center(child: _buildGauge())),
               const SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(
