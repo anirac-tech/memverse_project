@@ -4,10 +4,10 @@ import 'package:memverse/l10n/arb/app_localizations.dart';
 
 extension PumpApp on WidgetTester {
   Future<void> pumpApp(Widget widget) => pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: widget,
-      ),
-    );
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: widget,
+        ),
+      );
 }
