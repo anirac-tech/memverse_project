@@ -1,26 +1,25 @@
 name: memverse
-description: A Very Good Project created by Very Good CLI.
+description: Scripture Memory mobile front end for www.memverse.com
 version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: ^3.5.0
+  sdk: 3.7.0
+  flutter: 3.29.0
 
 dependencies:
-  bloc: ^8.1.4
   flutter:
     sdk: flutter
-  flutter_bloc: ^8.1.6
   flutter_localizations:
     sdk: flutter
-  intl: ^0.19.0
+  intl: 0.19.0
 
 dev_dependencies:
-  bloc_test: ^9.1.7
+  bdd_widget_test: 1.8.1
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.4
-  very_good_analysis: ^7.0.0
+  mocktail: 1.0.4
+  very_good_analysis: 7.0.0
 
 flutter:
   uses-material-design: true

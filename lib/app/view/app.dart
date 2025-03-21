@@ -5,11 +5,9 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        ),
-        home: const RefTestScreen(),
-      );
+    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+    home: const RefTestScreen(),
+  );
 }
 
 class RefTestScreen extends StatefulWidget {
@@ -32,12 +30,10 @@ class RefTestScreenState extends State<RefTestScreen> {
   String memVerseUserID = 'user123';
   int currentVerseIndex = 0;
   final List<Map<String, String>> versesList = [
+    {'text': 'In the beginning God created the heavens and the earth.', 'reference': 'Genesis 1:1'},
     {
-      'text': 'In the beginning God created the heavens and the earth.',
-      'reference': 'Genesis 1:1',
-    },
-    {
-      'text': 'For God so loved the world that he gave his one and only Son, '
+      'text':
+          'For God so loved the world that he gave his one and only Son, '
           'that whoever believes in him shall not perish '
           'but have eternal life.',
       'reference': 'John 3:16',
@@ -45,7 +41,7 @@ class RefTestScreenState extends State<RefTestScreen> {
     {
       'text':
           'Trust in the LORD with all your heart; do not depend on your own '
-              'understanding.',
+          'understanding.',
       'reference': 'Proverbs 3:5',
     },
     {
@@ -53,11 +49,12 @@ class RefTestScreenState extends State<RefTestScreen> {
       'reference': 'Philippians 4:13',
     },
     {
-      'text': 'And we know that God causes everything to work together for the'
+      'text':
+          'And we know that God causes everything to work together for the'
           ' good of those who love God and are called according to '
           'his purpose for them.',
       'reference': 'Romans 8:28',
-    }
+    },
   ];
   final List<String> bookSuggestions = [
     'Genesis',
@@ -154,15 +151,15 @@ class RefTestScreenState extends State<RefTestScreen> {
       return false;
     }
 
-    final bookChapterVersePattern =
-        RegExp(r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$');
+    final bookChapterVersePattern = RegExp(
+      r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$',
+    );
 
     if (bookChapterVersePattern.hasMatch(text)) {
       final match = bookChapterVersePattern.firstMatch(text);
       final bookName = match?.group(1)?.trim() ?? '';
 
-      if (bookSuggestions
-          .any((book) => book.toLowerCase() == bookName.toLowerCase())) {
+      if (bookSuggestions.any((book) => book.toLowerCase() == bookName.toLowerCase())) {
         setState(() {
           isReferenceValid = true;
           validationMessage = '';
@@ -209,13 +206,10 @@ class RefTestScreenState extends State<RefTestScreen> {
       'Expected: ${expectedParts.book}, '
       '\${expectedParts.chapter}:${expectedParts.verse}',
     );
-    debugPrint(
-      'User: ${userParts.book}, ${userParts.chapter}:${userParts.verse}',
-    );
+    debugPrint('User: ${userParts.book}, ${userParts.chapter}:${userParts.verse}');
 
     // Compare individual components
-    final bookMatch =
-        userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
+    final bookMatch = userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
     final chapterMatch = userParts.chapter == expectedParts.chapter;
     final verseMatch = userParts.verse == expectedParts.verse;
 
@@ -269,8 +263,7 @@ class RefTestScreenState extends State<RefTestScreen> {
     }
 
     // Compare components
-    final bookMatch =
-        userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
+    final bookMatch = userParts.book.toLowerCase() == expectedParts.book.toLowerCase();
     final chapterMatch = userParts.chapter == expectedParts.chapter;
     final verseMatch = userParts.verse == expectedParts.verse;
 
@@ -294,14 +287,14 @@ class RefTestScreenState extends State<RefTestScreen> {
 
         if (expectedParts != null && userParts != null) {
           // Check for exact match
-          isAnswerCorrect = userParts.book.toLowerCase() ==
-                  expectedParts.book.toLowerCase() &&
+          isAnswerCorrect =
+              userParts.book.toLowerCase() == expectedParts.book.toLowerCase() &&
               userParts.chapter == expectedParts.chapter &&
               userParts.verse == expectedParts.verse;
         } else {
           // Fall back to string comparison if parsing fails
-          isAnswerCorrect = answerController.text.trim().toLowerCase() ==
-              expectedReference.toLowerCase();
+          isAnswerCorrect =
+              answerController.text.trim().toLowerCase() == expectedReference.toLowerCase();
         }
 
         if (isAnswerCorrect) {
@@ -315,9 +308,7 @@ class RefTestScreenState extends State<RefTestScreen> {
         }
 
         // Add the feedback summary to past questions
-        pastQuestions.add(
-          _generateFeedbackSummary(answerController.text, expectedReference),
-        );
+        pastQuestions.add(_generateFeedbackSummary(answerController.text, expectedReference));
         // Keep only the last 5 questions
         if (pastQuestions.length > 5) {
           pastQuestions = pastQuestions.sublist(pastQuestions.length - 5);
@@ -325,10 +316,11 @@ class RefTestScreenState extends State<RefTestScreen> {
       });
 
       // Show feedback in a SnackBar
-      final detailedFeedback = isAnswerCorrect
-          ? 'Great job! '
-              'You correctly identified this verse as $expectedReference.'
-          : getDetailedFeedback(answerController.text);
+      final detailedFeedback =
+          isAnswerCorrect
+              ? 'Great job! '
+                  'You correctly identified this verse as $expectedReference.'
+              : getDetailedFeedback(answerController.text);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -342,9 +334,7 @@ class RefTestScreenState extends State<RefTestScreen> {
       // regardless of whether the answer was correct
       Future.delayed(const Duration(milliseconds: 1500), _loadNextVerse);
 
-      debugPrint(
-        'Answer submitted: ${answerController.text}, Correct: $isAnswerCorrect',
-      );
+      debugPrint('Answer submitted: ${answerController.text}, Correct: $isAnswerCorrect');
     } else {
       debugPrint('Invalid reference: ${answerController.text}');
     }
@@ -357,9 +347,10 @@ class RefTestScreenState extends State<RefTestScreen> {
     return InputDecoration(
       border: OutlineInputBorder(
         borderSide: BorderSide(
-          color: showSuccessStyle
-              ? Colors.green
-              : showErrorStyle
+          color:
+              showSuccessStyle
+                  ? Colors.green
+                  : showErrorStyle
                   ? Colors.orange
                   : Colors.grey[300]!,
           width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
@@ -367,9 +358,10 @@ class RefTestScreenState extends State<RefTestScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color: showSuccessStyle
-              ? Colors.green
-              : showErrorStyle
+          color:
+              showSuccessStyle
+                  ? Colors.green
+                  : showErrorStyle
                   ? Colors.orange
                   : Colors.grey[300]!,
           width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
@@ -377,9 +369,10 @@ class RefTestScreenState extends State<RefTestScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color: showSuccessStyle
-              ? Colors.green
-              : showErrorStyle
+          color:
+              showSuccessStyle
+                  ? Colors.green
+                  : showErrorStyle
                   ? Colors.orange
                   : Colors.blue,
           width: 2,
@@ -387,30 +380,32 @@ class RefTestScreenState extends State<RefTestScreen> {
       ),
       hintText: 'Enter reference (e.g., Genesis 1:1)',
       errorText: isReferenceValid ? null : validationMessage,
-      helperText: showSuccessStyle
-          ? 'Correct!'
-          : showErrorStyle
+      helperText:
+          showSuccessStyle
+              ? 'Correct!'
+              : showErrorStyle
               ? getDetailedFeedback(answerController.text)
               : 'Format: Book Chapter:Verse',
       helperStyle: TextStyle(
-        color: showSuccessStyle
-            ? Colors.green
-            : showErrorStyle
+        color:
+            showSuccessStyle
+                ? Colors.green
+                : showErrorStyle
                 ? Colors.orange
                 : Colors.grey[600],
-        fontWeight: (showSuccessStyle || showErrorStyle)
-            ? FontWeight.bold
-            : FontWeight.normal,
+        fontWeight: (showSuccessStyle || showErrorStyle) ? FontWeight.bold : FontWeight.normal,
       ),
-      suffixIcon: showSuccessStyle
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : showErrorStyle
+      suffixIcon:
+          showSuccessStyle
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : showErrorStyle
               ? const Icon(Icons.cancel, color: Colors.orange)
               : null,
       filled: showSuccessStyle || showErrorStyle,
-      fillColor: showSuccessStyle
-          ? Colors.green.withValues(alpha: 0.1)
-          : showErrorStyle
+      fillColor:
+          showSuccessStyle
+              ? Colors.green.withValues(alpha: 0.1)
+              : showErrorStyle
               ? Colors.orange.withValues(alpha: 0.1)
               : null,
     );
@@ -418,8 +413,7 @@ class RefTestScreenState extends State<RefTestScreen> {
 
   void _setRandomVerse() {
     setState(() {
-      currentVerseIndex =
-          DateTime.now().millisecondsSinceEpoch % versesList.length;
+      currentVerseIndex = DateTime.now().millisecondsSinceEpoch % versesList.length;
       verseText = versesList[currentVerseIndex]['text']!;
       expectedReference = versesList[currentVerseIndex]['reference']!;
     });
@@ -477,156 +471,140 @@ class RefTestScreenState extends State<RefTestScreen> {
             ],
           ),
           margin: const EdgeInsets.all(16),
-          child: isSmallScreen
-              ? Column(
-                  children: [
-                    _buildQuestionSection(),
-                    const SizedBox(height: 24),
-                    _buildStatsAndHistorySection(),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(child: _buildQuestionSection()),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildStatsAndHistorySection()),
-                  ],
-                ),
+          child:
+              isSmallScreen
+                  ? Column(
+                    children: [
+                      _buildQuestionSection(),
+                      const SizedBox(height: 24),
+                      _buildStatsAndHistorySection(),
+                    ],
+                  )
+                  : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(child: _buildQuestionSection()),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildStatsAndHistorySection()),
+                    ],
+                  ),
         ),
       ),
     );
   }
 
   Widget _buildQuestionSection() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      Container(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: RichText(
+          text: TextSpan(
+            style: const TextStyle(fontSize: 18, color: Colors.black),
+            children: <TextSpan>[
+              const TextSpan(text: 'Question: '),
+              TextSpan(
+                text: '$questionNumber',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      // Verse text with NLT attribution explicitly above the reference field
+      Container(
+        key: const Key('refTestVerse'),
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 24),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(5),
+          color: Colors.grey[50],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              verseText,
+              style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, height: 1.5),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                children: <TextSpan>[
-                  const TextSpan(text: 'Question: '),
-                  TextSpan(
-                    text: '$questionNumber',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                child: Text(
+                  verseAttribution,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // Reference label
+      Container(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: const Text('Reference:', style: TextStyle(fontSize: 18, color: Colors.black)),
+      ),
+
+      // Simple text field with autocomplete options displayed below
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: answerController,
+            focusNode: answerFocusNode,
+            decoration: getInputDecoration(),
+            onChanged: (value) {
+              // Reset submission state when typing
+              if (hasSubmittedAnswer) {
+                setState(() {
+                  hasSubmittedAnswer = false;
+                  isAnswerCorrect = false;
+                });
+              }
+
+              // Show autocomplete suggestions if we're typing a book name
+              setState(() {});
+            },
+            onSubmitted: (value) {
+              submitAnswer();
+            },
+          ),
+
+          // Show book suggestions if relevant
+          if (_shouldShowSuggestions())
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(4),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // Verse text with NLT attribution explicitly above the reference field
-          Container(
-            key: const Key('refTestVerse'),
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.only(bottom: 24),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(5),
-              color: Colors.grey[50],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  verseText,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontStyle: FontStyle.italic,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      verseAttribution,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Reference label
-          Container(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: const Text(
-              'Reference:',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.black,
-              ),
-            ),
-          ),
-
-          // Simple text field with autocomplete options displayed below
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: answerController,
-                focusNode: answerFocusNode,
-                decoration: getInputDecoration(),
-                onChanged: (value) {
-                  // Reset submission state when typing
-                  if (hasSubmittedAnswer) {
-                    setState(() {
-                      hasSubmittedAnswer = false;
-                      isAnswerCorrect = false;
-                    });
-                  }
-
-                  // Show autocomplete suggestions if we're typing a book name
-                  setState(() {});
-                },
-                onSubmitted: (value) {
-                  submitAnswer();
-                },
-              ),
-
-              // Show book suggestions if relevant
-              if (_shouldShowSuggestions())
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  constraints: const BoxConstraints(
-                    maxHeight: 200,
-                  ),
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: _getFilteredSuggestions().map((book) {
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView(
+                shrinkWrap: true,
+                children:
+                    _getFilteredSuggestions().map((book) {
                       return ListTile(
                         dense: true,
                         title: Text(book),
@@ -635,70 +613,64 @@ class RefTestScreenState extends State<RefTestScreen> {
                         },
                       );
                     }).toList(),
-                  ),
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Submit button
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              key: const Key('submit-ref'),
-              onPressed: submitAnswer,
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Submit'),
-            ),
-          ),
-
-          // Success/failure message (only shown after submission)
-          if (hasSubmittedAnswer)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        isAnswerCorrect ? Icons.thumb_up : Icons.error_outline,
-                        color: isAnswerCorrect ? Colors.green : Colors.orange,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          isAnswerCorrect
-                              ? 'Great job! '
-                                  'You correctly identified this verse as '
-                                  '$expectedReference.'
-                              : getDetailedFeedback(answerController.text),
-                          style: TextStyle(
-                            color:
-                                isAnswerCorrect ? Colors.green : Colors.orange,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ),
             ),
         ],
-      );
+      ),
+
+      const SizedBox(height: 16),
+
+      // Submit button
+      Align(
+        alignment: Alignment.centerRight,
+        child: ElevatedButton(
+          key: const Key('submit-ref'),
+          onPressed: submitAnswer,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('Submit'),
+        ),
+      ),
+
+      // Success/failure message (only shown after submission)
+      if (hasSubmittedAnswer)
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isAnswerCorrect ? Icons.thumb_up : Icons.error_outline,
+                    color: isAnswerCorrect ? Colors.green : Colors.orange,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      isAnswerCorrect
+                          ? 'Great job! '
+                              'You correctly identified this verse as '
+                              '$expectedReference.'
+                          : getDetailedFeedback(answerController.text),
+                      style: TextStyle(color: isAnswerCorrect ? Colors.green : Colors.orange),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
 
   bool _shouldShowSuggestions() {
     // Show suggestions if text is not empty and doesn't contain a space yet
     final text = answerController.text.trim();
-    return text.isNotEmpty &&
-        !text.contains(' ') &&
-        _getFilteredSuggestions().isNotEmpty;
+    return text.isNotEmpty && !text.contains(' ') && _getFilteredSuggestions().isNotEmpty;
   }
 
   List<String> _getFilteredSuggestions() {
@@ -744,11 +716,7 @@ class RefTestScreenState extends State<RefTestScreen> {
           ),
           child: Column(
             children: <Widget>[
-              SizedBox(
-                width: 200,
-                height: 160,
-                child: _buildGauge(),
-              ),
+              SizedBox(width: 200, height: 160, child: _buildGauge()),
               const SizedBox(height: 16),
               Container(
                 decoration: BoxDecoration(
@@ -761,10 +729,7 @@ class RefTestScreenState extends State<RefTestScreen> {
                   children: <Widget>[
                     Text(
                       '$overdueReferences',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const Text(
                       'References Due Today',
@@ -796,32 +761,35 @@ class RefTestScreenState extends State<RefTestScreen> {
                 key: const Key('past-questions'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: pastQuestions.isEmpty
-                      ? [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4),
-                            child: Text('No previous questions yet'),
-                          ),
-                        ]
-                      : pastQuestions
-                          .map(
-                            (feedback) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Text(
-                                feedback,
-                                style: TextStyle(
-                                  color: feedback.contains(' Correct!')
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  fontWeight: pastQuestions.indexOf(feedback) ==
-                                          pastQuestions.length - 1
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                              ),
+                  children:
+                      pastQuestions.isEmpty
+                          ? [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4),
+                              child: Text('No previous questions yet'),
                             ),
-                          )
-                          .toList(),
+                          ]
+                          : pastQuestions
+                              .map(
+                                (feedback) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: Text(
+                                    feedback,
+                                    style: TextStyle(
+                                      color:
+                                          feedback.contains(' Correct!')
+                                              ? Colors.green
+                                              : Colors.orange,
+                                      fontWeight:
+                                          pastQuestions.indexOf(feedback) ==
+                                                  pastQuestions.length - 1
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                 ),
               ),
             ],

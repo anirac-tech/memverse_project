@@ -21,6 +21,7 @@ jobs:
     with:
       flutter_channel: stable
       min_coverage: 50
+      format_line_length: 100 # was failing because localization which is auto-gen
 
   spell-check:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
