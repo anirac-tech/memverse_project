@@ -1,7 +1,11 @@
 {
     "@@locale": "es",
-    "counterAppBarTitle": "Contador",
-    "@counterAppBarTitle": {
-        "description": "Texto mostrado en la AppBar de la página del contador"
+    "appTitle": "Memverse",
+    "@appTitle": {
+        "description": "Title of app"
+    },
+    "referenceTestAppBarTitle": "Reference Test",
+    "@referenceTestAppBarTitle": {
+        "description": "Text shown in the AppBar of the Reference Test Page"
     }
 }
