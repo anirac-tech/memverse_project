@@ -1,11 +1,57 @@
 {
-    "@@locale": "en",
-    "appTitle": "Memverse",
-    "@appTitle": {
-        "description": "Title of app"
-    },
-    "referenceTestAppBarTitle": "Reference Test",
-    "@referenceTestAppBarTitle": {
-        "description": "Text shown in the AppBar of the Reference Test Page"
+  "@@locale": "en",
+  
+  "appTitle": "Memverse",
+  "@appTitle": {
+    "description": "Title of app"
+  },
+  "referenceTestAppBarTitle": "Reference Test",
+  "@referenceTestAppBarTitle": {
+    "description": "Text shown in the AppBar of the Reference Test Page"
+  },
+  "referenceTest": "Reference Test",
+  "question": "Question",
+  "reference": "Reference:",
+  "enterReferenceHint": "Enter reference (e.g., Genesis 1:1)",
+  "referenceFormat": "Format: Book Chapter:Verse",
+  "submit": "Submit",
+  "correct": "Correct!",
+  "pleaseEnterReference": "Please enter a reference.",
+  "notQuiteRight": "That's not quite right. The correct reference is {reference}.",
+  "@notQuiteRight": {
+    "placeholders": {
+      "reference": {}
     }
+  },
+  "correctReferenceIdentification": "Great job! You correctly identified this verse as {reference}.",
+  "@correctReferenceIdentification": {
+    "placeholders": {
+      "reference": {}
+    }
+  },
+  "bookAndChapterCorrectButVerseIncorrect": "You got the book and chapter right, but the verse is incorrect. The correct reference is {reference}.",
+  "@bookAndChapterCorrectButVerseIncorrect": {
+    "placeholders": {
+      "reference": {}
+    }
+  },
+  "bookCorrectButChapterIncorrect": "You got the book right, but the chapter is incorrect. The correct reference is {reference}.",
+  "@bookCorrectButChapterIncorrect": {
+    "placeholders": {
+      "reference": {}
+    }
+  },
+  "bookIncorrect": "The book you entered is incorrect. The correct reference is {reference}.",
+  "@bookIncorrect": {
+    "placeholders": {
+      "reference": {}
+    }
+  },
+  "referenceRecall": "Reference Recall",
+  "referencesDueToday": "References Due Today",
+  "priorQuestions": "Prior Questions",
+  "noPreviousQuestions": "No previous questions yet",
+  "referenceCannotBeEmpty": "Reference cannot be empty",
+  "invalidBookName": "Invalid book name",
+  "formatShouldBeBookChapterVerse": "Format should be \"Book Chapter:Verse\""
 }

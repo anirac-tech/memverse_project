@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memverse/l10n/arb/app_localizations.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -6,6 +7,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: const RefTestScreen(),
   );
 }
@@ -125,6 +128,7 @@ class RefTestScreenState extends State<RefTestScreen> {
     'Revelation',
   ];
   final FocusNode answerFocusNode = FocusNode();
+  late AppLocalizations _l10n;
 
   int scoreRef(String answer) {
     return answer.toLowerCase().contains('genesis') ? 100 : 0;
@@ -146,7 +150,7 @@ class RefTestScreenState extends State<RefTestScreen> {
     if (text.isEmpty) {
       setState(() {
         isReferenceValid = false;
-        validationMessage = 'Reference cannot be empty';
+        validationMessage = _l10n.pleaseEnterReference;
       });
       return false;
     }
@@ -168,14 +172,14 @@ class RefTestScreenState extends State<RefTestScreen> {
       } else {
         setState(() {
           isReferenceValid = false;
-          validationMessage = 'Invalid book name';
+          validationMessage = _l10n.invalidBookName;
         });
         return false;
       }
     } else {
       setState(() {
         isReferenceValid = false;
-        validationMessage = 'Format should be "Book Chapter:Verse"';
+        validationMessage = _l10n.formatShouldBeBookChapterVerse;
       });
       return false;
     }
@@ -183,12 +187,11 @@ class RefTestScreenState extends State<RefTestScreen> {
 
   String getDetailedFeedback(String userAnswer) {
     if (userAnswer.trim().isEmpty) {
-      return 'Please enter a reference.';
+      return _l10n.pleaseEnterReference;
     }
 
     if (userAnswer.trim().toLowerCase() == expectedReference.toLowerCase()) {
-      return 'Great job! '
-          'You correctly identified this verse as $expectedReference.';
+      return _l10n.correctReferenceIdentification(expectedReference);
     }
 
     // Try to parse the references
@@ -197,8 +200,7 @@ class RefTestScreenState extends State<RefTestScreen> {
 
     // If either parsing fails, return a generic message
     if (expectedParts == null || userParts == null) {
-      return "That's not quite right. "
-          'The correct reference is $expectedReference.';
+      return _l10n.notQuiteRight(expectedReference);
     }
 
     // Debug output to verify parsing
@@ -214,18 +216,14 @@ class RefTestScreenState extends State<RefTestScreen> {
     final verseMatch = userParts.verse == expectedParts.verse;
 
     if (bookMatch && chapterMatch && !verseMatch) {
-      return 'You got the book and chapter right, but the verse is incorrect. '
-          'The correct reference is $expectedReference.';
+      return _l10n.bookAndChapterCorrectButVerseIncorrect(expectedReference);
     } else if (bookMatch && !chapterMatch) {
-      return 'You got the book right, but the chapter is incorrect. '
-          'The correct reference is $expectedReference.';
+      return _l10n.bookCorrectButChapterIncorrect(expectedReference);
     } else if (!bookMatch) {
-      return 'The book you entered is incorrect. '
-          'The correct reference is $expectedReference.';
+      return _l10n.bookIncorrect(expectedReference);
     } else {
       // Fallback for unexpected cases
-      return "That's not quite right. "
-          'The correct reference is $expectedReference.';
+      return _l10n.notQuiteRight(expectedReference);
     }
   }
 
@@ -318,8 +316,7 @@ class RefTestScreenState extends State<RefTestScreen> {
       // Show feedback in a SnackBar
       final detailedFeedback =
           isAnswerCorrect
-              ? 'Great job! '
-                  'You correctly identified this verse as $expectedReference.'
+              ? _l10n.correctReferenceIdentification(expectedReference)
               : getDetailedFeedback(answerController.text);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -378,14 +375,14 @@ class RefTestScreenState extends State<RefTestScreen> {
           width: 2,
         ),
       ),
-      hintText: 'Enter reference (e.g., Genesis 1:1)',
+      hintText: _l10n.enterReferenceHint,
       errorText: isReferenceValid ? null : validationMessage,
       helperText:
           showSuccessStyle
-              ? 'Correct!'
+              ? _l10n.correct
               : showErrorStyle
               ? getDetailedFeedback(answerController.text)
-              : 'Format: Book Chapter:Verse',
+              : _l10n.referenceFormat,
       helperStyle: TextStyle(
         color:
             showSuccessStyle
@@ -435,6 +432,18 @@ class RefTestScreenState extends State<RefTestScreen> {
       verseText = versesList[currentVerseIndex]['text']!;
       expectedReference = versesList[currentVerseIndex]['reference']!;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context);
+    if (_l10n != null) {
+      pageTitle = _l10n.referenceTest;
+    } else {
+      // Fallback if localization is not available
+      pageTitle = "Reference Test";
+    }
   }
 
   @override
@@ -511,7 +520,7 @@ class RefTestScreenState extends State<RefTestScreen> {
           text: TextSpan(
             style: const TextStyle(fontSize: 18, color: Colors.black),
             children: <TextSpan>[
-              const TextSpan(text: 'Question: '),
+              TextSpan(text: '${_l10n.question}: '),
               TextSpan(
                 text: '$questionNumber',
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -574,7 +583,7 @@ class RefTestScreenState extends State<RefTestScreen> {
       // Reference label
       Container(
         padding: const EdgeInsets.only(bottom: 8),
-        child: const Text('Reference:', style: TextStyle(fontSize: 18, color: Colors.black)),
+        child: Text(_l10n.reference, style: const TextStyle(fontSize: 18, color: Colors.black)),
       ),
 
       // Simple text field with autocomplete options displayed below
@@ -655,7 +664,7 @@ class RefTestScreenState extends State<RefTestScreen> {
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Submit'),
+          child: Text(_l10n.submit),
         ),
       ),
 
@@ -676,9 +685,7 @@ class RefTestScreenState extends State<RefTestScreen> {
                   Expanded(
                     child: Text(
                       isAnswerCorrect
-                          ? 'Great job! '
-                              'You correctly identified this verse as '
-                              '$expectedReference.'
+                          ? _l10n.correctReferenceIdentification(expectedReference)
                           : getDetailedFeedback(answerController.text),
                       style: TextStyle(color: isAnswerCorrect ? Colors.green : Colors.orange),
                     ),
@@ -755,10 +762,10 @@ class RefTestScreenState extends State<RefTestScreen> {
                       '$overdueReferences',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      'References Due Today',
+                    Text(
+                      _l10n.referencesDueToday,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
@@ -776,9 +783,9 @@ class RefTestScreenState extends State<RefTestScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const Text(
-                'Prior Questions',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                _l10n.priorQuestions,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Container(
@@ -788,9 +795,9 @@ class RefTestScreenState extends State<RefTestScreen> {
                   children:
                       pastQuestions.isEmpty
                           ? [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 4),
-                              child: Text('No previous questions yet'),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(_l10n.noPreviousQuestions),
                             ),
                           ]
                           : pastQuestions
@@ -837,7 +844,7 @@ class RefTestScreenState extends State<RefTestScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Reference Recall', style: TextStyle(fontSize: 14)),
+        Text(_l10n.referenceRecall, style: const TextStyle(fontSize: 14)),
         const SizedBox(height: 10),
         SizedBox(
           width: 110,

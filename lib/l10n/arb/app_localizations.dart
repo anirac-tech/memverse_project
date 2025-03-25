@@ -82,16 +82,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('es')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('es')
+  ];
 
   /// Title of app
   ///
@@ -104,6 +106,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reference Test'**
   String get referenceTestAppBarTitle;
+
+  /// No description provided for @referenceTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference Test'**
+  String get referenceTest;
+
+  /// No description provided for @question.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get question;
+
+  /// No description provided for @reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference:'**
+  String get reference;
+
+  /// No description provided for @enterReferenceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter reference (e.g., Genesis 1:1)'**
+  String get enterReferenceHint;
+
+  /// No description provided for @referenceFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format: Book Chapter:Verse'**
+  String get referenceFormat;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @correct.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct!'**
+  String get correct;
+
+  /// No description provided for @pleaseEnterReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a reference.'**
+  String get pleaseEnterReference;
+
+  /// No description provided for @notQuiteRight.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s not quite right. The correct reference is {reference}.'**
+  String notQuiteRight(Object reference);
+
+  /// No description provided for @correctReferenceIdentification.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job! You correctly identified this verse as {reference}.'**
+  String correctReferenceIdentification(Object reference);
+
+  /// No description provided for @bookAndChapterCorrectButVerseIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'You got the book and chapter right, but the verse is incorrect. The correct reference is {reference}.'**
+  String bookAndChapterCorrectButVerseIncorrect(Object reference);
+
+  /// No description provided for @bookCorrectButChapterIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'You got the book right, but the chapter is incorrect. The correct reference is {reference}.'**
+  String bookCorrectButChapterIncorrect(Object reference);
+
+  /// No description provided for @bookIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'The book you entered is incorrect. The correct reference is {reference}.'**
+  String bookIncorrect(Object reference);
+
+  /// No description provided for @referenceRecall.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference Recall'**
+  String get referenceRecall;
+
+  /// No description provided for @referencesDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'References Due Today'**
+  String get referencesDueToday;
+
+  /// No description provided for @priorQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Prior Questions'**
+  String get priorQuestions;
+
+  /// No description provided for @noPreviousQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous questions yet'**
+  String get noPreviousQuestions;
+
+  /// No description provided for @referenceCannotBeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference cannot be empty'**
+  String get referenceCannotBeEmpty;
+
+  /// No description provided for @invalidBookName.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid book name'**
+  String get invalidBookName;
+
+  /// No description provided for @formatShouldBeBookChapterVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Format should be \"Book Chapter:Verse\"'**
+  String get formatShouldBeBookChapterVerse;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -122,18 +244,18 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'es':
-      return AppLocalizationsEs();
+    case 'en': return AppLocalizationsEn();
+    case 'es': return AppLocalizationsEs();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

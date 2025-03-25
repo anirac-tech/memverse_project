@@ -1,11 +1,67 @@
 {
-    "@@locale": "es",
-    "appTitle": "Memverse",
-    "@appTitle": {
-        "description": "Title of app"
-    },
-    "referenceTestAppBarTitle": "Reference Test",
-    "@referenceTestAppBarTitle": {
-        "description": "Text shown in the AppBar of the Reference Test Page"
+  "@@locale": "es",
+  
+  "appTitle": "Memverse",
+  "@appTitle": {
+    "description": "Title of app"
+  },
+  "referenceTestAppBarTitle": "Reference Test",
+  "@referenceTestAppBarTitle": {
+    "description": "Text shown in the AppBar of the Reference Test Page"
+  },
+  "referenceTest": "Prueba de Referencias",
+  "question": "Pregunta",
+  "reference": "Referencia:",
+  "enterReferenceHint": "Ingrese referencia (ej., Génesis 1:1)",
+  "referenceFormat": "Formato: Libro Capítulo:Versículo",
+  "submit": "Enviar",
+  "correct": "¡Correcto!",
+  "pleaseEnterReference": "Por favor ingrese una referencia.",
+  "notQuiteRight": "No es del todo correcto. La referencia correcta es {reference}.",
+  "@notQuiteRight": {
+    "placeholders": {
+      "reference": {
+        "type": "Object"
+      }
     }
+  },
+  "correctReferenceIdentification": "¡Buen trabajo! Identificaste correctamente este versículo como {reference}.",
+  "@correctReferenceIdentification": {
+    "placeholders": {
+      "reference": {
+        "type": "Object"
+      }
+    }
+  },
+  "bookAndChapterCorrectButVerseIncorrect": "El libro y capítulo son correctos, pero el versículo es incorrecto. La referencia correcta es {reference}.",
+  "@bookAndChapterCorrectButVerseIncorrect": {
+    "placeholders": {
+      "reference": {
+        "type": "Object"
+      }
+    }
+  },
+  "bookCorrectButChapterIncorrect": "El libro es correcto, pero el capítulo es incorrecto. La referencia correcta es {reference}.",
+  "@bookCorrectButChapterIncorrect": {
+    "placeholders": {
+      "reference": {
+        "type": "Object"
+      }
+    }
+  },
+  "bookIncorrect": "El libro que ingresaste es incorrecto. La referencia correcta es {reference}.",
+  "@bookIncorrect": {
+    "placeholders": {
+      "reference": {
+        "type": "Object"
+      }
+    }
+  },
+  "referenceRecall": "Recuerdo de Referencias",
+  "referencesDueToday": "Referencias por Revisar Hoy",
+  "priorQuestions": "Preguntas Anteriores",
+  "noPreviousQuestions": "Aún no hay preguntas anteriores",
+  "referenceCannotBeEmpty": "La referencia no puede estar vacía",
+  "invalidBookName": "Nombre de libro inválido",
+  "formatShouldBeBookChapterVerse": "El formato debe ser \"Libro Capítulo:Versículo\""
 }
