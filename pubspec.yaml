@@ -13,6 +13,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: 0.19.0
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
 
 dev_dependencies:
   bdd_widget_test: 1.8.1
@@ -21,6 +25,9 @@ dev_dependencies:
     sdk: flutter
   mocktail: 1.0.4
   very_good_analysis: 7.0.0
+  riverpod_generator: ^2.4.0
+  freezed: ^2.4.7
+  json_serializable: ^6.7.1
 
 flutter:
   uses-material-design: true
