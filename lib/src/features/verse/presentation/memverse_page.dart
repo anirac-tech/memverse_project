@@ -31,10 +31,10 @@ class MemversePage extends HookConsumerWidget {
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
     final versesAsync = ref.watch(verseListProvider);
 
-    // Request focus on initial build
     useEffect(() {
       answerFocusNode.requestFocus();
       return null;
+      //ignore: require_trailing_commas
     }, const []);
 
     void loadNextVerse() {
