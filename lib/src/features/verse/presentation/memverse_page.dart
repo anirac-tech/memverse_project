@@ -51,7 +51,25 @@ class MemversePage extends HookConsumerWidget {
     }
 
     void submitAnswer(String expectedReference) {
+      if (answerController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.referenceCannotBeEmpty),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
       if (!VerseReferenceValidator.isValid(answerController.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Invalid reference format'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
         return;
       }
 
@@ -144,12 +162,17 @@ class MemversePage extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 24),
                       StatsAndHistorySection(
-                        progress: progress.value,
+                        progress: progress.value, 
                         totalCorrect: totalCorrect.value,
                         totalAnswered: totalAnswered.value,
+                        l10n: l10n,
+                        isLoading: false,
+                        isErrored: false,
+                        isValidated: false,
                         overdueReferences: overdueReferences.value,
                         pastQuestions: pastQuestions.value,
-                        l10n: l10n,
+                        error: null,
+                        validationError: null,
                       ),
                     ],
                   )
@@ -175,12 +198,17 @@ class MemversePage extends HookConsumerWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: StatsAndHistorySection(
-                          progress: progress.value,
+                          progress: progress.value, 
                           totalCorrect: totalCorrect.value,
                           totalAnswered: totalAnswered.value,
+                          l10n: l10n,
+                          isLoading: false,
+                          isErrored: false,
+                          isValidated: false,
                           overdueReferences: overdueReferences.value,
                           pastQuestions: pastQuestions.value,
-                          l10n: l10n,
+                          error: null,
+                          validationError: null,
                         ),
                       ),
                     ],
@@ -570,18 +598,28 @@ class StatsAndHistorySection extends StatelessWidget {
     required this.progress,
     required this.totalCorrect,
     required this.totalAnswered,
+    required this.l10n,
+    this.isLoading = false,
+    this.isErrored = false,
+    this.isValidated = false,
     required this.overdueReferences,
     required this.pastQuestions,
-    required this.l10n,
+    this.error,
+    this.validationError,
     super.key,
   });
 
   final double progress;
   final int totalCorrect;
   final int totalAnswered;
+  final AppLocalizations l10n;
+  final bool isLoading;
+  final bool isErrored;
+  final bool isValidated;
   final int overdueReferences;
   final List<String> pastQuestions;
-  final AppLocalizations l10n;
+  final String? error;
+  final String? validationError;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -602,7 +640,12 @@ class StatsAndHistorySection extends StatelessWidget {
                   progress: progress, 
                   totalCorrect: totalCorrect,
                   totalAnswered: totalAnswered,
-                  l10n: l10n
+                  l10n: l10n,
+                  isLoading: isLoading,
+                  isErrored: isErrored,
+                  isValidated: isValidated,
+                  error: error,
+                  validationError: validationError,
                 ),
               ),
             ),
@@ -711,16 +754,38 @@ class ReferenceGauge extends StatelessWidget {
     required this.totalCorrect,
     required this.totalAnswered,
     required this.l10n, 
-    super.key
+    this.isLoading = false,
+    this.isErrored = false,
+    this.isValidated = false,
+    this.error,
+    this.validationError,
+    super.key,
   });
 
   final double progress;
   final int totalCorrect;
   final int totalAnswered;
   final AppLocalizations l10n;
+  final bool isLoading;
+  final bool isErrored;
+  final bool isValidated;
+  final String? error;
+  final String? validationError;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (isErrored) {
+      return Text(error ?? '', style: const TextStyle(color: Colors.red));
+    }
+
+    if (isValidated) {
+      return Text(validationError ?? '', style: const TextStyle(color: Colors.red));
+    }
+
     Color gaugeColor;
     if (progress < 33) {
       gaugeColor = Colors.red[400]!;
@@ -734,7 +799,7 @@ class ReferenceGauge extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Reference Progress', style: const TextStyle(fontSize: 14)),
+        const Text('Reference Progress', style: TextStyle(fontSize: 14)),
         const SizedBox(height: 10),
         SizedBox(
           width: 110,

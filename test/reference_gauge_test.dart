@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
 
@@ -12,6 +13,8 @@ void main() {
   setUp(() {
     mockL10n = MockAppLocalizations();
     when(() => mockL10n.referenceRecall).thenReturn('Reference Recall');
+    when(() => mockL10n.question).thenReturn('Question');
+    when(() => mockL10n.referenceFormat).thenReturn('Format: Book Chapter:Verse');
   });
 
   group('ReferenceGauge', () {
@@ -70,7 +73,7 @@ void main() {
       );
       
       expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>).value,
+        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
         Colors.red[400],
       );
     });
@@ -94,7 +97,7 @@ void main() {
       );
       
       expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>).value,
+        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
         Colors.orange[400],
       );
     });
@@ -118,9 +121,123 @@ void main() {
       );
       
       expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>).value,
+        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
         Colors.green[400],
       );
+    });
+
+    testWidgets('displays error state when verse loading fails', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(
+              progress: 0,
+              totalCorrect: 0,
+              totalAnswered: 0,
+              l10n: mockL10n,
+              error: 'Error loading verse',
+              isErrored: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Error loading verse'), findsOneWidget);
+    });
+
+    testWidgets('displays loading state when verse is loading', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(
+              progress: 0,
+              totalCorrect: 0,
+              totalAnswered: 0,
+              l10n: mockL10n,
+              isLoading: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('displays format validation error', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(
+              progress: 0,
+              totalCorrect: 0,
+              totalAnswered: 0,
+              l10n: mockL10n,
+              validationError: 'Invalid verse format',
+              isValidated: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Invalid verse format'), findsOneWidget);
+    });
+  });
+
+  group('VerseReferenceValidator', () {
+    test('isValid returns false for empty string', () {
+      expect(VerseReferenceValidator.isValid(''), false);
+    });
+
+    test('isValid returns true for valid references', () {
+      expect(VerseReferenceValidator.isValid('Genesis 1:1'), true);
+      expect(VerseReferenceValidator.isValid('John 3:16'), true);
+      expect(VerseReferenceValidator.isValid('1 Corinthians 13:4'), true);
+    });
+
+    test('isValid returns false for invalid formats', () {
+      expect(VerseReferenceValidator.isValid('Genesis'), false);
+      expect(VerseReferenceValidator.isValid('Genesis 1'), false);
+      expect(VerseReferenceValidator.isValid('Genesis:1'), false);
+      expect(VerseReferenceValidator.isValid('Unknown 1:1'), false);
+    });
+  });
+
+  group('Validation', () {
+    test('isValid returns false for invalid formats', () {
+      expect(VerseReferenceValidator.isValid('Genesis'), false);
+      expect(VerseReferenceValidator.isValid('Genesis 1'), false);
+      expect(VerseReferenceValidator.isValid('Genesis:1'), false);
+      expect(VerseReferenceValidator.isValid('Unknown 1:1'), false);
+    });
+  });
+
+  group('ValidationErrors', () {
+    testWidgets('displays format error for invalid references', (tester) async {
+      final mockLocalizations = MockAppLocalizations();
+      when(() => mockLocalizations.referenceCannotBeEmpty).thenReturn('Reference cannot be empty');
+      
+      final verseForm = MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              TextField(
+                controller: TextEditingController(),
+                decoration: InputDecoration(
+                  helperText: 'Invalid format',
+                  helperStyle: TextStyle(color: Colors.orange),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {},
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        ),
+      );
+      
+      await tester.pumpWidget(verseForm);
+      expect(find.text('Invalid format'), findsOneWidget);
     });
   });
 
@@ -133,7 +250,7 @@ void main() {
             builder: (context) {
               return Column(
                 children: [
-                  ProgressTestWrapper(),
+                  const ProgressTestWrapper(),
                 ],
               );
             },
@@ -146,21 +263,21 @@ void main() {
       expect(find.text('0/0'), findsOneWidget);
 
       // Submit a correct answer
-      await tester.tap(find.byKey(const Key('correct-button')));
+      await tester.tap(find.byKey(Key('correct-button')));
       await tester.pump();
       expect(find.text('100%'), findsOneWidget);
       expect(find.text('1/1'), findsOneWidget);
 
       // Submit an incorrect answer
-      await tester.tap(find.byKey(const Key('incorrect-button')));
+      await tester.tap(find.byKey(Key('incorrect-button')));
       await tester.pump();
       expect(find.text('50%'), findsOneWidget);
       expect(find.text('1/2'), findsOneWidget);
 
       // Submit two more correct answers
-      await tester.tap(find.byKey(const Key('correct-button')));
+      await tester.tap(find.byKey(Key('correct-button')));
       await tester.pump();
-      await tester.tap(find.byKey(const Key('correct-button')));
+      await tester.tap(find.byKey(Key('correct-button')));
       await tester.pump();
       expect(find.text('75%'), findsOneWidget);
       expect(find.text('3/4'), findsOneWidget);
@@ -170,7 +287,7 @@ void main() {
 
 // A test wrapper to simulate the progress calculation logic
 class ProgressTestWrapper extends StatefulWidget {
-  const ProgressTestWrapper({Key? key}) : super(key: key);
+  const ProgressTestWrapper({super.key});
 
   @override
   State<ProgressTestWrapper> createState() => _ProgressTestWrapperState();
@@ -180,6 +297,21 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
   double progress = 0;
   int totalCorrect = 0;
   int totalAnswered = 0;
+  late MockAppLocalizations _mockL10n;
+  String? error;
+  bool isLoading = false;
+  String? validationError;
+  bool isErrored = false;
+  bool isValidated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _mockL10n = MockAppLocalizations();
+    when(() => _mockL10n.referenceRecall).thenReturn('Reference Recall');
+    when(() => _mockL10n.question).thenReturn('Question');
+    when(() => _mockL10n.referenceFormat).thenReturn('Format: Book Chapter:Verse');
+  }
 
   void submitCorrectAnswer() {
     setState(() {
@@ -204,17 +336,22 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
           progress: progress,
           totalCorrect: totalCorrect,
           totalAnswered: totalAnswered,
-          l10n: MockAppLocalizations(),
+          l10n: _mockL10n,
+          error: error,
+          isLoading: isLoading,
+          validationError: validationError,
+          isErrored: isErrored,
+          isValidated: isValidated,
         ),
         ElevatedButton(
-          key: const Key('correct-button'),
+          key: Key('correct-button'),
           onPressed: submitCorrectAnswer,
-          child: const Text('Correct Answer'),
+          child: Text('Correct Answer'),
         ),
         ElevatedButton(
-          key: const Key('incorrect-button'),
+          key: Key('incorrect-button'),
           onPressed: submitIncorrectAnswer,
-          child: const Text('Incorrect Answer'),
+          child: Text('Incorrect Answer'),
         ),
       ],
     );
