@@ -20,7 +20,9 @@ class MemversePage extends HookConsumerWidget {
     final answerFocusNode = useFocusNode();
     final hasSubmittedAnswer = useState(false);
     final isAnswerCorrect = useState(false);
-    final referenceRecallGrade = useState<double>(60);
+    final progress = useState<double>(0);
+    final totalAnswered = useState<int>(0);
+    final totalCorrect = useState<int>(0);
     final overdueReferences = useState(5);
     final pastQuestions = useState<List<String>>([]);
 
@@ -60,12 +62,17 @@ class MemversePage extends HookConsumerWidget {
       isAnswerCorrect.value = isCorrect;
 
       if (isCorrect) {
-        referenceRecallGrade.value = (referenceRecallGrade.value + 100) / 2;
-        if (referenceRecallGrade.value > 100) referenceRecallGrade.value = 100;
+        totalCorrect.value++;
         if (overdueReferences.value > 0) {
           overdueReferences.value--;
         }
       }
+
+      totalAnswered.value++;
+      // Update progress as percentage of correct answers
+      progress.value = totalAnswered.value > 0 
+          ? (totalCorrect.value / totalAnswered.value) * 100 
+          : 0;
 
       // Add to history
       final feedback =
@@ -137,7 +144,9 @@ class MemversePage extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 24),
                       StatsAndHistorySection(
-                        referenceRecallGrade: referenceRecallGrade.value,
+                        progress: progress.value,
+                        totalCorrect: totalCorrect.value,
+                        totalAnswered: totalAnswered.value,
                         overdueReferences: overdueReferences.value,
                         pastQuestions: pastQuestions.value,
                         l10n: l10n,
@@ -166,7 +175,9 @@ class MemversePage extends HookConsumerWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: StatsAndHistorySection(
-                          referenceRecallGrade: referenceRecallGrade.value,
+                          progress: progress.value,
+                          totalCorrect: totalCorrect.value,
+                          totalAnswered: totalAnswered.value,
                           overdueReferences: overdueReferences.value,
                           pastQuestions: pastQuestions.value,
                           l10n: l10n,
@@ -556,14 +567,18 @@ class VerseReferenceForm extends HookWidget {
 
 class StatsAndHistorySection extends StatelessWidget {
   const StatsAndHistorySection({
-    required this.referenceRecallGrade,
+    required this.progress,
+    required this.totalCorrect,
+    required this.totalAnswered,
     required this.overdueReferences,
     required this.pastQuestions,
     required this.l10n,
     super.key,
   });
 
-  final double referenceRecallGrade;
+  final double progress;
+  final int totalCorrect;
+  final int totalAnswered;
   final int overdueReferences;
   final List<String> pastQuestions;
   final AppLocalizations l10n;
@@ -583,7 +598,12 @@ class StatsAndHistorySection extends StatelessWidget {
               width: 200,
               height: 160,
               child: Center(
-                child: ReferenceGauge(grade: referenceRecallGrade, l10n: l10n),
+                child: ReferenceGauge(
+                  progress: progress, 
+                  totalCorrect: totalCorrect,
+                  totalAnswered: totalAnswered,
+                  l10n: l10n
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -686,17 +706,25 @@ class QuestionHistoryWidget extends StatelessWidget {
 }
 
 class ReferenceGauge extends StatelessWidget {
-  const ReferenceGauge({required this.grade, required this.l10n, super.key});
+  const ReferenceGauge({
+    required this.progress, 
+    required this.totalCorrect,
+    required this.totalAnswered,
+    required this.l10n, 
+    super.key
+  });
 
-  final double grade;
+  final double progress;
+  final int totalCorrect;
+  final int totalAnswered;
   final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
     Color gaugeColor;
-    if (grade < 33) {
+    if (progress < 33) {
       gaugeColor = Colors.red[400]!;
-    } else if (grade < 66) {
+    } else if (progress < 66) {
       gaugeColor = Colors.orange[400]!;
     } else {
       gaugeColor = Colors.green[400]!;
@@ -706,7 +734,7 @@ class ReferenceGauge extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(l10n.referenceRecall, style: const TextStyle(fontSize: 14)),
+        Text('Reference Progress', style: const TextStyle(fontSize: 14)),
         const SizedBox(height: 10),
         SizedBox(
           width: 110,
@@ -715,17 +743,28 @@ class ReferenceGauge extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               CircularProgressIndicator(
-                value: grade / 100,
+                value: progress / 100,
                 strokeWidth: 12,
                 backgroundColor: Colors.grey[300],
                 valueColor: AlwaysStoppedAnimation<Color>(gaugeColor),
               ),
-              Text(
-                '${grade.round()}%',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${progress.round()}%',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$totalCorrect/$totalAnswered',
+                    style: const TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
