@@ -442,13 +442,8 @@ class RefTestScreenState extends State<RefTestScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _l10n = AppLocalizations.of(context);
-    if (_l10n != null) {
-      pageTitle = _l10n.referenceTest;
-    } else {
-      // Fallback if localization is not available
-      pageTitle = "Reference Test";
+    pageTitle = _l10n.referenceTest;
     }
-  }
 
   @override
   void initState() {

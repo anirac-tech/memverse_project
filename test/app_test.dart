@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import './step/the_app_is_running.dart';
-import './step/i_see_text.dart';
-import './step/i_tap_text.dart';
-import './step/i_enter_into_input_field.dart';
-import './step/i_wait.dart';
-import './step/i_dont_see_text.dart';
+import 'package:bdd_widget_test/step/i_see_text.dart';
+import 'package:bdd_widget_test/step/i_tap_text.dart';
+import 'package:bdd_widget_test/step/i_enter_into_input_field.dart';
+import './step/i_wait_seconds.dart';
+import 'package:bdd_widget_test/step/i_dont_see_text.dart';
 
 void main() {
   group('''App''', () {
@@ -27,7 +27,7 @@ void main() {
       await theAppIsRunning(tester);
       await iEnterIntoInputField(tester, 'Revelation 9:99', 0);
       await iTapText(tester, 'Submit');
-      await iWait(tester);
+      await iWaitSeconds(tester, 3);
       await iDontSeeText(tester, 'Reference cannot be empty');
     });
   });

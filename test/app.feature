@@ -12,5 +12,5 @@ Feature: App
         Given the app is running
         When I enter {'Revelation 9:99'} into {0} input field
         And I tap {'Submit'} text
-        And I wait
+        And I wait {3} seconds
         Then I don't see {'Reference cannot be empty'} text

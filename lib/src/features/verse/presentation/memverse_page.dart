@@ -1,54 +1,100 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
-import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
+import 'package:memverse/src/features/verse/domain/verse.dart';
 
 final verseListProvider = FutureProvider<List<Verse>>((ref) async {
   return VerseRepositoryProvider.instance.getVerses();
 });
 
-class MemversePage extends ConsumerStatefulWidget {
+class MemversePage extends HookConsumerWidget {
   const MemversePage({super.key});
 
   @override
-  ConsumerState<MemversePage> createState() => _MemversePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentVerseIndex = useState(0);
+    final questionNumber = useState(1);
+    final answerController = useTextEditingController();
+    final answerFocusNode = useFocusNode();
+    final hasSubmittedAnswer = useState(false);
+    final isAnswerCorrect = useState(false);
+    final referenceRecallGrade = useState<double>(60);
+    final overdueReferences = useState(5);
+    final pastQuestions = useState<List<String>>([]);
 
-class _MemversePageState extends ConsumerState<MemversePage> {
-  int currentVerseIndex = 0;
-  String pageTitle = 'Reference Test';
-  int questionNumber = 1;
-  final TextEditingController answerController = TextEditingController();
-  bool hasSubmittedAnswer = false;
-  bool isAnswerCorrect = false;
-  double referenceRecallGrade = 60;
-  int overdueReferences = 5;
-  final List<String> pastQuestions = [];
-  final FocusNode answerFocusNode = FocusNode();
-  late AppLocalizations _l10n;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _l10n = AppLocalizations.of(context);
-    if (_l10n != null) {
-      pageTitle = _l10n.referenceTest;
-    } else {
-      // Fallback if localization is not available
-      pageTitle = 'Reference Test';
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    answerFocusNode.requestFocus();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final pageTitle = l10n.referenceTest;
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final versesAsync = ref.watch(verseListProvider);
+
+    // Request focus on initial build
+    useEffect(() {
+      answerFocusNode.requestFocus();
+      return null;
+    }, const [],);
+
+    void loadNextVerse() {
+      // Reset the answer field and submission state
+      answerController.clear();
+      hasSubmittedAnswer.value = false;
+      isAnswerCorrect.value = false;
+
+      // Increment question number
+      questionNumber.value++;
+
+      // Move to next verse
+      currentVerseIndex.value++;
+    }
+
+    void submitAnswer(String expectedReference) {
+      if (!VerseReferenceValidator.isValid(answerController.text)) {
+        return;
+      }
+
+      final userAnswer = answerController.text.trim().toLowerCase();
+      final isCorrect = userAnswer == expectedReference.toLowerCase();
+
+      hasSubmittedAnswer.value = true;
+      isAnswerCorrect.value = isCorrect;
+
+      if (isCorrect) {
+        referenceRecallGrade.value = (referenceRecallGrade.value + 100) / 2;
+        if (referenceRecallGrade.value > 100) referenceRecallGrade.value = 100;
+        if (overdueReferences.value > 0) {
+          overdueReferences.value--;
+        }
+      }
+
+      // Add to history
+      final feedback =
+          isCorrect
+              ? '${answerController.text}-[$expectedReference] Correct!'
+              : '${answerController.text}-[$expectedReference] Incorrect';
+
+      final newPastQuestions = [...pastQuestions.value, feedback];
+      if (newPastQuestions.length > 5) {
+        newPastQuestions.removeAt(0);
+      }
+      pastQuestions.value = newPastQuestions;
+
+      final detailedFeedback =
+          isCorrect
+              ? l10n.correctReferenceIdentification(expectedReference)
+              : l10n.notQuiteRight(expectedReference);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(detailedFeedback),
+          backgroundColor: isCorrect ? Colors.green : Colors.orange,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      // Move to next verse after delay
+      Future.delayed(const Duration(milliseconds: 1500), loadNextVerse);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -63,7 +109,7 @@ class _MemversePageState extends ConsumerState<MemversePage> {
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withAlpha(77),
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: const Offset(0, 3),
@@ -71,92 +117,169 @@ class _MemversePageState extends ConsumerState<MemversePage> {
             ],
           ),
           margin: const EdgeInsets.all(16),
-          child: isSmallScreen
-              ? Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: _buildQuestionSection(),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildStatsAndHistorySection(),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.8,
-                        child: _buildQuestionSection(),
+          child:
+              isSmallScreen
+                  ? Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: QuestionSection(
+                          versesAsync: versesAsync,
+                          currentVerseIndex: currentVerseIndex.value,
+                          questionNumber: questionNumber.value,
+                          l10n: l10n,
+                          answerController: answerController,
+                          answerFocusNode: answerFocusNode,
+                          hasSubmittedAnswer: hasSubmittedAnswer.value,
+                          isAnswerCorrect: isAnswerCorrect.value,
+                          onSubmitAnswer: submitAnswer,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildStatsAndHistorySection()),
-                  ],
-                ),
+                      const SizedBox(height: 24),
+                      StatsAndHistorySection(
+                        referenceRecallGrade: referenceRecallGrade.value,
+                        overdueReferences: overdueReferences.value,
+                        pastQuestions: pastQuestions.value,
+                        l10n: l10n,
+                      ),
+                    ],
+                  )
+                  : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: QuestionSection(
+                            versesAsync: versesAsync,
+                            currentVerseIndex: currentVerseIndex.value,
+                            questionNumber: questionNumber.value,
+                            l10n: l10n,
+                            answerController: answerController,
+                            answerFocusNode: answerFocusNode,
+                            hasSubmittedAnswer: hasSubmittedAnswer.value,
+                            isAnswerCorrect: isAnswerCorrect.value,
+                            onSubmitAnswer: submitAnswer,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: StatsAndHistorySection(
+                          referenceRecallGrade: referenceRecallGrade.value,
+                          overdueReferences: overdueReferences.value,
+                          pastQuestions: pastQuestions.value,
+                          l10n: l10n,
+                        ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildQuestionSection() {
-    final versesAsync = ref.watch(verseListProvider);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 18, color: Colors.black),
-              children: <TextSpan>[
-                TextSpan(text: '${_l10n.question}: '),
-                TextSpan(
-                  text: '$questionNumber',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-        ),
+class QuestionSection extends HookConsumerWidget {
+  const QuestionSection({
+    required this.versesAsync,
+    required this.currentVerseIndex,
+    required this.questionNumber,
+    required this.l10n,
+    required this.answerController,
+    required this.answerFocusNode,
+    required this.hasSubmittedAnswer,
+    required this.isAnswerCorrect,
+    required this.onSubmitAnswer,
+    super.key,
+  });
 
-        // Verse text container
-        SizedBox(
-          height: 180,
-          child: versesAsync.when(
-            data: (verses) {
-              final verse = verses[currentVerseIndex % verses.length];
-              return _buildVerseCard(verse);
-            },
-            loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-            error: (error, stackTrace) => Center(
-              child: Text(
-                'Error loading verses: $error',
-                style: const TextStyle(color: Colors.red),
+  final AsyncValue<List<Verse>> versesAsync;
+  final int currentVerseIndex;
+  final int questionNumber;
+  final AppLocalizations l10n;
+  final TextEditingController answerController;
+  final FocusNode answerFocusNode;
+  final bool hasSubmittedAnswer;
+  final bool isAnswerCorrect;
+  final void Function(String) onSubmitAnswer;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: <Widget>[
+      Container(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: RichText(
+          text: TextSpan(
+            style: const TextStyle(fontSize: 18, color: Colors.black),
+            children: <TextSpan>[
+              TextSpan(text: '${l10n.question}: '),
+              TextSpan(
+                text: '$questionNumber',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
+            ],
           ),
         ),
+      ),
 
-        const SizedBox(height: 24),
-
-        // Reference form
-        versesAsync.maybeWhen(
+      // Verse text container
+      SizedBox(
+        height: 180,
+        child: versesAsync.when(
           data: (verses) {
-            final verse = verses[currentVerseIndex % verses.length];
-            return _buildVerseReferenceForm(verse.reference);
+            final verse =
+                currentVerseIndex < verses.length
+                    ? verses[currentVerseIndex]
+                    : verses.last;
+            return VerseCard(verse: verse);
           },
-          orElse: () => const SizedBox.shrink(),
+          loading:
+              () => const Center(child: CircularProgressIndicator.adaptive()),
+          error:
+              (error, stackTrace) => Center(
+                child: Text(
+                  'Error loading verses: $error',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
         ),
-      ],
-    );
-  }
-  
-  Widget _buildVerseCard(Verse verse) {
-    return Container(
+      ),
+
+      const SizedBox(height: 24),
+
+      // Reference form
+      versesAsync.maybeWhen(
+        data: (verses) {
+          final verse =
+              currentVerseIndex < verses.length
+                  ? verses[currentVerseIndex]
+                  : verses.last;
+          return VerseReferenceForm(
+            expectedReference: verse.reference,
+            l10n: l10n,
+            answerController: answerController,
+            answerFocusNode: answerFocusNode,
+            hasSubmittedAnswer: hasSubmittedAnswer,
+            isAnswerCorrect: isAnswerCorrect,
+            onSubmitAnswer: onSubmitAnswer,
+          );
+        },
+        orElse: () => const SizedBox.shrink(),
+      ),
+    ],
+  );
+}
+
+class VerseCard extends StatelessWidget {
+  const VerseCard({required this.verse, super.key});
+
+  final Verse verse;
+
+  @override
+  Widget build(BuildContext context) => Container(
       key: const Key('refTestVerse'),
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -173,7 +296,11 @@ class _MemversePageState extends ConsumerState<MemversePage> {
             child: SingleChildScrollView(
               child: Text(
                 verse.text,
-                style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, height: 1.5),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontStyle: FontStyle.italic,
+                  height: 1.5,
+                ),
               ),
             ),
           ),
@@ -200,305 +327,376 @@ class _MemversePageState extends ConsumerState<MemversePage> {
         ],
       ),
     );
-  }
-  
-  Widget _buildVerseReferenceForm(String expectedReference) {
-    bool isReferenceValid = true;
-    String validationMessage = '';
-    
-    final List<String> bookSuggestions = [
-      'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
-      'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
-      '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles',
-      'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalm', 'Proverbs',
-      'Ecclesiastes', 'Song of Songs', 'Isaiah', 'Jeremiah',
-      'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel',
-      'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk',
-      'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew',
-      'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians',
-      '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians',
-      'Colossians', '1 Thessalonians', '2 Thessalonians',
-      '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews',
-      'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John',
-      'Jude', 'Revelation',
-    ];
-    
-    bool isValidVerseRef(String text) {
-      if (text.isEmpty) {
-        return false;
-      }
+}
 
-      final bookChapterVersePattern = RegExp(
-        r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$',
-      );
+class VerseReferenceValidator {
+  static final List<String> bookSuggestions = <String>[
+    'Genesis',
+    'Exodus',
+    'Leviticus',
+    'Numbers',
+    'Deuteronomy',
+    'Joshua',
+    'Judges',
+    'Ruth',
+    '1 Samuel',
+    '2 Samuel',
+    '1 Kings',
+    '2 Kings',
+    '1 Chronicles',
+    '2 Chronicles',
+    'Ezra',
+    'Nehemiah',
+    'Esther',
+    'Job',
+    'Psalm',
+    'Proverbs',
+    'Ecclesiastes',
+    'Song of Songs',
+    'Isaiah',
+    'Jeremiah',
+    'Lamentations',
+    'Ezekiel',
+    'Daniel',
+    'Hosea',
+    'Joel',
+    'Amos',
+    'Obadiah',
+    'Jonah',
+    'Micah',
+    'Nahum',
+    'Habakkuk',
+    'Zephaniah',
+    'Haggai',
+    'Zechariah',
+    'Malachi',
+    'Matthew',
+    'Mark',
+    'Luke',
+    'John',
+    'Acts',
+    'Romans',
+    '1 Corinthians',
+    '2 Corinthians',
+    'Galatians',
+    'Ephesians',
+    'Philippians',
+    'Colossians',
+    '1 Thessalonians',
+    '2 Thessalonians',
+    '1 Timothy',
+    '2 Timothy',
+    'Titus',
+    'Philemon',
+    'Hebrews',
+    'James',
+    '1 Peter',
+    '2 Peter',
+    '1 John',
+    '2 John',
+    '3 John',
+    'Jude',
+    'Revelation',
+  ];
 
-      if (bookChapterVersePattern.hasMatch(text)) {
-        final match = bookChapterVersePattern.firstMatch(text);
-        final bookName = match?.group(1)?.trim() ?? '';
-
-        return bookSuggestions.any((book) => book.toLowerCase() == bookName.toLowerCase());
-      } 
+  static bool isValid(String text) {
+    if (text.isEmpty) {
       return false;
     }
-    
-    void submitAnswer() {
-      if (!isValidVerseRef(answerController.text)) {
-        return;
-      }
-      
-      final userAnswer = answerController.text.trim().toLowerCase();
-      final isCorrect = userAnswer == expectedReference.toLowerCase();
-      
-      setState(() {
-        hasSubmittedAnswer = true;
-        isAnswerCorrect = isCorrect;
-        
-        if (isCorrect) {
-          referenceRecallGrade = (referenceRecallGrade + 100) / 2;
-          if (referenceRecallGrade > 100) referenceRecallGrade = 100;
-          if (overdueReferences > 0) {
-            overdueReferences--;
-          }
-        }
-        
-        // Add to history
-        final feedback = isCorrect 
-            ? '${answerController.text}-[$expectedReference] Correct!' 
-            : '${answerController.text}-[$expectedReference] Incorrect';
-        pastQuestions.add(feedback);
-        if (pastQuestions.length > 5) {
-          pastQuestions.removeAt(0);
-        }
-      });
-      
-      final detailedFeedback = isCorrect
-          ? _l10n.correctReferenceIdentification(expectedReference)
-          : _l10n.notQuiteRight(expectedReference);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(detailedFeedback),
-          backgroundColor: isCorrect ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 3),
-        ),
+    final bookChapterVersePattern = RegExp(
+      r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$',
+    );
+
+    if (bookChapterVersePattern.hasMatch(text)) {
+      final match = bookChapterVersePattern.firstMatch(text);
+      final bookName = match?.group(1)?.trim() ?? '';
+
+      return bookSuggestions.any(
+        (book) => book.toLowerCase() == bookName.toLowerCase(),
       );
-      
-      // Move to next verse after delay
-      Future.delayed(const Duration(milliseconds: 1500), _loadNextVerse);
     }
-    
-    InputDecoration getInputDecoration() {
-      final showSuccessStyle = hasSubmittedAnswer && isAnswerCorrect;
-      final showErrorStyle = hasSubmittedAnswer && !isAnswerCorrect;
+    return false;
+  }
+}
 
-      return InputDecoration(
-        border: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: showSuccessStyle
-                ? Colors.green
-                : showErrorStyle
-                ? Colors.orange
-                : Colors.grey[300]!,
-            width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
-          ),
+class VerseReferenceForm extends HookWidget {
+  const VerseReferenceForm({
+    required this.expectedReference,
+    required this.l10n,
+    required this.answerController,
+    required this.answerFocusNode,
+    required this.hasSubmittedAnswer,
+    required this.isAnswerCorrect,
+    required this.onSubmitAnswer,
+    super.key,
+  });
+
+  final String expectedReference;
+  final AppLocalizations l10n;
+  final TextEditingController answerController;
+  final FocusNode answerFocusNode;
+  final bool hasSubmittedAnswer;
+  final bool isAnswerCorrect;
+  final void Function(String) onSubmitAnswer;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Reference label
+      Container(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          l10n.reference,
+          style: const TextStyle(fontSize: 18, color: Colors.black),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: showSuccessStyle
-                ? Colors.green
-                : showErrorStyle
-                ? Colors.orange
-                : Colors.grey[300]!,
-            width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
+      ),
+
+      // Reference input form
+      TextField(
+        controller: answerController,
+        focusNode: answerFocusNode,
+        decoration: _getInputDecoration(),
+        onSubmitted: (_) => onSubmitAnswer(expectedReference),
+      ),
+
+      const SizedBox(height: 16),
+
+      // Submit button
+      Align(
+        alignment: Alignment.centerRight,
+        child: ElevatedButton(
+          key: const Key('submit-ref'),
+          onPressed: () => onSubmitAnswer(expectedReference),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
           ),
+          child: Text(l10n.submit),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: showSuccessStyle
-                ? Colors.green
-                : showErrorStyle
-                ? Colors.orange
-                : Colors.blue,
-            width: 2,
-          ),
+      ),
+    ],
+  );
+
+  InputDecoration _getInputDecoration() {
+    final showSuccessStyle = hasSubmittedAnswer && isAnswerCorrect;
+    final showErrorStyle = hasSubmittedAnswer && !isAnswerCorrect;
+
+    return InputDecoration(
+      border: OutlineInputBorder(
+        borderSide: BorderSide(
+          color:
+              showSuccessStyle
+                  ? Colors.green
+                  : showErrorStyle
+                  ? Colors.orange
+                  : Colors.grey[300]!,
+          width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
         ),
-        hintText: _l10n.enterReferenceHint,
-        errorText: isReferenceValid ? null : validationMessage,
-        helperText: showSuccessStyle
-            ? _l10n.correct
-            : showErrorStyle
-            ? _l10n.notQuiteRight(expectedReference)
-            : _l10n.referenceFormat,
-        helperStyle: TextStyle(
-          color: showSuccessStyle
-              ? Colors.green
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color:
+              showSuccessStyle
+                  ? Colors.green
+                  : showErrorStyle
+                  ? Colors.orange
+                  : Colors.grey[300]!,
+          width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color:
+              showSuccessStyle
+                  ? Colors.green
+                  : showErrorStyle
+                  ? Colors.orange
+                  : Colors.blue,
+          width: 2,
+        ),
+      ),
+      hintText: l10n.enterReferenceHint,
+      helperText:
+          showSuccessStyle
+              ? l10n.correct
               : showErrorStyle
-              ? Colors.orange
-              : Colors.grey[600],
-          fontWeight: (showSuccessStyle || showErrorStyle) ? FontWeight.bold : FontWeight.normal,
-        ),
-        suffixIcon: showSuccessStyle
-            ? const Icon(Icons.check_circle, color: Colors.green)
-            : showErrorStyle
-            ? const Icon(Icons.cancel, color: Colors.orange)
-            : null,
-        filled: showSuccessStyle || showErrorStyle,
-        fillColor: showSuccessStyle
-            ? Colors.green.withOpacity(0.1)
-            : showErrorStyle
-            ? Colors.orange.withOpacity(0.1)
-            : null,
-      );
-    }
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Reference label
-        Container(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Text(_l10n.reference, style: const TextStyle(fontSize: 18, color: Colors.black)),
-        ),
-
-        // Reference input form
-        TextField(
-          controller: answerController,
-          focusNode: answerFocusNode,
-          decoration: getInputDecoration(),
-          onSubmitted: (value) => submitAnswer(),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Submit button
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            key: const Key('submit-ref'),
-            onPressed: submitAnswer,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            child: Text(_l10n.submit),
-          ),
-        ),
-      ],
+              ? l10n.notQuiteRight(expectedReference)
+              : l10n.referenceFormat,
+      helperStyle: TextStyle(
+        color:
+            showSuccessStyle
+                ? Colors.green
+                : showErrorStyle
+                ? Colors.orange
+                : Colors.grey[600],
+        fontWeight:
+            (showSuccessStyle || showErrorStyle)
+                ? FontWeight.bold
+                : FontWeight.normal,
+      ),
+      suffixIcon:
+          showSuccessStyle
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : showErrorStyle
+              ? const Icon(Icons.cancel, color: Colors.orange)
+              : null,
+      filled: showSuccessStyle || showErrorStyle,
+      fillColor:
+          showSuccessStyle
+              ? Colors.green.withAlpha(25)
+              : showErrorStyle
+              ? Colors.orange.withAlpha(25)
+              : null,
     );
   }
+}
 
-  void _loadNextVerse() {
-    setState(() {
-      // Reset the answer field and submission state
-      answerController.clear();
-      hasSubmittedAnswer = false;
-      isAnswerCorrect = false;
+class StatsAndHistorySection extends StatelessWidget {
+  const StatsAndHistorySection({
+    required this.referenceRecallGrade,
+    required this.overdueReferences,
+    required this.pastQuestions,
+    required this.l10n,
+    super.key,
+  });
 
-      // Increment question number
-      questionNumber++;
+  final double referenceRecallGrade;
+  final int overdueReferences;
+  final List<String> pastQuestions;
+  final AppLocalizations l10n;
 
-      // Move to next verse
-      currentVerseIndex++;
-    });
-  }
-
-  Widget _buildStatsAndHistorySection() {
-    return Column(
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Column(
-            children: <Widget>[
-              SizedBox(width: 200, height: 160, child: Center(child: _buildGauge())),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.grey[100],
-                ),
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      '$overdueReferences',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      _l10n.referencesDueToday,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+  @override
+  Widget build(BuildContext context) => Column(
+    children: <Widget>[
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(5),
         ),
-        const SizedBox(height: 16),
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              width: 200,
+              height: 160,
+              child: Center(
+                child: ReferenceGauge(grade: referenceRecallGrade, l10n: l10n),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.grey[100],
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    '$overdueReferences',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    l10n.referencesDueToday,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 16),
+      QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: l10n),
+    ],
+  );
+}
+
+class QuestionHistoryWidget extends StatelessWidget {
+  const QuestionHistoryWidget({
+    required this.pastQuestions,
+    required this.l10n,
+    super.key,
+  });
+
+  final List<String> pastQuestions;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey[300]!),
+      borderRadius: BorderRadius.circular(5),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          l10n.priorQuestions,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(5),
-          ),
+          key: const Key('past-questions'),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                _l10n.priorQuestions,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                key: const Key('past-questions'),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: pastQuestions.isEmpty
-                      ? [
-                          Padding(
+            children:
+                pastQuestions.isEmpty
+                    ? [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(l10n.noPreviousQuestions),
+                      ),
+                    ]
+                    : pastQuestions
+                        .map(
+                          (feedback) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(_l10n.noPreviousQuestions),
-                          ),
-                        ]
-                      : pastQuestions
-                          .map(
-                            (feedback) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Text(
-                                feedback,
-                                style: TextStyle(
-                                  color: feedback.contains(' Correct!')
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  fontWeight: pastQuestions.indexOf(feedback) ==
-                                          pastQuestions.length - 1
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
+                            child: Text(
+                              feedback,
+                              style: TextStyle(
+                                color:
+                                    feedback.contains(' Correct!')
+                                        ? Colors.green
+                                        : Colors.orange,
+                                fontWeight:
+                                    pastQuestions.indexOf(feedback) ==
+                                            pastQuestions.length - 1
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                               ),
                             ),
-                          )
-                          .toList(),
-                ),
-              ),
-            ],
+                          ),
+                        )
+                        .toList(),
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildGauge() {
+class ReferenceGauge extends StatelessWidget {
+  const ReferenceGauge({required this.grade, required this.l10n, super.key});
+
+  final double grade;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
     Color gaugeColor;
-    if (referenceRecallGrade < 33) {
+    if (grade < 33) {
       gaugeColor = Colors.red[400]!;
-    } else if (referenceRecallGrade < 66) {
+    } else if (grade < 66) {
       gaugeColor = Colors.orange[400]!;
     } else {
       gaugeColor = Colors.green[400]!;
@@ -508,7 +706,7 @@ class _MemversePageState extends ConsumerState<MemversePage> {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(_l10n.referenceRecall, style: const TextStyle(fontSize: 14)),
+        Text(l10n.referenceRecall, style: const TextStyle(fontSize: 14)),
         const SizedBox(height: 10),
         SizedBox(
           width: 110,
@@ -517,26 +715,22 @@ class _MemversePageState extends ConsumerState<MemversePage> {
             alignment: Alignment.center,
             children: [
               CircularProgressIndicator(
-                value: referenceRecallGrade / 100,
+                value: grade / 100,
                 strokeWidth: 12,
                 backgroundColor: Colors.grey[300],
                 valueColor: AlwaysStoppedAnimation<Color>(gaugeColor),
               ),
               Text(
-                '${referenceRecallGrade.toInt()}%',
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                '${grade.round()}%',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    answerController.dispose();
-    answerFocusNode.dispose();
-    super.dispose();
   }
 }

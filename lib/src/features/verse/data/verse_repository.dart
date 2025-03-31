@@ -15,38 +15,33 @@ class FakeVerseRepository implements VerseRepository {
   @override
   Future<List<Verse>> getVerses() async {
     // Simulate a network delay
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     
     return [
       Verse(
         text: 'In the beginning God created the heavens and the earth.',
         reference: 'Genesis 1:1',
-        translation: 'NLT',
       ),
       Verse(
         text: 'For God so loved the world that he gave his one and only Son, '
             'that whoever believes in him shall not perish '
             'but have eternal life.',
         reference: 'John 3:16',
-        translation: 'NLT',
       ),
       Verse(
         text: 'Trust in the LORD with all your heart; do not depend on your own '
             'understanding.',
         reference: 'Proverbs 3:5',
-        translation: 'NLT',
       ),
       Verse(
         text: 'I can do everything through Christ, who gives me strength.',
         reference: 'Philippians 4:13',
-        translation: 'NLT',
       ),
       Verse(
         text: 'And we know that God causes everything to work together for the'
             ' good of those who love God and are called according to '
             'his purpose for them.',
         reference: 'Romans 8:28',
-        translation: 'NLT',
       ),
     ];
   }
