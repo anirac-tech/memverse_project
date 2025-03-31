@@ -10,6 +10,11 @@ import './step/i_tap_text.dart';
 import './step/i_enter_into_input_field.dart';
 import './step/i_wait_seconds.dart';
 import './step/i_dont_see_text.dart';
+import './step/i_see_a_circular_progress_indicator_showing0.dart';
+import './step/i_see_a_circular_progress_indicator_showing100.dart';
+import './step/i_see_the_text11.dart';
+import './step/i_see_a_circular_progress_indicator_showing50.dart';
+import './step/i_see_the_text12.dart';
 
 void main() {
   group('''App''', () {
@@ -32,18 +37,17 @@ void main() {
     });
     testWidgets('''Verse reference test progress tracking''', (tester) async {
       await theAppIsRunning(tester);
-      await tester.pumpAndSettle();
-      expect(find.text('0%'), findsOneWidget);
+      await iSeeACircularProgressIndicatorShowing0(tester);
       await iEnterIntoInputField(tester, 'Genesis 1:1', 0);
       await iTapText(tester, 'Submit');
       await iWaitSeconds(tester, 2);
-      expect(find.text('100%'), findsOneWidget);
-      expect(find.text('1/1'), findsOneWidget);
+      await iSeeACircularProgressIndicatorShowing100(tester);
+      await iSeeTheText11(tester);
       await iEnterIntoInputField(tester, 'John 3:17', 0);
       await iTapText(tester, 'Submit');
       await iWaitSeconds(tester, 2);
-      expect(find.text('50%'), findsOneWidget);
-      expect(find.text('1/2'), findsOneWidget);
+      await iSeeACircularProgressIndicatorShowing50(tester);
+      await iSeeTheText12(tester);
     });
   });
 }

@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/widgets.dart';
@@ -9,13 +10,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   };
 
   // Add cross-flavor configuration here
-  
+
   final container = ProviderContainer();
-  
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: await builder(),
-    ),
-  );
+
+  runApp(UncontrolledProviderScope(container: container, child: await builder()));
 }

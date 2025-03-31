@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
 
@@ -22,12 +21,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReferenceGauge(
-              progress: 50,
-              totalCorrect: 5,
-              totalAnswered: 10,
-              l10n: mockL10n,
-            ),
+            body: ReferenceGauge(progress: 50, totalCorrect: 5, totalAnswered: 10, l10n: mockL10n),
           ),
         ),
       );
@@ -40,12 +34,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReferenceGauge(
-              progress: 0,
-              totalCorrect: 0,
-              totalAnswered: 0,
-              l10n: mockL10n,
-            ),
+            body: ReferenceGauge(progress: 0, totalCorrect: 0, totalAnswered: 0, l10n: mockL10n),
           ),
         ),
       );
@@ -58,12 +47,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReferenceGauge(
-              progress: 20,
-              totalCorrect: 1,
-              totalAnswered: 5,
-              l10n: mockL10n,
-            ),
+            body: ReferenceGauge(progress: 20, totalCorrect: 1, totalAnswered: 5, l10n: mockL10n),
           ),
         ),
       );
@@ -71,23 +55,20 @@ void main() {
       final progressIndicator = tester.widget<CircularProgressIndicator>(
         find.byType(CircularProgressIndicator),
       );
-      
+
       expect(
         (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
         Colors.red[400],
       );
     });
 
-    testWidgets('displays correct color based on progress - orange for medium progress', (tester) async {
+    testWidgets('displays correct color based on progress - orange for medium progress', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReferenceGauge(
-              progress: 50,
-              totalCorrect: 5,
-              totalAnswered: 10,
-              l10n: mockL10n,
-            ),
+            body: ReferenceGauge(progress: 50, totalCorrect: 5, totalAnswered: 10, l10n: mockL10n),
           ),
         ),
       );
@@ -95,23 +76,20 @@ void main() {
       final progressIndicator = tester.widget<CircularProgressIndicator>(
         find.byType(CircularProgressIndicator),
       );
-      
+
       expect(
         (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
         Colors.orange[400],
       );
     });
 
-    testWidgets('displays correct color based on progress - green for high progress', (tester) async {
+    testWidgets('displays correct color based on progress - green for high progress', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReferenceGauge(
-              progress: 80,
-              totalCorrect: 8,
-              totalAnswered: 10,
-              l10n: mockL10n,
-            ),
+            body: ReferenceGauge(progress: 80, totalCorrect: 8, totalAnswered: 10, l10n: mockL10n),
           ),
         ),
       );
@@ -119,7 +97,7 @@ void main() {
       final progressIndicator = tester.widget<CircularProgressIndicator>(
         find.byType(CircularProgressIndicator),
       );
-      
+
       expect(
         (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
         Colors.green[400],
@@ -215,44 +193,36 @@ void main() {
     testWidgets('displays format error for invalid references', (tester) async {
       final mockLocalizations = MockAppLocalizations();
       when(() => mockLocalizations.referenceCannotBeEmpty).thenReturn('Reference cannot be empty');
-      
+
       final verseForm = MaterialApp(
         home: Scaffold(
           body: Column(
             children: [
               TextField(
                 controller: TextEditingController(),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   helperText: 'Invalid format',
                   helperStyle: TextStyle(color: Colors.orange),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text('Submit'),
-              ),
+              ElevatedButton(onPressed: () {}, child: const Text('Submit')),
             ],
           ),
         ),
       );
-      
+
       await tester.pumpWidget(verseForm);
       expect(find.text('Invalid format'), findsOneWidget);
     });
   });
 
   group('Progress calculation', () {
-    testWidgets('correctly calculates progress when submitting answers', 
-        (tester) async {
+    testWidgets('correctly calculates progress when submitting answers', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
             builder: (context) {
-              return Column(
-                children: [
-                  const ProgressTestWrapper(),
-                ],
-              );
+              return const Column(children: [ProgressTestWrapper()]);
             },
           ),
         ),
@@ -263,21 +233,21 @@ void main() {
       expect(find.text('0/0'), findsOneWidget);
 
       // Submit a correct answer
-      await tester.tap(find.byKey(Key('correct-button')));
+      await tester.tap(find.byKey(const Key('correct-button')));
       await tester.pump();
       expect(find.text('100%'), findsOneWidget);
       expect(find.text('1/1'), findsOneWidget);
 
       // Submit an incorrect answer
-      await tester.tap(find.byKey(Key('incorrect-button')));
+      await tester.tap(find.byKey(const Key('incorrect-button')));
       await tester.pump();
       expect(find.text('50%'), findsOneWidget);
       expect(find.text('1/2'), findsOneWidget);
 
       // Submit two more correct answers
-      await tester.tap(find.byKey(Key('correct-button')));
+      await tester.tap(find.byKey(const Key('correct-button')));
       await tester.pump();
-      await tester.tap(find.byKey(Key('correct-button')));
+      await tester.tap(find.byKey(const Key('correct-button')));
       await tester.pump();
       expect(find.text('75%'), findsOneWidget);
       expect(find.text('3/4'), findsOneWidget);
@@ -344,14 +314,14 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
           isValidated: isValidated,
         ),
         ElevatedButton(
-          key: Key('correct-button'),
+          key: const Key('correct-button'),
           onPressed: submitCorrectAnswer,
-          child: Text('Correct Answer'),
+          child: const Text('Correct Answer'),
         ),
         ElevatedButton(
-          key: Key('incorrect-button'),
+          key: const Key('incorrect-button'),
           onPressed: submitIncorrectAnswer,
-          child: Text('Incorrect Answer'),
+          child: const Text('Incorrect Answer'),
         ),
       ],
     );

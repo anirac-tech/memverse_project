@@ -1,0 +1,20 @@
+{
+  "rules": [
+    "Project is a scripture memory flutter app which is a mobile front-end for memverse.com",
+    "Use riverpod for state management and existing hooks such as useTextEditingController wherever possible",
+    "Use techniques from codewithandrea.com",
+    "Make sure and localize all user-facing strings in English and Spanish",
+    "Get 100% test coverage for widget and integration tests - use //ignore as a last resort",
+    "Try to use bdd testing with gherkin with https://pub.dev/packages/bdd_widget_test whenever possible ",
+    "Exclude generated code and 'l10n' directory from test coverage similar to flutter test --coverage;lcov --remove coverage/lcov.info 'lib/l10n' '**/*.g.dart' -o coverage/new_lcov.info ;genhtml coverage/new_lcov.info -o coverage/html\n\n",
+    "Always run dart format for 100 characters",
+    "Always run flutter analyze and fix all issues",
+    "always run dart fix --apply",
+    {
+      "filePathMatches": "*.feature",
+      "rules": [
+        "Use gherkin syntax/templates from https://pub.dev/packages/bdd_widget_test ie Then I see {'1'} text"
+      ]
+    }
+  ]
+}

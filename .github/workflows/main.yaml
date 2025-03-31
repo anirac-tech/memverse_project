@@ -21,7 +21,8 @@ jobs:
     with:
       flutter_channel: stable
       format_directories: lib/src test
-      min_coverage: 43.9
+      min_coverage: 88.8
+      coverage_excludes: ""
       format_line_length: 100 # was failing because localization which is auto-gen
 
   spell-check:

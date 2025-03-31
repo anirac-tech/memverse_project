@@ -35,7 +35,7 @@ class MemversePage extends HookConsumerWidget {
     useEffect(() {
       answerFocusNode.requestFocus();
       return null;
-    }, const [],);
+    }, const []);
 
     void loadNextVerse() {
       // Reset the answer field and submission state
@@ -64,10 +64,10 @@ class MemversePage extends HookConsumerWidget {
 
       if (!VerseReferenceValidator.isValid(answerController.text)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Invalid reference format'),
+          const SnackBar(
+            content: Text('Invalid reference format'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
+            duration: Duration(seconds: 3),
           ),
         );
         return;
@@ -88,9 +88,8 @@ class MemversePage extends HookConsumerWidget {
 
       totalAnswered.value++;
       // Update progress as percentage of correct answers
-      progress.value = totalAnswered.value > 0 
-          ? (totalCorrect.value / totalAnswered.value) * 100 
-          : 0;
+      progress.value =
+          totalAnswered.value > 0 ? (totalCorrect.value / totalAnswered.value) * 100 : 0;
 
       // Add to history
       final feedback =
@@ -162,17 +161,12 @@ class MemversePage extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 24),
                       StatsAndHistorySection(
-                        progress: progress.value, 
+                        progress: progress.value,
                         totalCorrect: totalCorrect.value,
                         totalAnswered: totalAnswered.value,
                         l10n: l10n,
-                        isLoading: false,
-                        isErrored: false,
-                        isValidated: false,
                         overdueReferences: overdueReferences.value,
                         pastQuestions: pastQuestions.value,
-                        error: null,
-                        validationError: null,
                       ),
                     ],
                   )
@@ -198,17 +192,12 @@ class MemversePage extends HookConsumerWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: StatsAndHistorySection(
-                          progress: progress.value, 
+                          progress: progress.value,
                           totalCorrect: totalCorrect.value,
                           totalAnswered: totalAnswered.value,
                           l10n: l10n,
-                          isLoading: false,
-                          isErrored: false,
-                          isValidated: false,
                           overdueReferences: overdueReferences.value,
                           pastQuestions: pastQuestions.value,
-                          error: null,
-                          validationError: null,
                         ),
                       ),
                     ],
@@ -270,13 +259,10 @@ class QuestionSection extends HookConsumerWidget {
         child: versesAsync.when(
           data: (verses) {
             final verse =
-                currentVerseIndex < verses.length
-                    ? verses[currentVerseIndex]
-                    : verses.last;
+                currentVerseIndex < verses.length ? verses[currentVerseIndex] : verses.last;
             return VerseCard(verse: verse);
           },
-          loading:
-              () => const Center(child: CircularProgressIndicator.adaptive()),
+          loading: () => const Center(child: CircularProgressIndicator.adaptive()),
           error:
               (error, stackTrace) => Center(
                 child: Text(
@@ -292,10 +278,7 @@ class QuestionSection extends HookConsumerWidget {
       // Reference form
       versesAsync.maybeWhen(
         data: (verses) {
-          final verse =
-              currentVerseIndex < verses.length
-                  ? verses[currentVerseIndex]
-                  : verses.last;
+          final verse = currentVerseIndex < verses.length ? verses[currentVerseIndex] : verses.last;
           return VerseReferenceForm(
             expectedReference: verse.reference,
             l10n: l10n,
@@ -319,53 +302,45 @@ class VerseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-      key: const Key('refTestVerse'),
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.grey[50],
-      ),
-      child: Stack(
-        children: [
-          // Scrollable verse text
-          Positioned.fill(
-            bottom: 25,
-            child: SingleChildScrollView(
-              child: Text(
-                verse.text,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  height: 1.5,
-                ),
-              ),
+    key: const Key('refTestVerse'),
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey[300]!),
+      borderRadius: BorderRadius.circular(5),
+      color: Colors.grey[50],
+    ),
+    child: Stack(
+      children: [
+        // Scrollable verse text
+        Positioned.fill(
+          bottom: 25,
+          child: SingleChildScrollView(
+            child: Text(
+              verse.text,
+              style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic, height: 1.5),
             ),
           ),
+        ),
 
-          // Attribution text
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                verse.translation,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+        // Attribution text
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              verse.translation,
+              style: TextStyle(fontSize: 12, color: Colors.grey[700], fontWeight: FontWeight.bold),
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
 }
 
 class VerseReferenceValidator {
@@ -451,9 +426,7 @@ class VerseReferenceValidator {
       final match = bookChapterVersePattern.firstMatch(text);
       final bookName = match?.group(1)?.trim() ?? '';
 
-      return bookSuggestions.any(
-        (book) => book.toLowerCase() == bookName.toLowerCase(),
-      );
+      return bookSuggestions.any((book) => book.toLowerCase() == bookName.toLowerCase());
     }
     return false;
   }
@@ -486,10 +459,7 @@ class VerseReferenceForm extends HookWidget {
       // Reference label
       Container(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Text(
-          l10n.reference,
-          style: const TextStyle(fontSize: 18, color: Colors.black),
-        ),
+        child: Text(l10n.reference, style: const TextStyle(fontSize: 18, color: Colors.black)),
       ),
 
       // Reference input form
@@ -571,10 +541,7 @@ class VerseReferenceForm extends HookWidget {
                 : showErrorStyle
                 ? Colors.orange
                 : Colors.grey[600],
-        fontWeight:
-            (showSuccessStyle || showErrorStyle)
-                ? FontWeight.bold
-                : FontWeight.normal,
+        fontWeight: (showSuccessStyle || showErrorStyle) ? FontWeight.bold : FontWeight.normal,
       ),
       suffixIcon:
           showSuccessStyle
@@ -599,11 +566,11 @@ class StatsAndHistorySection extends StatelessWidget {
     required this.totalCorrect,
     required this.totalAnswered,
     required this.l10n,
+    required this.overdueReferences,
+    required this.pastQuestions,
     this.isLoading = false,
     this.isErrored = false,
     this.isValidated = false,
-    required this.overdueReferences,
-    required this.pastQuestions,
     this.error,
     this.validationError,
     super.key,
@@ -637,7 +604,7 @@ class StatsAndHistorySection extends StatelessWidget {
               height: 160,
               child: Center(
                 child: ReferenceGauge(
-                  progress: progress, 
+                  progress: progress,
                   totalCorrect: totalCorrect,
                   totalAnswered: totalAnswered,
                   l10n: l10n,
@@ -661,10 +628,7 @@ class StatsAndHistorySection extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     '$overdueReferences',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     l10n.referencesDueToday,
@@ -684,11 +648,7 @@ class StatsAndHistorySection extends StatelessWidget {
 }
 
 class QuestionHistoryWidget extends StatelessWidget {
-  const QuestionHistoryWidget({
-    required this.pastQuestions,
-    required this.l10n,
-    super.key,
-  });
+  const QuestionHistoryWidget({required this.pastQuestions, required this.l10n, super.key});
 
   final List<String> pastQuestions;
   final AppLocalizations l10n;
@@ -728,12 +688,9 @@ class QuestionHistoryWidget extends StatelessWidget {
                               feedback,
                               style: TextStyle(
                                 color:
-                                    feedback.contains(' Correct!')
-                                        ? Colors.green
-                                        : Colors.orange,
+                                    feedback.contains(' Correct!') ? Colors.green : Colors.orange,
                                 fontWeight:
-                                    pastQuestions.indexOf(feedback) ==
-                                            pastQuestions.length - 1
+                                    pastQuestions.indexOf(feedback) == pastQuestions.length - 1
                                         ? FontWeight.bold
                                         : FontWeight.normal,
                               ),
@@ -750,10 +707,10 @@ class QuestionHistoryWidget extends StatelessWidget {
 
 class ReferenceGauge extends StatelessWidget {
   const ReferenceGauge({
-    required this.progress, 
+    required this.progress,
     required this.totalCorrect,
     required this.totalAnswered,
-    required this.l10n, 
+    required this.l10n,
     this.isLoading = false,
     this.isErrored = false,
     this.isValidated = false,
@@ -818,17 +775,9 @@ class ReferenceGauge extends StatelessWidget {
                 children: [
                   Text(
                     '${progress.round()}%',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    '$totalCorrect/$totalAnswered',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
+                  Text('$totalCorrect/$totalAnswered', style: const TextStyle(fontSize: 14)),
                 ],
               ),
             ],
