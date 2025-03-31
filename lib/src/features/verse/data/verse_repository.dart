@@ -4,15 +4,13 @@ class VerseRepositoryProvider {
   static final instance = FakeVerseRepository();
 }
 
-abstract class VerseRepository {
-  /// Get a list of verses
-  Future<List<Verse>> getVerses();
-}
+/// Interface for accessing verse data
+typedef VerseRepository = FakeVerseRepository;
 
 /// Sample implementation that provides a hardcoded list of verses
 /// but simulates a network call with a delay
-class FakeVerseRepository implements VerseRepository {
-  @override
+class FakeVerseRepository {
+  /// Get a list of verses
   Future<List<Verse>> getVerses() async {
     // Simulate a network delay
     await Future<void>.delayed(const Duration(seconds: 2));
