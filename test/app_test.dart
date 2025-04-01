@@ -9,6 +9,7 @@ import './step/i_see_text.dart';
 import './step/i_tap_text.dart';
 import './step/i_enter_into_input_field.dart';
 import './step/i_wait_seconds.dart';
+import './step/i_dont_see_text_containing.dart';
 import './step/i_dont_see_text.dart';
 
 void main() {
@@ -23,12 +24,26 @@ void main() {
       await iSeeText(tester, 'Reference cannot be empty');
       await iSeeText(tester, '5');
     });
+    testWidgets('''Invalid Reference Format''', (tester) async {
+      await theAppIsRunning(tester);
+      await iEnterIntoInputField(tester, 'lafjl', 0);
+      await iTapText(tester, 'Submit');
+      await iWaitSeconds(tester, 3);
+      await iDontSeeTextContaining(tester, 'Genesis 1:1-');
+    });
     testWidgets('''Invalid Reference (is never correct)''', (tester) async {
       await theAppIsRunning(tester);
       await iEnterIntoInputField(tester, 'Revelation 9:99', 0);
       await iTapText(tester, 'Submit');
       await iWaitSeconds(tester, 3);
       await iDontSeeText(tester, 'Reference cannot be empty');
+    });
+    testWidgets('''Correct Reference''', (tester) async {
+      await theAppIsRunning(tester);
+      await iEnterIntoInputField(tester, 'Genesis 1:1', 0);
+      await iTapText(tester, 'Submit');
+      await iWaitSeconds(tester, 3);
+      await iSeeText(tester, 'Genesis 1:1-[Genesis 1:1] Correct!');
     });
     testWidgets('''Verse reference test progress tracking''', (tester) async {
       await theAppIsRunning(tester);

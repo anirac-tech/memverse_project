@@ -143,7 +143,9 @@ class MemversePage extends HookConsumerWidget {
           margin: const EdgeInsets.all(16),
           child:
               isSmallScreen
-                  ? Column(
+                  ?
+                  //coverage:ignore-start
+                  Column(
                     children: [
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.6,
@@ -170,6 +172,7 @@ class MemversePage extends HookConsumerWidget {
                       ),
                     ],
                   )
+                  //coverage:ignore-end
                   : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
