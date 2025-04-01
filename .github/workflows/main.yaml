@@ -22,7 +22,7 @@ jobs:
       flutter_channel: stable
       format_directories: lib/src test
       min_coverage: 99.0
-      coverage_excludes: lib/l10/**
+      coverage_excludes: lib/l10n/arb/app_localizations_es.dart
       format_line_length: 100 # was failing because localization which is auto-gen
 
   spell-check:
