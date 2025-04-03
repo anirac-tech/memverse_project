@@ -80,7 +80,7 @@ void main() {
               l10n: mockL10n,
               overdueReferences: 5,
               pastQuestions: const [],
-              isErrored: true,
+              hasError: true,
               error: 'Error loading verses',
             ),
           ),

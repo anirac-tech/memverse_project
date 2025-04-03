@@ -104,25 +104,6 @@ void main() {
       );
     });
 
-    testWidgets('displays error state when verse loading fails', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(
-              progress: 0,
-              totalCorrect: 0,
-              totalAnswered: 0,
-              l10n: mockL10n,
-              error: 'Error loading verse',
-              isErrored: true,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Error loading verse'), findsOneWidget);
-    });
-
     testWidgets('displays loading state when verse is loading', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -141,24 +122,6 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('displays format validation error', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(
-              progress: 0,
-              totalCorrect: 0,
-              totalAnswered: 0,
-              l10n: mockL10n,
-              validationError: 'Invalid verse format',
-              isValidated: true,
-            ),
-          ),
-        ),
-      );
-
-      expect(find.text('Invalid verse format'), findsOneWidget);
-    });
   });
 
   group('VerseReferenceValidator', () {
@@ -299,8 +262,7 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget build(BuildContext context) => Column(
       children: [
         ReferenceGauge(
           progress: progress,
@@ -310,8 +272,6 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
           error: error,
           isLoading: isLoading,
           validationError: validationError,
-          isErrored: isErrored,
-          isValidated: isValidated,
         ),
         ElevatedButton(
           key: const Key('correct-button'),
@@ -325,5 +285,4 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
         ),
       ],
     );
-  }
 }

@@ -6,9 +6,7 @@ import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 
 // TODO(neiljaywarner): Riverpod 2 oe riverpod 3 and provider not instance
-final verseListProvider = FutureProvider<List<Verse>>((ref) async {
-  return VerseRepositoryProvider.instance.getVerses();
-});
+final verseListProvider = FutureProvider<List<Verse>>((ref) async => VerseRepositoryProvider.instance.getVerses());
 
 class MemversePage extends HookConsumerWidget {
   const MemversePage({super.key});
@@ -98,11 +96,7 @@ class MemversePage extends HookConsumerWidget {
               ? '${answerController.text}-[$expectedReference] Correct!'
               : '${answerController.text}-[$expectedReference] Incorrect';
 
-      final newPastQuestions = [...pastQuestions.value, feedback];
-      if (newPastQuestions.length > 5) {
-        newPastQuestions.removeAt(0);
-      }
-      pastQuestions.value = newPastQuestions;
+      pastQuestions.value = [...pastQuestions.value, feedback];
 
       final detailedFeedback =
           isCorrect
@@ -261,11 +255,7 @@ class QuestionSection extends HookConsumerWidget {
       SizedBox(
         height: 180,
         child: versesAsync.when(
-          data: (verses) {
-            final verse =
-                currentVerseIndex < verses.length ? verses[currentVerseIndex] : verses.last;
-            return VerseCard(verse: verse);
-          },
+          data: (verses) => VerseCard(verse: verses[currentVerseIndex]),
           loading: () => const Center(child: CircularProgressIndicator.adaptive()),
           error:
               (error, stackTrace) => Center(
@@ -281,18 +271,15 @@ class QuestionSection extends HookConsumerWidget {
 
       // Reference form
       versesAsync.maybeWhen(
-        data: (verses) {
-          final verse = currentVerseIndex < verses.length ? verses[currentVerseIndex] : verses.last;
-          return VerseReferenceForm(
-            expectedReference: verse.reference,
+        data: (verses) => VerseReferenceForm(
+            expectedReference: verses[currentVerseIndex].reference,
             l10n: l10n,
             answerController: answerController,
             answerFocusNode: answerFocusNode,
             hasSubmittedAnswer: hasSubmittedAnswer,
             isAnswerCorrect: isAnswerCorrect,
             onSubmitAnswer: onSubmitAnswer,
-          );
-        },
+          ),
         orElse: () => const SizedBox.shrink(),
       ),
     ],
@@ -573,7 +560,7 @@ class StatsAndHistorySection extends StatelessWidget {
     required this.overdueReferences,
     required this.pastQuestions,
     this.isLoading = false,
-    this.isErrored = false,
+    this.hasError = false,
     this.isValidated = false,
     this.error,
     this.validationError,
@@ -585,7 +572,7 @@ class StatsAndHistorySection extends StatelessWidget {
   final int totalAnswered;
   final AppLocalizations l10n;
   final bool isLoading;
-  final bool isErrored;
+  final bool hasError;
   final bool isValidated;
   final int overdueReferences;
   final List<String> pastQuestions;
@@ -613,8 +600,6 @@ class StatsAndHistorySection extends StatelessWidget {
                   totalAnswered: totalAnswered,
                   l10n: l10n,
                   isLoading: isLoading,
-                  isErrored: isErrored,
-                  isValidated: isValidated,
                   error: error,
                   validationError: validationError,
                 ),
@@ -716,8 +701,6 @@ class ReferenceGauge extends StatelessWidget {
     required this.totalAnswered,
     required this.l10n,
     this.isLoading = false,
-    this.isErrored = false,
-    this.isValidated = false,
     this.error,
     this.validationError,
     super.key,
@@ -728,8 +711,6 @@ class ReferenceGauge extends StatelessWidget {
   final int totalAnswered;
   final AppLocalizations l10n;
   final bool isLoading;
-  final bool isErrored;
-  final bool isValidated;
   final String? error;
   final String? validationError;
 
@@ -737,14 +718,6 @@ class ReferenceGauge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (isErrored) {
-      return Text(error ?? '', style: const TextStyle(color: Colors.red));
-    }
-
-    if (isValidated) {
-      return Text(validationError ?? '', style: const TextStyle(color: Colors.red));
     }
 
     Color gaugeColor;
