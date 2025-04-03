@@ -5,6 +5,7 @@ import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 
+// TODO(neiljaywarner): Riverpod 2 oe riverpod 3 and provider not instance
 final verseListProvider = FutureProvider<List<Verse>>((ref) async {
   return VerseRepositoryProvider.instance.getVerses();
 });

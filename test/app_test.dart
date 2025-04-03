@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import './step/the_app_is_running.dart';
 import './step/i_see_text.dart';
+import './step/the_app_is_running_with_verses_error.dart';
+import './step/i_see_text_containing.dart';
 import './step/i_tap_text.dart';
 import './step/i_enter_into_input_field.dart';
 import './step/i_wait_seconds.dart';
@@ -17,6 +19,10 @@ void main() {
     testWidgets('''Initial app launch''', (tester) async {
       await theAppIsRunning(tester);
       await iSeeText(tester, 'Reference Test');
+    });
+    testWidgets('''Verse list error such as server issue.''', (tester) async {
+      await theAppIsRunningWithVersesError(tester);
+      await iSeeTextContaining(tester, 'Error loading verses');
     });
     testWidgets('''Empty answer''', (tester) async {
       await theAppIsRunning(tester);

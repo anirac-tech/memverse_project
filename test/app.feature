@@ -2,6 +2,10 @@ Feature: App
     Scenario: Initial app launch
         Given the app is running
         Then I see {'Reference Test'} text
+
+    Scenario: Verse list error such as server issue.
+        Given the app is running with verses error
+        Then I see text containing {'Error loading verses'}
     Scenario: Empty answer
         Given the app is running
         When I tap {'Submit'} text

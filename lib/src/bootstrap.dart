@@ -11,7 +11,5 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
   // Add cross-flavor configuration here
 
-  final container = ProviderContainer();
-
-  runApp(UncontrolledProviderScope(container: container, child: await builder()));
+  runApp(ProviderScope(child: await builder()));
 }
