@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
-import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
+import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
+import 'package:memverse/src/features/verse/presentation/widgets/reference_gauge.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
@@ -121,7 +122,6 @@ void main() {
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
-
   });
 
   group('VerseReferenceValidator', () {
@@ -263,26 +263,26 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
 
   @override
   Widget build(BuildContext context) => Column(
-      children: [
-        ReferenceGauge(
-          progress: progress,
-          totalCorrect: totalCorrect,
-          totalAnswered: totalAnswered,
-          l10n: _mockL10n,
-          error: error,
-          isLoading: isLoading,
-          validationError: validationError,
-        ),
-        ElevatedButton(
-          key: const Key('correct-button'),
-          onPressed: submitCorrectAnswer,
-          child: const Text('Correct Answer'),
-        ),
-        ElevatedButton(
-          key: const Key('incorrect-button'),
-          onPressed: submitIncorrectAnswer,
-          child: const Text('Incorrect Answer'),
-        ),
-      ],
-    );
+    children: [
+      ReferenceGauge(
+        progress: progress,
+        totalCorrect: totalCorrect,
+        totalAnswered: totalAnswered,
+        l10n: _mockL10n,
+        error: error,
+        isLoading: isLoading,
+        validationError: validationError,
+      ),
+      ElevatedButton(
+        key: const Key('correct-button'),
+        onPressed: submitCorrectAnswer,
+        child: const Text('Correct Answer'),
+      ),
+      ElevatedButton(
+        key: const Key('incorrect-button'),
+        onPressed: submitIncorrectAnswer,
+        child: const Text('Incorrect Answer'),
+      ),
+    ],
+  );
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
-import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
+import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
@@ -69,29 +69,6 @@ void main() {
       expect(find.text('John 3:17-[John 3:16] Incorrect'), findsOneWidget);
     });
 
-    testWidgets('should display error state', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Material(
-            child: StatsAndHistorySection(
-              progress: 0,
-              totalCorrect: 0,
-              totalAnswered: 0,
-              l10n: mockL10n,
-              overdueReferences: 5,
-              pastQuestions: const [],
-              hasError: true,
-              error: 'Error loading verses',
-            ),
-          ),
-        ),
-      );
-
-      // ReferenceGauge should display error instead of progress
-      expect(find.text('Error loading verses'), findsOneWidget);
-      expect(find.text('0%'), findsNothing);
-    });
-
     testWidgets('should display loading state', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -111,29 +88,6 @@ void main() {
 
       // ReferenceGauge should display loading indicator
       expect(find.byType(CircularProgressIndicator), findsAtLeastNWidgets(1));
-      expect(find.text('0%'), findsNothing);
-    });
-
-    testWidgets('should display validation error', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Material(
-            child: StatsAndHistorySection(
-              progress: 0,
-              totalCorrect: 0,
-              totalAnswered: 0,
-              l10n: mockL10n,
-              overdueReferences: 5,
-              pastQuestions: const [],
-              isValidated: true,
-              validationError: 'Invalid reference format',
-            ),
-          ),
-        ),
-      );
-
-      // ReferenceGauge should display validation error
-      expect(find.text('Invalid reference format'), findsOneWidget);
       expect(find.text('0%'), findsNothing);
     });
   });

@@ -5,6 +5,8 @@ import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
+import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
+import 'package:memverse/src/features/verse/presentation/widgets/reference_gauge.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}

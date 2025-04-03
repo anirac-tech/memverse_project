@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
-import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
+import 'package:memverse/src/features/verse/presentation/widgets/verse_reference_form.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}

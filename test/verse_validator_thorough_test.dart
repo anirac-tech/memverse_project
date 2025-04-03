@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
+import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
 
 void main() {
   group('VerseReferenceValidator', () {

@@ -70,15 +70,16 @@ class QuestionSection extends HookConsumerWidget {
 
       // Reference form
       versesAsync.maybeWhen(
-        data: (verses) => VerseReferenceForm(
-            expectedReference: verses[currentVerseIndex].reference,
-            l10n: l10n,
-            answerController: answerController,
-            answerFocusNode: answerFocusNode,
-            hasSubmittedAnswer: hasSubmittedAnswer,
-            isAnswerCorrect: isAnswerCorrect,
-            onSubmitAnswer: onSubmitAnswer,
-          ),
+        data:
+            (verses) => VerseReferenceForm(
+              expectedReference: verses[currentVerseIndex].reference,
+              l10n: l10n,
+              answerController: answerController,
+              answerFocusNode: answerFocusNode,
+              hasSubmittedAnswer: hasSubmittedAnswer,
+              isAnswerCorrect: isAnswerCorrect,
+              onSubmitAnswer: onSubmitAnswer,
+            ),
         orElse: () => const SizedBox.shrink(),
       ),
     ],
