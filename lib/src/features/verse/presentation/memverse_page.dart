@@ -38,6 +38,7 @@ class MemversePage extends HookConsumerWidget {
     useEffect(() {
       answerFocusNode.requestFocus();
       return null;
+      //ignore:require_trailing_commas
     }, const []);
 
     void loadNextVerse() {
