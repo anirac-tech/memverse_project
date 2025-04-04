@@ -41,6 +41,18 @@ class MemversePage extends HookConsumerWidget {
       //ignore:require_trailing_commas
     }, const []);
 
+    String getStandardBookName(String bookName) {
+      // This function should be implemented according to your requirements
+      // For example:
+      final standardBookNames = {
+        'genesis': 'Genesis',
+        'exodus': 'Exodus',
+        'leviticus': 'Leviticus',
+        // Add more book names as needed
+      };
+      return standardBookNames[bookName.toLowerCase()] ?? bookName;
+    }
+
     void loadNextVerse() {
       answerController.clear();
       hasSubmittedAnswer.value = false;
@@ -73,44 +85,66 @@ class MemversePage extends HookConsumerWidget {
         return;
       }
 
-      final userAnswer = answerController.text.trim().toLowerCase();
-      final isCorrect = userAnswer == expectedReference.toLowerCase();
-
-      hasSubmittedAnswer.value = true;
-      isAnswerCorrect.value = isCorrect;
-
-      if (isCorrect) {
-        totalCorrect.value++;
-        if (overdueReferences.value > 0) {
-          overdueReferences.value--;
-        }
-      }
-
-      totalAnswered.value++;
-      progress.value =
-          totalAnswered.value > 0 ? (totalCorrect.value / totalAnswered.value) * 100 : 0;
-
-      final feedback =
-          isCorrect
-              ? '${answerController.text}-[$expectedReference] Correct!'
-              : '${answerController.text}-[$expectedReference] Incorrect';
-
-      pastQuestions.value = [...pastQuestions.value, feedback];
-
-      final detailedFeedback =
-          isCorrect
-              ? l10n.correctReferenceIdentification(expectedReference)
-              : l10n.notQuiteRight(expectedReference);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(detailedFeedback),
-          backgroundColor: isCorrect ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 3),
-        ),
+      final userAnswer = answerController.text.trim();
+      
+      final bookChapterVersePattern = RegExp(
+        r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$',
       );
+      
+      final userMatch = bookChapterVersePattern.firstMatch(userAnswer);
+      final expectedMatch = bookChapterVersePattern.firstMatch(expectedReference);
+      
+      if (userMatch != null && expectedMatch != null) {
+        final userBookName = userMatch.group(1)?.trim() ?? '';
+        final userChapterVerse = '${userMatch.group(4)}:${userMatch.group(5)}';
+        
+        final expectedBookName = expectedMatch.group(1)?.trim() ?? '';
+        final expectedChapterVerse = '${expectedMatch.group(4)}:${expectedMatch.group(5)}';
+        
+        final userStandardBook = VerseReferenceValidator.getStandardBookName(userBookName);
+        final expectedStandardBook = VerseReferenceValidator.getStandardBookName(expectedBookName);
+        
+        final booksMatch = userStandardBook.toLowerCase() == expectedStandardBook.toLowerCase();
+        final chapterVerseMatch = userChapterVerse == expectedChapterVerse;
+        
+        final isCorrect = booksMatch && chapterVerseMatch;
+        
+        hasSubmittedAnswer.value = true;
+        isAnswerCorrect.value = isCorrect;
+        
+        if (isCorrect) {
+          totalCorrect.value++;
+          if (overdueReferences.value > 0) {
+            overdueReferences.value--;
+          }
+        }
 
-      Future.delayed(const Duration(milliseconds: 1500), loadNextVerse);
+        totalAnswered.value++;
+        progress.value =
+            totalAnswered.value > 0 ? (totalCorrect.value / totalAnswered.value) * 100 : 0;
+
+        final feedback =
+            isCorrect
+                ? '$userAnswer-[$expectedReference] Correct!'
+                : '$userAnswer-[$expectedReference] Incorrect';
+
+        pastQuestions.value = [...pastQuestions.value, feedback];
+
+        final detailedFeedback =
+            isCorrect
+                ? l10n.correctReferenceIdentification(expectedReference)
+                : l10n.notQuiteRight(expectedReference);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(detailedFeedback),
+            backgroundColor: isCorrect ? Colors.green : Colors.orange,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
+        Future.delayed(const Duration(milliseconds: 1500), loadNextVerse);
+      }
     }
 
     return Scaffold(
