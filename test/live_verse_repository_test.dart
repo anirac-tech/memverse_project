@@ -1,20 +1,19 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 
 void main() {
   group('LiveVerseRepository', () {
     test('Fetches and parses real data from the API', () async {
       // Make a real API request to verify the content
-      final client = http.Client();
-      final response = await client.get(
-        Uri.parse(
-          'https://gist.githubusercontent.com/neiljaywarner/2880b87250163386a41e00fc1535e02c/raw',
-        ),
+      final dio = Dio();
+      final response = await dio.get<dynamic>(
+        'https://gist.githubusercontent.com/neiljaywarner/2880b87250163386a41e00fc1535e02c/raw',
       );
       expect(response.statusCode, 200);
-      expect(response.body.contains('Col 1:17'), isTrue);
-      expect(response.body.contains('Phil 4:13'), isTrue);
+      final responseData = response.data.toString();
+      expect(responseData.contains('Col 1:17'), isTrue);
+      expect(responseData.contains('Phil 4:13'), isTrue);
 
       // Test that the VerseRepositoryProvider returns a LiveVerseRepository
       final repositoryInstance = VerseRepositoryProvider.instance;

@@ -1,5 +1,5 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:mockito/annotations.dart';
@@ -7,7 +7,7 @@ import 'package:mockito/mockito.dart';
 
 import 'verse_repository_test.mocks.dart';
 
-@GenerateMocks([http.Client])
+@GenerateMocks([Dio])
 void main() {
   group('VerseRepositoryProvider', () {
     test('instance should return a VerseRepository implementation', () {
@@ -43,22 +43,30 @@ void main() {
   });
 
   group('LiveVerseRepository', () {
-    late MockClient mockClient;
+    late MockDio mockDio;
     late LiveVerseRepository repository;
 
     setUp(() {
-      mockClient = MockClient();
-      repository = LiveVerseRepository(client: mockClient);
+      mockDio = MockDio();
+      repository = LiveVerseRepository(dio: mockDio);
     });
 
     test('getVerses should return verses from API when request succeeds', () async {
-      when(mockClient.get(any)).thenAnswer(
-        (_) async => http.Response('''
-            [
-            {"ref":"Col 1:17","text":"He existed before anything else, and he holds all creation together"},
-            {"ref":"Phil 4:13","text":"For I can do everything through Christ, who gives me strength"}
-          ]
-          ''', 200),
+      when(mockDio.get<dynamic>(any)).thenAnswer(
+        (_) async => Response<List<dynamic>>(
+          data: [
+            {
+              'ref': 'Col 1:17',
+              'text': 'He existed before anything else, and he holds all creation together',
+            },
+            {
+              'ref': 'Phil 4:13',
+              'text': 'For I can do everything through Christ, who gives me strength',
+            },
+          ],
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/'),
+        ),
       );
 
       final verses = await repository.getVerses();
@@ -77,7 +85,13 @@ void main() {
     });
 
     test('getVerses should return fallback verses when request fails', () async {
-      when(mockClient.get(any)).thenAnswer((_) async => http.Response('Server error', 500));
+      when(mockDio.get<dynamic>(any)).thenAnswer(
+        (_) async => Response<String>(
+          data: 'Server error',
+          statusCode: 500,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
 
       final verses = await repository.getVerses();
 
@@ -86,7 +100,7 @@ void main() {
     });
 
     test('getVerses should return fallback verses when an exception occurs', () async {
-      when(mockClient.get(any)).thenThrow(Exception('Network error'));
+      when(mockDio.get<dynamic>(any)).thenThrow(Exception('Network error'));
 
       final verses = await repository.getVerses();
 
