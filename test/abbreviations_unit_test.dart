@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memverse/main.dart' as app;
 import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
 
 // This test verifies that abbreviations work in the verse reference validator
