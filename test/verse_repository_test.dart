@@ -87,15 +87,7 @@ void main() {
       repository = LiveVerseRepository(dio: mockDio);
     });
 
-    test('constructor configures Dio options when no Dio instance is provided', () {
-      final repo = LiveVerseRepository();
-      // If this test runs without errors, the code path is covered
-    });
-
     test('constructor validateStatus function properly validates status codes', () {
-      // Create a repository so we can test the validateStatus function
-      final repo = LiveVerseRepository();
-
       // Since we can't access the validateStatus function directly, we'll indirectly test it through
       // a new Dio instance with the same configuration pattern
       final dio = Dio();
@@ -132,12 +124,12 @@ void main() {
       () async {
         when(mockDio.get<dynamic>(any)).thenAnswer(
           (_) async => Response<List<dynamic>>(
-            data: [
-              {
+            data: <Map<String, dynamic>>[
+              <String, dynamic>{
                 'ref': 'Col 1:17',
                 'text': 'He existed before anything else, and he holds all creation together',
               },
-              {
+              <String, dynamic>{
                 'ref': 'Phil 4:13',
                 'text': 'For I can do everything through Christ, who gives me strength',
               },
@@ -216,9 +208,9 @@ void main() {
     test('_parseVerses handles missing or null JSON values', () async {
       when(mockDio.get<dynamic>(any)).thenAnswer(
         (_) async => Response<List<dynamic>>(
-          data: [
-            {'ref': null, 'text': null},
-            {},
+          data: <Map<String, dynamic>>[
+            <String, dynamic>{'ref': null, 'text': null},
+            <String, dynamic>{},
           ],
           statusCode: 200,
           requestOptions: RequestOptions(path: '/'),
@@ -227,8 +219,11 @@ void main() {
 
       final verses = await repository.getVerses();
 
-      expect(verses.length, equals(5));
-      expect(verses[0].reference, equals('Genesis 1:1'));
+      expect(verses.length, equals(2));
+      expect(verses[0].reference, equals('Unknown reference'));
+      expect(verses[0].text, equals('No text available'));
+      expect(verses[1].reference, equals('Unknown reference'));
+      expect(verses[1].text, equals('No text available'));
     });
 
     test('getVerses with string data properly converts to JSON list', () async {
@@ -254,7 +249,8 @@ void main() {
       // Create a response that will cause an exception in the _parseVerses method
       when(mockDio.get<dynamic>(any)).thenAnswer(
         (_) async => Response<List<dynamic>>(
-          data: [
+          data: <dynamic>[
+            // Explicit type argument for the list
             42, // Not a Map<String, dynamic>, will cause an exception in the cast
           ],
           statusCode: 200,
