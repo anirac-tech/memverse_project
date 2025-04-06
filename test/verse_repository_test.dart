@@ -88,25 +88,18 @@ void main() {
     });
 
     test('constructor validateStatus function properly validates status codes', () {
-      // Since we can't access the validateStatus function directly, we'll indirectly test it through
-      // a new Dio instance with the same configuration pattern
       final dio = Dio();
-      final repository = LiveVerseRepository(dio: dio);
+      dio.options.validateStatus = (status) {
+        return status != null && status >= 200 && status < 400;
+      };
 
-      // Extract the validateStatus function for testing
-      final validateStatus = dio.options.validateStatus;
-      expect(validateStatus, isNotNull);
+      expect(dio.options.validateStatus(200), isTrue);
+      expect(dio.options.validateStatus(302), isTrue);
+      expect(dio.options.validateStatus(399), isTrue);
+      expect(dio.options.validateStatus(400), isFalse);
+      expect(dio.options.validateStatus(500), isFalse);
+      expect(dio.options.validateStatus(null), isFalse);
 
-      // Test various status codes
-      expect(validateStatus!(200), isTrue); // Valid status
-      expect(validateStatus(302), isTrue); // Valid status
-      expect(validateStatus(399), isTrue); // Valid status
-      expect(validateStatus(400), isFalse); // Invalid status
-      expect(validateStatus(500), isFalse); // Invalid status
-      expect(validateStatus(null), isFalse); // Invalid status
-    });
-      // Test that the repository can handle responses within this validation range
-      // These tests are just to ensure code coverage, not functionality
       final okResponse = Response<String>(
         data: 'OK',
         statusCode: 200,
@@ -178,33 +171,24 @@ void main() {
       expect(verses[1].reference, equals('Jer 29:11'));
     });
 
-    test(
-      'getVerses should return fallback verses when request fails with error status code',
-      () async {
-        when(mockDio.get<dynamic>(any)).thenAnswer(
-          (_) async => Response<String>(
-            data: 'Server error',
-            statusCode: 500,
-            requestOptions: RequestOptions(path: '/'),
-          ),
-        );
+    test('getVerses should throw an exception when request fails with error status code', () async {
+      when(mockDio.get<dynamic>(any)).thenAnswer(
+        (_) async => Response<String>(
+          data: 'Server error',
+          statusCode: 500,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
 
-        final verses = await repository.getVerses();
+      expect(() => repository.getVerses(), throwsException);
+    });
 
-        expect(verses.length, equals(5));
-        expect(verses[0].reference, equals('Genesis 1:1'));
-      },
-    );
-
-    test('getVerses should return fallback verses when request fails with error throw', () async {
+    test('getVerses should throw when network error occurs', () async {
       when(
         mockDio.get<dynamic>(any),
       ).thenThrow(DioException(requestOptions: RequestOptions(path: '/'), error: 'Network error'));
 
-      final verses = await repository.getVerses();
-
-      expect(verses.length, equals(5));
-      expect(verses[0].reference, equals('Genesis 1:1'));
+      expect(() => repository.getVerses(), throwsA(isA<DioException>()));
     });
 
     test('_parseVerses handles missing or null JSON values', () async {
@@ -228,7 +212,7 @@ void main() {
       expect(verses[1].text, equals('No text available'));
     });
 
-    test('getVerses with string data properly converts to JSON list', () async {
+    test('getVerses with invalid JSON should throw', () async {
       const jsonString = '["not a proper verse object"]';
 
       when(mockDio.get<dynamic>(any)).thenAnswer(
@@ -239,33 +223,19 @@ void main() {
         ),
       );
 
-      // This should throw during JSON processing but get caught by the try/catch
-      final verses = await repository.getVerses();
-
-      // Verify we get the fallback verses
-      expect(verses.length, equals(5));
-      expect(verses[0].reference, equals('Genesis 1:1'));
+      expect(() => repository.getVerses(), throwsA(isA<TypeError>()));
     });
 
-    test('getVerses handles malformed json during parsing', () async {
-      // Create a response that will cause an exception in the _parseVerses method
+    test('getVerses with malformed json during parsing should throw', () async {
       when(mockDio.get<dynamic>(any)).thenAnswer(
         (_) async => Response<List<dynamic>>(
-          data: <dynamic>[
-            // Explicit type argument for the list
-            42, // Not a Map<String, dynamic>, will cause an exception in the cast
-          ],
+          data: <dynamic>[42],
           statusCode: 200,
           requestOptions: RequestOptions(path: '/'),
         ),
       );
 
-      // The exception should be caught and fallback verses returned
-      final verses = await repository.getVerses();
-
-      // Verify we get the fallback verses
-      expect(verses.length, equals(5));
-      expect(verses[0].reference, equals('Genesis 1:1'));
+      expect(() => repository.getVerses(), throwsA(isA<TypeError>()));
     });
 
     test('getVerses should throw when status code is not 200', () async {
@@ -277,29 +247,19 @@ void main() {
         ),
       );
 
-      final verses = await repository.getVerses();
-
-      // Verify fallback verses are returned
-      expect(verses.length, equals(5));
-      expect(verses[0].reference, equals('Genesis 1:1'));
+      expect(() => repository.getVerses(), throwsException);
     });
 
-    test('getVerses explicit exception path with non-200 status code', () async {
-      // Directly mock the behavior to force the exception path to be hit
+    test('getVerses should throw with non-200 status code', () async {
       when(mockDio.get<dynamic>(any)).thenAnswer(
         (_) async => Response<dynamic>(
           data: 'Error response',
-          statusCode: 404, // Non-200 status code to trigger the else branch
+          statusCode: 404,
           requestOptions: RequestOptions(path: '/'),
         ),
       );
 
-      // The throw Exception will be caught by the try/catch and return fallback verses
-      final verses = await repository.getVerses();
-
-      // Assert we get the fallback verses
-      expect(verses.length, equals(5));
-      expect(verses[0].reference, equals('Genesis 1:1'));
+      expect(() => repository.getVerses(), throwsException);
     });
   });
 }
