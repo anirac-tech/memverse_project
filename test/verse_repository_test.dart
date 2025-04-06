@@ -93,24 +93,22 @@ void main() {
     });
 
     test('constructor validateStatus function properly validates status codes', () {
-      // Create a repository so we can test the validateStatus function
-      final repo = LiveVerseRepository();
-
-      // Since we can't access the validateStatus function directly, we'll indirectly test it through
-      // a new Dio instance with the same configuration pattern
+      // Create a repository with a spy Dio to test the validateStatus function
       final dio = Dio();
-      dio.options.validateStatus = (status) {
-        return status != null && status >= 200 && status < 400;
-      };
+      final repository = LiveVerseRepository(dio: dio);
+      
+      // Extract the validateStatus function for testing
+      final validateStatus = dio.options.validateStatus;
+      expect(validateStatus, isNotNull);
 
       // Test various status codes
-      expect(dio.options.validateStatus(200), isTrue); // Valid status
-      expect(dio.options.validateStatus(302), isTrue); // Valid status
-      expect(dio.options.validateStatus(399), isTrue); // Valid status
-      expect(dio.options.validateStatus(400), isFalse); // Invalid status
-      expect(dio.options.validateStatus(500), isFalse); // Invalid status
-      expect(dio.options.validateStatus(null), isFalse); // Invalid status
-
+      expect(validateStatus!(200), isTrue); // Valid status
+      expect(validateStatus(302), isTrue); // Valid status
+      expect(validateStatus(399), isTrue); // Valid status
+      expect(validateStatus(400), isFalse); // Invalid status
+      expect(validateStatus(500), isFalse); // Invalid status
+      expect(validateStatus(null), isFalse); // Invalid status
+    });
       // Test that the repository can handle responses within this validation range
       // These tests are just to ensure code coverage, not functionality
       final okResponse = Response<String>(
