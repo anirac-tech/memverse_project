@@ -10,7 +10,7 @@ import 'package:memverse/src/features/verse/presentation/widgets/stats_and_histo
 
 // TODO(neiljaywarner): Riverpod 2 or riverpod 3 and provider not instance
 final verseListProvider = FutureProvider<List<Verse>>(
-  (ref) async => VerseRepositoryProvider.instance.getVerses(),
+  (ref) async => ref.watch(verseRepositoryProvider).getVerses(),
 );
 
 class MemversePage extends HookConsumerWidget {

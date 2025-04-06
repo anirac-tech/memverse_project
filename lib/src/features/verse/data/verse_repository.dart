@@ -1,19 +1,21 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 
-class VerseRepositoryProvider {
-  static final instance = LiveVerseRepository();
-}
+/// Provider for the verse repository
+final verseRepositoryProvider = Provider<VerseRepository>((ref) => LiveVerseRepository());
+
+/// Provider that allows overriding the repository for testing
+final verseRepositoryOverrideProvider = Provider<VerseRepository>(
+  (ref) => throw UnimplementedError('Provider was not overridden'),
+);
 
 /// Interface for accessing verse data
 /// Marked as abstract for future expansion capabilities
 // ignore: one_member_abstracts
 abstract class VerseRepository {
-  /// Factory constructor which returns the implementation
-  factory VerseRepository() => LiveVerseRepository();
-
   /// Get a list of verses
   Future<List<Verse>> getVerses();
 }

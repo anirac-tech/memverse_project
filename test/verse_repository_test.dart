@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
@@ -10,8 +11,22 @@ import 'verse_repository_test.mocks.dart';
 @GenerateMocks([Dio])
 void main() {
   group('VerseRepositoryProvider', () {
-    test('instance should return a VerseRepository implementation', () {
-      expect(VerseRepositoryProvider.instance, isA<VerseRepository>());
+    test('should provide a VerseRepository instance', () {
+      final container = ProviderContainer();
+      final repository = container.read(verseRepositoryProvider);
+
+      expect(repository, isA<VerseRepository>());
+      expect(repository, isA<LiveVerseRepository>());
+    });
+
+    test('can be overridden for testing', () {
+      final fakeRepository = FakeVerseRepository();
+      final container = ProviderContainer(
+        overrides: [verseRepositoryProvider.overrideWithValue(fakeRepository)],
+      );
+
+      final repository = container.read(verseRepositoryProvider);
+      expect(repository, same(fakeRepository));
     });
   });
 

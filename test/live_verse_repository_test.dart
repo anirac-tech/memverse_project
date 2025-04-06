@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 
@@ -16,11 +17,12 @@ void main() {
       expect(responseData.contains('Phil 4:13'), isTrue);
 
       // Test that the VerseRepositoryProvider returns a LiveVerseRepository
-      final repositoryInstance = VerseRepositoryProvider.instance;
-      expect(repositoryInstance, isA<LiveVerseRepository>());
+      final container = ProviderContainer();
+      final repository = container.read(verseRepositoryProvider);
+      expect(repository, isA<LiveVerseRepository>());
 
       // Test that fetching verses returns data from the API
-      final verses = await repositoryInstance.getVerses();
+      final verses = await repository.getVerses();
       expect(verses.length, 2);
 
       // Check first verse content
