@@ -102,15 +102,22 @@ class LiveVerseRepository implements VerseRepository {
 
   /// Parse the JSON list into a list of Verse objects
   List<Verse> _parseVerses(List<dynamic> jsonList) {
-    return jsonList.map((dynamic item) {
-      // Handle dynamic access safely
-      final json = item as Map<String, dynamic>;
-
-      final text = json['text'] as String? ?? 'No text available';
-      final reference = json['ref'] as String? ?? 'Unknown reference';
-
-      return Verse(text: text, reference: reference);
-    }).toList();
+    final result = <Verse>[];
+    for (final dynamic item in jsonList) {
+      try {
+        // Handle dynamic access safely
+        final json = item as Map<String, dynamic>;
+        
+        final text = json['text'] as String? ?? 'No text available';
+        final reference = json['ref'] as String? ?? 'Unknown reference';
+        
+        result.add(Verse(text: text, reference: reference));
+      } catch (e) {
+        // Skip invalid items or add a placeholder verse
+        continue;
+      }
+    }
+    return result;
   }
 }
 
