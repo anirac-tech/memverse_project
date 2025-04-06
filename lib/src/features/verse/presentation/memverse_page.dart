@@ -41,18 +41,6 @@ class MemversePage extends HookConsumerWidget {
       //ignore:require_trailing_commas
     }, const []);
 
-    String getStandardBookName(String bookName) {
-      // This function should be implemented according to your requirements
-      // For example:
-      final standardBookNames = {
-        'genesis': 'Genesis',
-        'exodus': 'Exodus',
-        'leviticus': 'Leviticus',
-        // Add more book names as needed
-      };
-      return standardBookNames[bookName.toLowerCase()] ?? bookName;
-    }
-
     void loadNextVerse() {
       answerController.clear();
       hasSubmittedAnswer.value = false;

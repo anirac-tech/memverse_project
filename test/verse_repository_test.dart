@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 import 'verse_repository_test.mocks.dart';
 
@@ -52,19 +52,28 @@ void main() {
     });
 
     test('getVerses should return verses from API when request succeeds', () async {
-      when(mockClient.get(any)).thenAnswer((_) async => 
-        http.Response('''[
-          {"ref":"Col 1:17","text":"He existed before anything else, and he holds all creation together"},
-          {"ref":"Phil 4:13","text":"For I can do everything through Christ, who gives me strength"}
-        ]''', 200));
+      when(mockClient.get(any)).thenAnswer(
+        (_) async => http.Response('''
+            [
+            {"ref":"Col 1:17","text":"He existed before anything else, and he holds all creation together"},
+            {"ref":"Phil 4:13","text":"For I can do everything through Christ, who gives me strength"}
+          ]
+          ''', 200),
+      );
 
       final verses = await repository.getVerses();
 
       expect(verses.length, equals(2));
       expect(verses[0].reference, equals('Col 1:17'));
-      expect(verses[0].text, equals('He existed before anything else, and he holds all creation together'));
+      expect(
+        verses[0].text,
+        equals('He existed before anything else, and he holds all creation together'),
+      );
       expect(verses[1].reference, equals('Phil 4:13'));
-      expect(verses[1].text, equals('For I can do everything through Christ, who gives me strength'));
+      expect(
+        verses[1].text,
+        equals('For I can do everything through Christ, who gives me strength'),
+      );
     });
 
     test('getVerses should return fallback verses when request fails', () async {
@@ -75,7 +84,7 @@ void main() {
       expect(verses.length, equals(5));
       expect(verses[0].reference, equals('Genesis 1:1'));
     });
-    
+
     test('getVerses should return fallback verses when an exception occurs', () async {
       when(mockClient.get(any)).thenThrow(Exception('Network error'));
 
