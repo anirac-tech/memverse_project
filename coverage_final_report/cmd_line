@@ -1,0 +1,1 @@
+genhtml coverage/new_lcov.info -o coverage_final_report

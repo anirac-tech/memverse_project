@@ -1,0 +1,1 @@
+genhtml verse_repo_coverage.info -o verse_repo_coverage_report

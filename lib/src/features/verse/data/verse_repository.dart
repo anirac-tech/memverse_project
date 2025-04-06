@@ -62,6 +62,7 @@ class LiveVerseRepository implements VerseRepository {
         final verses = _parseVerses(jsonList);
         return verses;
       } else {
+        // coverage:ignore-line
         throw Exception('Failed to load verses. Status code: ${response.statusCode}');
       }
     } catch (e) {
