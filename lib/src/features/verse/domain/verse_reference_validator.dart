@@ -157,14 +157,14 @@ class VerseReferenceValidator {
   /// Get the standardized book name from an input that may be a full name or abbreviation
   static String getStandardBookName(String inputBookName) {
     final lowerInput = inputBookName.toLowerCase();
-    
+
     // Check if it's already a full book name
     for (final book in bookSuggestions) {
       if (book.toLowerCase() == lowerInput) {
         return book; // Return the properly cased book name
       }
     }
-    
+
     // Check if it's an abbreviation
     return bookAbbreviations[lowerInput] ?? inputBookName;
   }

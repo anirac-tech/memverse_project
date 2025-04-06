@@ -74,32 +74,32 @@ class MemversePage extends HookConsumerWidget {
       }
 
       final userAnswer = answerController.text.trim();
-      
+
       final bookChapterVersePattern = RegExp(
         r'^(([1-3]\s+)?[A-Za-z]+(\s+[A-Za-z]+)*)\s+(\d+):(\d+)(-\d+)?$',
       );
-      
+
       final userMatch = bookChapterVersePattern.firstMatch(userAnswer);
       final expectedMatch = bookChapterVersePattern.firstMatch(expectedReference);
-      
+
       if (userMatch != null && expectedMatch != null) {
         final userBookName = userMatch.group(1)?.trim() ?? '';
         final userChapterVerse = '${userMatch.group(4)}:${userMatch.group(5)}';
-        
+
         final expectedBookName = expectedMatch.group(1)?.trim() ?? '';
         final expectedChapterVerse = '${expectedMatch.group(4)}:${expectedMatch.group(5)}';
-        
+
         final userStandardBook = VerseReferenceValidator.getStandardBookName(userBookName);
         final expectedStandardBook = VerseReferenceValidator.getStandardBookName(expectedBookName);
-        
+
         final booksMatch = userStandardBook.toLowerCase() == expectedStandardBook.toLowerCase();
         final chapterVerseMatch = userChapterVerse == expectedChapterVerse;
-        
+
         final isCorrect = booksMatch && chapterVerseMatch;
-        
+
         hasSubmittedAnswer.value = true;
         isAnswerCorrect.value = isCorrect;
-        
+
         if (isCorrect) {
           totalCorrect.value++;
           if (overdueReferences.value > 0) {

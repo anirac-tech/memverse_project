@@ -11,14 +11,14 @@ void main() {
       expect(VerseReferenceValidator.getStandardBookName('Col'), equals('Colossians'));
       expect(VerseReferenceValidator.getStandardBookName('Phil'), equals('Philippians'));
     });
-    
+
     test('Validator handles case variations', () {
       expect(VerseReferenceValidator.isValid('col 1:17'), isTrue);
       expect(VerseReferenceValidator.isValid('PHIL 4:13'), isTrue);
       expect(VerseReferenceValidator.getStandardBookName('col'), equals('Colossians'));
       expect(VerseReferenceValidator.getStandardBookName('PHIL'), equals('Philippians'));
     });
-    
+
     test('Standard book names are preserved', () {
       expect(VerseReferenceValidator.isValid('Colossians 1:17'), isTrue);
       expect(VerseReferenceValidator.isValid('Philippians 4:13'), isTrue);
