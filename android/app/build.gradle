@@ -95,6 +95,7 @@ android {
             dimension "default"
             // Keeping applicationIdSuffix commented out to avoid package name conflicts
             // applicationIdSuffix ".dev"
+            // TODO(neiljaywarner): Make sure this get fixed soon
             manifestPlaceholders = [appName: "[DEV] Memverse"]
         }
     }
