@@ -16,7 +16,6 @@ final verseListProvider = FutureProvider<List<Verse>>(
 class MemversePage extends HookConsumerWidget {
   const MemversePage({super.key});
 
-  //test, cani push straight to main
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentVerseIndex = useState(0);
