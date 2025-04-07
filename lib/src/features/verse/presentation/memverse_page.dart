@@ -9,6 +9,7 @@ import 'package:memverse/src/features/verse/presentation/widgets/question_sectio
 import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
 
 // TODO(neiljaywarner): Riverpod 2 or riverpod 3 and provider not instance
+// This will be addressed in a future update - kept as-is for PR #7
 final verseListProvider = FutureProvider<List<Verse>>(
   (ref) async => ref.watch(verseRepositoryProvider).getVerses(),
 );
@@ -157,6 +158,7 @@ class MemversePage extends HookConsumerWidget {
           ),
           margin: const EdgeInsets.all(16),
           // TODO(neiljaywarner): get coverage on each of these
+          // Clarification: The TODO is for adding test coverage for the layout variants below.
           child:
               isSmallScreen
                   // coverage:ignore-start

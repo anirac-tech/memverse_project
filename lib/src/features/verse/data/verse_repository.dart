@@ -49,6 +49,13 @@ class LiveVerseRepository implements VerseRepository {
   @override
   Future<List<Verse>> getVerses() async {
     try {
+      // Validate token is available when not running tests
+      // During tests, Dio is usually mocked so we don't need a real token
+      if (_privateToken.isEmpty && !const bool.fromEnvironment('FLUTTER_TEST')) {
+        throw Exception(
+          'No API token provided. Run with --dart-define=MEMVERSE_API_TOKEN=your_token',
+        );
+      }
       // Fetch data with authentication header
       final response = await _dio.get<dynamic>(
         _apiUrl,
