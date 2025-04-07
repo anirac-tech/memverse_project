@@ -41,7 +41,7 @@ class LiveVerseRepository implements VerseRepository {
 
   /// The URL to fetch Bible verses from
   static const String _apiUrl =
-      'https://gist.githubusercontent.com/neiljaywarner/2880b87250163386a41e00fc1535e02c/raw';
+      'https://gist.githubusercontent.com/neiljaywarner/0d875211cfc2478b0ffb295bc93916ab/raw/4df56fc9fa2c15bc276ff6de822794159ee154e9/show_memverses_2_verses.json';
 
   /// Get a list of verses from the remote API
   @override
@@ -52,14 +52,15 @@ class LiveVerseRepository implements VerseRepository {
 
       if (response.statusCode == 200) {
         // Convert string response to JSON if needed
-        List<dynamic> jsonList;
+        Map<String, dynamic> jsonData;
         if (response.data is String) {
-          jsonList = jsonDecode(response.data as String) as List<dynamic>;
+          jsonData = jsonDecode(response.data as String) as Map<String, dynamic>;
         } else {
-          jsonList = response.data as List<dynamic>;
+          jsonData = response.data as Map<String, dynamic>;
         }
 
-        final verses = _parseVerses(jsonList);
+        final versesList = jsonData['response'] as List<dynamic>;
+        final verses = _parseVerses(versesList);
         return verses;
       } else {
         // coverage:ignore-line
@@ -78,11 +79,13 @@ class LiveVerseRepository implements VerseRepository {
       try {
         // Handle dynamic access safely
         final json = item as Map<String, dynamic>;
+        final verseData = json['verse'] as Map<String, dynamic>;
 
-        final text = json['text'] as String? ?? 'No text available';
+        final text = verseData['text'] as String? ?? 'No text available';
         final reference = json['ref'] as String? ?? 'Unknown reference';
+        final translation = verseData['translation'] as String? ?? 'Unknown';
 
-        result.add(Verse(text: text, reference: reference));
+        result.add(Verse(text: text, reference: reference, translation: translation));
       } catch (e) {
         // Rethrow exceptions instead of skipping them
         rethrow;

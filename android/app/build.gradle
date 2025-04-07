@@ -81,7 +81,7 @@ android {
     }
 
     flavorDimensions "default"
-    productFlavors { 
+    productFlavors {
         production {
             dimension "default"
             applicationIdSuffix ""
@@ -89,12 +89,13 @@ android {
         }
         staging {
             dimension "default"
-            applicationIdSuffix ".stg"
+            // applicationIdSuffix ".stg"
             manifestPlaceholders = [appName: "[STG] Memverse"]
         }
         development {
             dimension "default"
-            applicationIdSuffix ".dev"
+            //todo fix
+            // applicationIdSuffix ".dev"
             manifestPlaceholders = [appName: "[DEV] Memverse"]
         }
     }
