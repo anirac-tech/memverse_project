@@ -40,15 +40,20 @@ class LiveVerseRepository implements VerseRepository {
   }
 
   /// The URL to fetch Bible verses from
-  static const String _apiUrl =
-      'https://gist.githubusercontent.com/neiljaywarner/0d875211cfc2478b0ffb295bc93916ab/raw/4df56fc9fa2c15bc276ff6de822794159ee154e9/show_memverses_2_verses.json';
+  static const String _apiUrl = 'https://www.memverse.com/1/memverses';
+
+  /// The private authentication token from environment variables
+  static const String _privateToken = String.fromEnvironment('MEMVERSE_API_TOKEN');
 
   /// Get a list of verses from the remote API
   @override
   Future<List<Verse>> getVerses() async {
     try {
-      // Fetch data from the gist
-      final response = await _dio.get<dynamic>(_apiUrl);
+      // Fetch data with authentication header
+      final response = await _dio.get<dynamic>(
+        _apiUrl,
+        options: Options(headers: {'Authorization': 'Bearer $_privateToken'}),
+      );
 
       if (response.statusCode == 200) {
         // Convert string response to JSON if needed
