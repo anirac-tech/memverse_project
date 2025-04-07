@@ -118,17 +118,25 @@ void main() {
       'getVerses should return verses from API when request succeeds with List response',
       () async {
         when(mockDio.get<dynamic>(any)).thenAnswer(
-          (_) async => Response<List<dynamic>>(
-            data: <Map<String, dynamic>>[
-              <String, dynamic>{
-                'ref': 'Col 1:17',
-                'text': 'He existed before anything else, and he holds all creation together',
-              },
-              <String, dynamic>{
-                'ref': 'Phil 4:13',
-                'text': 'For I can do everything through Christ, who gives me strength',
-              },
-            ],
+          (_) async => Response<Map<String, dynamic>>(
+            data: <String, dynamic>{
+              'response': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'ref': 'Col 1:17',
+                  'verse': <String, dynamic>{
+                    'text': 'He existed before anything else, and he holds all creation together',
+                    'translation': 'NLT',
+                  },
+                },
+                <String, dynamic>{
+                  'ref': 'Phil 4:13',
+                  'verse': <String, dynamic>{
+                    'text': 'For I can do everything through Christ, who gives me strength',
+                    'translation': 'NLT',
+                  },
+                },
+              ],
+            },
             statusCode: 200,
             requestOptions: RequestOptions(path: '/'),
           ),
@@ -144,16 +152,24 @@ void main() {
 
     test('getVerses should handle string response and parse JSON correctly', () async {
       const jsonString = '''
-      [
-        {
-          "ref": "Psalm 23:1",
-          "text": "The LORD is my shepherd; I have all that I need."
-        },
-        {
-          "ref": "Jer 29:11", 
-          "text": "For I know the plans I have for you, says the LORD."
-        }
-      ]
+      {
+        "response": [
+          {
+            "ref": "Psalm 23:1",
+            "verse": {
+              "text": "The LORD is my shepherd; I have all that I need.",
+              "translation": "NLT"
+            }
+          },
+          {
+            "ref": "Jer 29:11", 
+            "verse": {
+              "text": "For I know the plans I have for you, says the LORD.",
+              "translation": "NLT"
+            }
+          }
+        ]
+      }
       ''';
 
       when(mockDio.get<dynamic>(any)).thenAnswer(
@@ -193,11 +209,16 @@ void main() {
 
     test('_parseVerses handles missing or null JSON values', () async {
       when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<List<dynamic>>(
-          data: <Map<String, dynamic>>[
-            <String, dynamic>{'ref': null, 'text': null},
-            <String, dynamic>{},
-          ],
+        (_) async => Response<Map<String, dynamic>>(
+          data: <String, dynamic>{
+            'response': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'ref': null,
+                'verse': <String, dynamic>{'text': null, 'translation': null},
+              },
+              <String, dynamic>{'verse': <String, dynamic>{}},
+            ],
+          },
           statusCode: 200,
           requestOptions: RequestOptions(path: '/'),
         ),
@@ -213,7 +234,7 @@ void main() {
     });
 
     test('getVerses with invalid JSON should throw', () async {
-      const jsonString = '["not a proper verse object"]';
+      const jsonString = '{"response": ["not a proper verse object"]}';
 
       when(mockDio.get<dynamic>(any)).thenAnswer(
         (_) async => Response<String>(
@@ -228,8 +249,10 @@ void main() {
 
     test('getVerses with malformed json during parsing should throw', () async {
       when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<List<dynamic>>(
-          data: <dynamic>[42],
+        (_) async => Response<Map<String, dynamic>>(
+          data: <String, dynamic>{
+            'response': <dynamic>[42],
+          },
           statusCode: 200,
           requestOptions: RequestOptions(path: '/'),
         ),
