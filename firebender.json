@@ -11,11 +11,11 @@
     "Please insert all appropriate trailing commas so no lint errors",
     "Always run flutter analyze and fix all issues",
     "always run dart fix --apply",
+    "Always make sure tests pass at the end",
     "always remove unused imports",
     "always remove unused local variables",
     "As a rule of thumb - if a widget is over 10 lines long give it its own file",
     "use feature based directory structure",
-    "make sure existing tests pass",
     {
       "filePathMatches": "*.feature",
       "rules": [
