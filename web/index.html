@@ -1,41 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    <base href="$FLUTTER_BASE_HREF">
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="A Very Good Project created by Very Good CLI.">
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Memverse">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A Very Good Project created by Very Good CLI.">
+    <title>Memverse</title>
+    <link rel="manifest" href="manifest.json">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Memverse">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <!-- Local development instructions -->
+    <script>
+        console.log('==== MEMVERSE LOCAL DEVELOPMENT ====');
+        console.log('If you are experiencing CORS issues in local development:');
+        console.log('1. Install the CORS Unblock extension for Chrome: https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino');
+        console.log('2. Enable the extension and reload the page');
+        console.log('=======================================');
+    </script>
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+    <!-- GitHub Pages SPA routing script -->
+    <script>
+        // This script handles redirects from 404.html for GitHub Pages SPA
+        (function() {
+          const queryParams = new URLSearchParams(window.location.search);
+          const path = queryParams.get('p');
+          const query = queryParams.get('q');
 
-  <title>Memverse</title>
-  <link rel="manifest" href="manifest.json">
+          if (path) {
+            // Remove the URL parameters
+            window.history.replaceState(null, null,
+              window.location.pathname.split('?')[0] + (path ? '/' + path : '') +
+              (query ? '?' + query : '') + window.location.hash
+            );
+          }
+        })();
+    </script>
 </head>
 <body>
-  <script>
-
+<script>
     {{flutter_bootstrap_js}}
-  </script>
+</script>
 </body>
 </html>

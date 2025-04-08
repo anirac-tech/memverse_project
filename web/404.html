@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Page Not Found</title>
+    <script>
+        // Single Page Apps for GitHub Pages
+        // MIT Licensed - https://github.com/rafgraph/spa-github-pages
+        // This script takes the current URL and redirects to the correct path
+        // in your GitHub Pages SPA. This ensures deep links work properly.
+        const segmentCount = 1; // Adjust based on your repository name
+        const l = window.location;
+        const repo = l.pathname.split('/')[1]; // Extract repository name
+        l.replace(
+          `${l.protocol}//${l.hostname}${l.port ? `:${l.port}` : ''}/${repo}/?p=${
+            l.pathname.slice(1).split('/').slice(segmentCount).join('/')
+          }${l.search ? `&q=${l.search.slice(1)}` : ''}${l.hash}`
+        );
+    </script>
+</head>
+<body>
+<h2>Redirecting...</h2>
+</body>
+</html>

@@ -8,10 +8,6 @@ import 'package:mockito/mockito.dart';
 
 import 'verse_repository_test.mocks.dart';
 
-// Set the FLUTTER_TEST flag for the verse repository
-// ignore: prefer_const_declarations
-final _isTestMode = true;
-
 @GenerateMocks([Dio])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
