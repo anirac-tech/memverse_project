@@ -1,6 +1,7 @@
 /// This file contains utility classes for testing purposes
 /// It helps avoid circular dependencies when importing mock classes
 
+library test_utils;
 /// Mock Dio class for type checking in production code
 class TestMockDio {
   // Empty implementation - just used for type checking
