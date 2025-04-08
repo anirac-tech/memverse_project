@@ -1,8 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
+
+/// Import for using TestMockDio type checking
+import '../../../utils/test_utils.dart';
+
+// Flag to identify test environment for API calls
+// Set to true when running in a test environment
+const bool isTestEnvironment = bool.fromEnvironment('FLUTTER_TEST', defaultValue: false);
 
 /// Provider for the verse repository
 final verseRepositoryProvider = Provider<VerseRepository>((ref) => LiveVerseRepository());
@@ -51,11 +59,12 @@ class LiveVerseRepository implements VerseRepository {
     try {
       // Validate token is available when not running tests
       // During tests, Dio is usually mocked so we don't need a real token
-      if (_privateToken.isEmpty && !const bool.fromEnvironment('FLUTTER_TEST')) {
+      if (_privateToken.isEmpty && !isTestEnvironment && _dio is! TestMockDio) {
         throw Exception(
           'No API token provided. Run with --dart-define=MEMVERSE_API_TOKEN=your_token',
         );
       }
+
       // Fetch data with authentication header
       final response = await _dio.get<dynamic>(
         _apiUrl,
