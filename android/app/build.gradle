@@ -89,13 +89,13 @@ android {
         }
         staging {
             dimension "default"
-            // applicationIdSuffix ".stg"
             manifestPlaceholders = [appName: "[STG] Memverse"]
         }
         development {
             dimension "default"
-            //todo fix
+            // Keeping applicationIdSuffix commented out to avoid package name conflicts
             // applicationIdSuffix ".dev"
+            // TODO(neiljaywarner): Make sure this get fixed soon
             manifestPlaceholders = [appName: "[DEV] Memverse"]
         }
     }

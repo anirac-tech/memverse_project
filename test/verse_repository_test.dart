@@ -10,6 +10,9 @@ import 'verse_repository_test.mocks.dart';
 
 @GenerateMocks([Dio])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Register the mock dio as a TestMockDio to pass type check
   group('VerseRepositoryProvider', () {
     test('should provide a VerseRepository instance', () {
       final container = ProviderContainer();
@@ -114,10 +117,108 @@ void main() {
       expect(dio.options.validateStatus(redirectResponse.statusCode), isTrue);
     });
 
+    test('getVerses should throw an exception when request fails with error status code', () async {
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
+        (_) async => Response<String>(
+          data: 'Server error',
+          statusCode: 500,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
+
+      expect(() => repository.getVerses(), throwsException);
+    });
+
+    test('getVerses should throw when network error occurs', () async {
+      when(
+        mockDio.get<dynamic>(any, options: anyNamed('options')),
+      ).thenThrow(DioException(requestOptions: RequestOptions(path: '/'), error: 'Network error'));
+
+      expect(() => repository.getVerses(), throwsA(isA<DioException>()));
+    });
+
+    test('_parseVerses handles missing or null JSON values', () async {
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
+        (_) async => Response<Map<String, dynamic>>(
+          data: <String, dynamic>{
+            'response': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'ref': null,
+                'verse': <String, dynamic>{'text': null, 'translation': null},
+              },
+              <String, dynamic>{'verse': <String, dynamic>{}},
+            ],
+          },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
+
+      final verses = await repository.getVerses();
+
+      expect(verses.length, equals(2));
+      expect(verses[0].reference, equals('Unknown reference'));
+      expect(verses[0].text, equals('No text available'));
+      expect(verses[1].reference, equals('Unknown reference'));
+      expect(verses[1].text, equals('No text available'));
+    });
+
+    test('getVerses with invalid JSON should throw', () async {
+      const jsonString = '{"response": ["not a proper verse object"]}';
+
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
+        (_) async => Response<String>(
+          data: jsonString,
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
+
+      expect(() => repository.getVerses(), throwsA(isA<TypeError>()));
+    });
+
+    test('getVerses with malformed json during parsing should throw', () async {
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
+        (_) async => Response<Map<String, dynamic>>(
+          data: <String, dynamic>{
+            'response': <dynamic>[42],
+          },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
+
+      expect(() => repository.getVerses(), throwsA(isA<TypeError>()));
+    });
+
+    test('getVerses should throw when status code is not 200', () async {
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
+        (_) async => Response<String>(
+          data: 'Not found',
+          statusCode: 404,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
+
+      expect(() => repository.getVerses(), throwsException);
+    });
+
+    test('getVerses should throw with non-200 status code', () async {
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
+        (_) async => Response<dynamic>(
+          data: 'Error response',
+          statusCode: 404,
+          requestOptions: RequestOptions(path: '/'),
+        ),
+      );
+
+      expect(() => repository.getVerses(), throwsException);
+    });
+
     test(
       'getVerses should return verses from API when request succeeds with List response',
       () async {
-        when(mockDio.get<dynamic>(any)).thenAnswer(
+        when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
           (_) async => Response<Map<String, dynamic>>(
             data: <String, dynamic>{
               'response': <Map<String, dynamic>>[
@@ -172,7 +273,7 @@ void main() {
       }
       ''';
 
-      when(mockDio.get<dynamic>(any)).thenAnswer(
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenAnswer(
         (_) async => Response<String>(
           data: jsonString,
           statusCode: 200,
@@ -185,104 +286,6 @@ void main() {
       expect(verses.length, equals(2));
       expect(verses[0].reference, equals('Psalm 23:1'));
       expect(verses[1].reference, equals('Jer 29:11'));
-    });
-
-    test('getVerses should throw an exception when request fails with error status code', () async {
-      when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<String>(
-          data: 'Server error',
-          statusCode: 500,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-      );
-
-      expect(() => repository.getVerses(), throwsException);
-    });
-
-    test('getVerses should throw when network error occurs', () async {
-      when(
-        mockDio.get<dynamic>(any),
-      ).thenThrow(DioException(requestOptions: RequestOptions(path: '/'), error: 'Network error'));
-
-      expect(() => repository.getVerses(), throwsA(isA<DioException>()));
-    });
-
-    test('_parseVerses handles missing or null JSON values', () async {
-      when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          data: <String, dynamic>{
-            'response': <Map<String, dynamic>>[
-              <String, dynamic>{
-                'ref': null,
-                'verse': <String, dynamic>{'text': null, 'translation': null},
-              },
-              <String, dynamic>{'verse': <String, dynamic>{}},
-            ],
-          },
-          statusCode: 200,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-      );
-
-      final verses = await repository.getVerses();
-
-      expect(verses.length, equals(2));
-      expect(verses[0].reference, equals('Unknown reference'));
-      expect(verses[0].text, equals('No text available'));
-      expect(verses[1].reference, equals('Unknown reference'));
-      expect(verses[1].text, equals('No text available'));
-    });
-
-    test('getVerses with invalid JSON should throw', () async {
-      const jsonString = '{"response": ["not a proper verse object"]}';
-
-      when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<String>(
-          data: jsonString,
-          statusCode: 200,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-      );
-
-      expect(() => repository.getVerses(), throwsA(isA<TypeError>()));
-    });
-
-    test('getVerses with malformed json during parsing should throw', () async {
-      when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          data: <String, dynamic>{
-            'response': <dynamic>[42],
-          },
-          statusCode: 200,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-      );
-
-      expect(() => repository.getVerses(), throwsA(isA<TypeError>()));
-    });
-
-    test('getVerses should throw when status code is not 200', () async {
-      when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<String>(
-          data: 'Not found',
-          statusCode: 404,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-      );
-
-      expect(() => repository.getVerses(), throwsException);
-    });
-
-    test('getVerses should throw with non-200 status code', () async {
-      when(mockDio.get<dynamic>(any)).thenAnswer(
-        (_) async => Response<dynamic>(
-          data: 'Error response',
-          statusCode: 404,
-          requestOptions: RequestOptions(path: '/'),
-        ),
-      );
-
-      expect(() => repository.getVerses(), throwsException);
     });
   });
 }
