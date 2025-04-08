@@ -24,8 +24,10 @@
       ]
     },
     {
-      "filePathMatches": "verbose_ai_prompts_and_responses.log",
+      "filePathMatches": "**/*_ai_prompts_and_responses.log",
       "rules": [
+        "Name log files following branch naming pattern: if branch is named like 'MEM-44-feature-name', use 'MEM-44_ai_prompts_and_responses.log'",
+        "If branch name doesn't match a ticket pattern, use date format like 'April08_2025_ai_prompts_and_responses.log'",
         "When recording user queries and responses, always include accurate timestamps using system time",
         "For each user query, use the format: **User Query** (yyyy-MM-dd HH:mm:ss): [query text]",
         "Calculate and record accurate durations for tasks by using the actual start and end times",
