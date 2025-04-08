@@ -41,11 +41,11 @@ dev_dependencies:
 
 # Custom scripts for common tasks
 scripts:
-  test: flutter test --dart-define=FLUTTER_TEST=true
-  test_coverage: flutter test --dart-define=FLUTTER_TEST=true --coverage
+  test: flutter test
+  test_coverage: flutter test --coverage
   clean_coverage: lcov --remove coverage/lcov.info 'lib/l10n' '**/*.g.dart' -o coverage/new_lcov.info
   gen_coverage_html: genhtml coverage/new_lcov.info -o coverage/html
-  coverage: flutter test --dart-define=FLUTTER_TEST=true --coverage && lcov --remove coverage/lcov.info 'lib/l10n' '**/*.g.dart' -o coverage/new_lcov.info && genhtml coverage/new_lcov.info -o coverage/html
+  coverage: flutter test --coverage && lcov --remove coverage/lcov.info 'lib/l10n' '**/*.g.dart' -o coverage/new_lcov.info && genhtml coverage/new_lcov.info -o coverage/html
   format: dart format . -l 100
   analyze: flutter analyze
   fix: dart fix --apply

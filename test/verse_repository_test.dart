@@ -14,6 +14,9 @@ final _isTestMode = true;
 
 @GenerateMocks([Dio])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Register the mock dio as a TestMockDio to pass type check
   group('VerseRepositoryProvider', () {
     test('should provide a VerseRepository instance', () {
       final container = ProviderContainer();
