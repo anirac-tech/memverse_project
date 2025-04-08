@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 
 /// Import for using TestMockDio type checking
-import '../../../utils/test_utils.dart';
+import 'package:memverse/src/utils/test_utils.dart';
 
 // More reliable test detection
 bool get isInTestMode {
