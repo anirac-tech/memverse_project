@@ -79,20 +79,20 @@ flutter test --coverage
 
 # Process coverage
 print_info "Processing coverage data..."
-lcov --remove coverage/lcov.info 'lib/l10n/*' '**/*.g.dart' -o coverage/new_lcov.info
+lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' 'test/verse_repository_test.mocks.dart' -o coverage/new_lcov.info
 genhtml coverage/new_lcov.info -o coverage/html
 
-# Calculate coverage percentage
-COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "lines" | awk '{print $4}' | cut -d'%' -f1)
-print_info "Coverage: ${COVERAGE}%"
+# Calculate coverage percentage - simpler approach
+COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
+print_info "Coverage: ${COVERAGE_LINE}"
 
 # Check if coverage meets the threshold
-if (( $(echo "$COVERAGE < 100" | bc -l) )); then
-  print_error "Coverage is below 100%"
+if [[ "${COVERAGE_LINE}" == "100.0%" ]]; then
+  print_success "Coverage is 100%"
+else
+  print_error "Coverage is below 100%: ${COVERAGE_LINE}"
   echo "See coverage report at: $(pwd)/coverage/html/index.html"
   exit 1
-else
-  print_success "Coverage is 100%"
 fi
 
 print_header "ALL CHECKS PASSED"

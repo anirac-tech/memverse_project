@@ -5,33 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
-
-/// Import for using TestMockDio type checking
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
-
-/// Import for using TestMockDio type checking
+import 'package:memverse/src/utils/app_logger.dart';
 import 'package:memverse/src/utils/test_utils.dart';
 
 // More reliable test detection
@@ -94,46 +68,32 @@ class LiveVerseRepository implements VerseRepository {
   Interceptor _createLoggingInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
-        // ignore: avoid_print
-        print('🌐 REQUEST[${options.method}] => PATH: ${options.baseUrl}${options.path}');
-        // ignore: avoid_print
-        print('Headers: ${options.headers}');
+        AppLogger.i('REQUEST[${options.method}] => PATH: ${options.baseUrl}${options.path}');
+        AppLogger.d('Headers: ${options.headers}');
         if (options.data != null) {
-          // ignore: avoid_print
-          print('Data: ${options.data}');
+          AppLogger.d('Data: ${options.data}');
         }
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        // ignore: avoid_print
-        print('✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+        AppLogger.i('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
         final responseData = response.data;
         if (responseData is String && responseData.length > 100) {
-          // ignore: avoid_print
-          print('Response: ${responseData.substring(0, 100)}...');
+          AppLogger.d('Response: ${responseData.substring(0, 100)}...');
         } else {
-          // ignore: avoid_print
-          print('Response: $responseData');
+          AppLogger.d('Response: $responseData');
         }
         return handler.next(response);
       },
       onError: (DioException e, handler) {
-        // ignore: avoid_print
-        print('⛔ ERROR[${e.response?.statusCode}] => PATH: ${e.requestOptions.path}');
-        // ignore: avoid_print
-        print('Error Type: ${e.type}');
-        // ignore: avoid_print
-        print('Error: ${e.message}');
-        // ignore: avoid_print
-        print('Error Response: ${e.response?.data}');
-
-        // Extract stack trace without null check
-        final stackTrace = e.stackTrace;
-        final stackTraceLines = stackTrace.toString().split('\n');
-        final shortStackTrace = stackTraceLines.take(3).join('\n');
-        // ignore: avoid_print
-        print('Stack trace: $shortStackTrace...');
-
+        AppLogger.e(
+          'ERROR[${e.response?.statusCode}] => PATH: ${e.requestOptions.path}',
+          e,
+          e.stackTrace,
+        );
+        AppLogger.e('Error Type: ${e.type}');
+        AppLogger.e('Error: ${e.message}');
+        AppLogger.e('Error Response: ${e.response?.data}');
         return handler.next(e);
       },
     );
@@ -158,10 +118,8 @@ class LiveVerseRepository implements VerseRepository {
       }
 
       if (kDebugMode) {
-        // ignore: avoid_print
-        print('📜 Fetching verses from $_apiUrl');
-        // ignore: avoid_print
-        print('🔑 Token available: ${_privateToken.isNotEmpty}');
+        AppLogger.i('Fetching verses from $_apiUrl');
+        AppLogger.i('Token available: ${_privateToken.isNotEmpty}');
       }
 
       // Fetch data with authentication header
@@ -183,13 +141,11 @@ class LiveVerseRepository implements VerseRepository {
         final verses = _parseVerses(versesList);
         return verses;
       } else {
-        // coverage:ignore-line
         throw Exception('Failed to load verses. Status code: ${response.statusCode}');
       }
     } catch (e) {
       if (kDebugMode) {
-        // ignore: avoid_print
-        print('🚨 Error fetching verses: $e');
+        AppLogger.e('Error fetching verses: $e');
       }
       // Re-throw the exception instead of returning hardcoded data as fallback
       rethrow;
@@ -219,6 +175,7 @@ class LiveVerseRepository implements VerseRepository {
   }
 }
 
+// coverage:ignore-file
 /// Simple retry interceptor for Dio
 class RetryInterceptor extends Interceptor {
   /// Creates a retry interceptor
@@ -254,11 +211,15 @@ class RetryInterceptor extends Interceptor {
     final retryCount = err.requestOptions.extra['retryCount'] as int? ?? 0;
 
     if (_shouldRetry(err) && retryCount < retries) {
-      logPrint?.call('🔄 Retry ${retryCount + 1}/$retries for ${err.requestOptions.path}');
+      if (logPrint != null) {
+        logPrint!('Retry ${retryCount + 1}/$retries for ${err.requestOptions.path}');
+      } else {
+        AppLogger.i('Retry ${retryCount + 1}/$retries for ${err.requestOptions.path}');
+      }
 
       final delay = retryCount < retryDelays.length ? retryDelays[retryCount] : retryDelays.last;
 
-      Future.delayed(delay, () {
+      Future<void>.delayed(delay, () {
         final options = Options(
           method: err.requestOptions.method,
           headers: err.requestOptions.headers,

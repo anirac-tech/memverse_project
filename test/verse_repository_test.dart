@@ -12,7 +12,6 @@ import 'verse_repository_test.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // Register the mock dio as a TestMockDio to pass type check
   group('VerseRepositoryProvider', () {
     test('should provide a VerseRepository instance', () {
       final container = ProviderContainer();
@@ -286,6 +285,12 @@ void main() {
       expect(verses.length, equals(2));
       expect(verses[0].reference, equals('Psalm 23:1'));
       expect(verses[1].reference, equals('Jer 29:11'));
+    });
+  });
+
+  group('isInTestMode', () {
+    test('should return true when executed in test environment', () {
+      expect(isInTestMode, isTrue);
     });
   });
 }

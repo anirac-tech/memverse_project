@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Pre-commit hook to ensure quality checks before commit
+# Exit on error
+set -e
+
+echo "Running pre-commit checks..."
+
+# Run the check_before_commit script
+./scripts/check_before_commit.sh
+
+# If we get here, the script succeeded
+exit 0
