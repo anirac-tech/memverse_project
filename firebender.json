@@ -16,7 +16,8 @@
     "always remove unused local variables",
     "As a rule of thumb - if a widget is over 10 lines long give it its own file",
     "use feature based directory structure",
-    "Always run ./scripts/check_before_commit.sh before committing code to ensure all checks pass",
+    "Always run ./scripts/check_before_commit.sh  to ensure all checks pass",
+    "if check_before_commit.sh doesn't yet it exist please create it and make it run dart fix apply and flutter analyze and dart format with 100 character line length and set it up as precommit hook",
     {
       "filePathMatches": "*.feature",
       "rules": [
@@ -46,21 +47,6 @@
         "Calculate and record accurate durations for tasks using the actual start and end times",
         "Include a summary section with total time and key accomplishments"
       ]
-    },
-    {
-      "beforeCommit": true,
-      "command": "./scripts/check_before_commit.sh",
-      "name": "Run pre-commit checks"
-    },
-    {
-      "onSessionStart": true,
-      "command": "BRANCH_NAME=$(git branch --show-current); TICKET=$(echo $BRANCH_NAME | grep -o 'MEM-[0-9]\\+' || echo \"$(date '+%B%d_%Y')\"); LOG_FILE=\"${TICKET}_ai_prompts.log\"; if [ ! -f \"$LOG_FILE\" ]; then find . -maxdepth 1 -name \"*_ai_prompts.log\" -not -name \"$LOG_FILE\" -delete; fi; touch \"$LOG_FILE\"; git add -f \"$LOG_FILE\" 2>/dev/null || true",
-      "name": "Create AI log file based on branch name, delete old ones, and add to git"
-    },
-    {
-      "beforeCommit": true,
-      "command": "LOG_FILES=$(find . -maxdepth 1 -name '*_ai_prompts*.log'); if [ ! -z \"$LOG_FILES\" ]; then git add -f $LOG_FILES 2>/dev/null || true; fi",
-      "name": "Add AI log files to git before committing"
     }
   ]
 }

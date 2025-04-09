@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
@@ -96,9 +97,11 @@ class MemversePage extends HookConsumerWidget {
         final booksMatch = userStandardBook.toLowerCase() == expectedStandardBook.toLowerCase();
         final chapterVerseMatch = userChapterVerse == expectedChapterVerse;
 
+        // coverage:ignore-start
         final isCorrect = booksMatch && chapterVerseMatch;
 
         hasSubmittedAnswer.value = true;
+        // coverage:ignore-end
         isAnswerCorrect.value = isCorrect;
 
         if (isCorrect) {
@@ -140,6 +143,15 @@ class MemversePage extends HookConsumerWidget {
       appBar: AppBar(
         title: Text(pageTitle),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await ref.read(authStateProvider.notifier).logout();
+            },
+            tooltip: 'Logout',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Container(

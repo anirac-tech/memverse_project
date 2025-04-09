@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 import 'package:memverse/src/utils/test_utils.dart';
@@ -22,7 +23,7 @@ bool get isInTestMode {
 }
 
 /// Provider for the verse repository
-final verseRepositoryProvider = Provider<VerseRepository>((ref) => LiveVerseRepository());
+final verseRepositoryProvider = Provider<VerseRepository>(LiveVerseRepository.new);
 
 /// Provider that allows overriding the repository for testing
 final verseRepositoryOverrideProvider = Provider<VerseRepository>(
@@ -41,10 +42,11 @@ abstract class VerseRepository {
 class LiveVerseRepository implements VerseRepository {
   /// The HTTP client to use for network requests
   final Dio _dio;
+  final Ref _ref;
 
   /// Create a new LiveVerseRepository with an optional Dio client
   // ignore: sort_constructors_first
-  LiveVerseRepository({Dio? dio}) : _dio = dio ?? Dio() {
+  LiveVerseRepository(this._ref, {Dio? dio}) : _dio = dio ?? Dio() {
     // Configure dio options if not provided externally
     if (dio == null) {
       _dio.options.connectTimeout = const Duration(seconds: 10);
@@ -102,30 +104,34 @@ class LiveVerseRepository implements VerseRepository {
   /// The URL to fetch Bible verses from
   static const String _apiUrl = 'https://www.memverse.com/1/memverses';
 
-  /// The private authentication token from environment variables
-  static const String _privateToken = String.fromEnvironment('MEMVERSE_API_TOKEN');
-
   /// Get a list of verses from the remote API
   @override
   Future<List<Verse>> getVerses() async {
     try {
       // Validate token is available when not running tests
       // During tests, Dio is usually mocked so we don't need a real token
-      if (_privateToken.isEmpty && !isInTestMode && !_dio.isTestMockDio) {
-        throw Exception(
-          'No API token provided. Run with --dart-define=MEMVERSE_API_TOKEN=your_token',
-        );
+      final token = _ref.read(accessTokenProvider);
+      final bearerToken = _ref.read(bearerTokenProvider);
+      final isTestMockDio = _dio.isTestMockDio;
+      if (token.isEmpty && !isInTestMode && !isTestMockDio) {
+        throw Exception('No API token provided. Please login to get a valid token');
       }
 
-      if (kDebugMode) {
-        AppLogger.i('Fetching verses from $_apiUrl');
-        AppLogger.i('Token available: ${_privateToken.isNotEmpty}');
-      }
+      // Always output token for debugging (not just in debug mode)
+      debugPrint('VERSE REPOSITORY - Token: $token (empty: ${token.isEmpty})');
+      debugPrint('VERSE REPOSITORY - Bearer token: $bearerToken');
+      debugPrint('VERSE REPOSITORY - Fetching verses from $_apiUrl');
 
-      // Fetch data with authentication header
+      // Fetch data with authentication header - ensure Bearer prefix has a space
       final response = await _dio.get<dynamic>(
         _apiUrl,
-        options: Options(headers: {'Authorization': 'Bearer $_privateToken'}),
+        options: Options(
+          headers: {
+            'Authorization': bearerToken.isNotEmpty ? bearerToken : 'Bearer $token',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
       );
 
       if (response.statusCode == 200) {

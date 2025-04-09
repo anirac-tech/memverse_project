@@ -8,13 +8,29 @@ import 'package:mockito/mockito.dart';
 
 import 'verse_repository_test.mocks.dart';
 
+// Create a mock class for VerseRepository
+class MockVerseRepository extends Mock implements VerseRepository {}
+
+// Create a mock class for Ref
+class MockRef extends Mock implements Ref {
+  @override
+  T read<T>(ProviderListenable<T> provider) {
+    // Always return test_token for any provider
+    return 'test_token' as T;
+  }
+}
+
 @GenerateMocks([Dio])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('VerseRepositoryProvider', () {
     test('should provide a VerseRepository instance', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          // Override any dependencies needed for tests
+        ],
+      );
       final repository = container.read(verseRepositoryProvider);
 
       expect(repository, isA<VerseRepository>());
@@ -83,10 +99,12 @@ void main() {
   group('LiveVerseRepository', () {
     late MockDio mockDio;
     late LiveVerseRepository repository;
+    late MockRef mockRef;
 
     setUp(() {
       mockDio = MockDio();
-      repository = LiveVerseRepository(dio: mockDio);
+      mockRef = MockRef();
+      repository = LiveVerseRepository(mockRef, dio: mockDio);
     });
 
     test('constructor validateStatus function properly validates status codes', () {
