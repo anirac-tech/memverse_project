@@ -16,7 +16,7 @@
     "always remove unused local variables",
     "As a rule of thumb - if a widget is over 10 lines long give it its own file",
     "use feature based directory structure",
-    "Always run ./scripts/check_before_push.sh before committing code to ensure all checks pass",
+    "Always run ./scripts/check_before_commit.sh before committing code to ensure all checks pass",
     {
       "filePathMatches": "*.feature",
       "rules": [
@@ -36,9 +36,31 @@
       ]
     },
     {
+      "filePathMatches": "**/*_ai_prompts.log",
+      "rules": [
+        "Name log files following branch naming pattern: if branch is named like 'MEM-59-feature-name', use 'MEM-59_ai_prompts.log'",
+        "If branch name doesn't match a ticket pattern, use date format like 'April08_2025_ai_prompts.log'",
+        "When creating a new log file, determine if there is already a log file for the current branch",
+        "If no log file exists for the current branch, create one using the branch name prefix",
+        "For each user query, record the timestamp in the format: **User Query** (yyyy-MM-dd HH:mm:ss): [query text]",
+        "Calculate and record accurate durations for tasks using the actual start and end times",
+        "Include a summary section with total time and key accomplishments"
+      ]
+    },
+    {
       "beforeCommit": true,
-      "command": "./scripts/check_before_push.sh",
-      "name": "Run pre-push checks"
+      "command": "./scripts/check_before_commit.sh",
+      "name": "Run pre-commit checks"
+    },
+    {
+      "onSessionStart": true,
+      "command": "BRANCH_NAME=$(git branch --show-current); TICKET=$(echo $BRANCH_NAME | grep -o 'MEM-[0-9]\\+' || echo \"$(date '+%B%d_%Y')\"); LOG_FILE=\"${TICKET}_ai_prompts.log\"; if [ ! -f \"$LOG_FILE\" ]; then find . -maxdepth 1 -name \"*_ai_prompts.log\" -not -name \"$LOG_FILE\" -delete; fi; touch \"$LOG_FILE\"; git add -f \"$LOG_FILE\" 2>/dev/null || true",
+      "name": "Create AI log file based on branch name, delete old ones, and add to git"
+    },
+    {
+      "beforeCommit": true,
+      "command": "LOG_FILES=$(find . -maxdepth 1 -name '*_ai_prompts*.log'); if [ ! -z \"$LOG_FILES\" ]; then git add -f $LOG_FILES 2>/dev/null || true; fi",
+      "name": "Add AI log files to git before committing"
     }
   ]
 }

@@ -21,9 +21,9 @@ jobs:
     with:
       flutter_channel: stable
       format_directories: lib/src test
-      min_coverage: 91 # for now..
-      coverage_excludes: lib/l10n/arb/app_localizations_es.dart lib/l10n/arb/app_localizations_en.dart lib/l10n/arb/app_localizations.dart
-      format_line_length: 100 # was failing because localization which is auto-gen
+      min_coverage: 100
+      coverage_excludes: 'lib/l10n/* test/verse_repository_test.mocks.dart'
+      format_line_length: 100
 
   spell-check:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1
