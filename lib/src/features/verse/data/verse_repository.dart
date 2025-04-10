@@ -118,7 +118,8 @@ class LiveVerseRepository implements VerseRepository {
       }
 
       // Always output token for debugging (not just in debug mode)
-      debugPrint('VERSE REPOSITORY - Token: $token (empty: ${token.isEmpty})');
+      final redactedToken = token.isEmpty ? '' : '${token.substring(0, 4)}...';
+      debugPrint('VERSE REPOSITORY - Token: $redactedToken (redacted) (empty: ${token.isEmpty})');
       debugPrint('VERSE REPOSITORY - Bearer token: $bearerToken');
       debugPrint('VERSE REPOSITORY - Fetching verses from $_apiUrl');
 
