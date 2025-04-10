@@ -18,6 +18,7 @@
     "use feature based directory structure",
     "Always run ./scripts/check_before_commit.sh  to ensure all checks pass",
     "if check_before_commit.sh doesn't yet it exist please create it and make it run dart fix apply and flutter analyze and dart format with 100 character line length and set it up as precommit hook",
+    "Always capture all user prompts in AI prompts log files with accurate timestamps",
     {
       "filePathMatches": "*.feature",
       "rules": [
@@ -33,7 +34,8 @@
         "For each user query, use the format: **User Query** (yyyy-MM-dd HH:mm:ss): [query text]",
         "Calculate and record accurate durations for tasks by using the actual start and end times",
         "When recording timestamps, use `date '+%Y-%m-%d %H:%M:%S'` format for consistency",
-        "Ensure total time in summary reflects actual elapsed time between first and last interactions"
+        "Ensure total time in summary reflects actual elapsed time between first and last interactions",
+        "Capture full text of all user prompts without omissions"
       ]
     },
     {
@@ -45,7 +47,9 @@
         "If no log file exists for the current branch, create one using the branch name prefix",
         "For each user query, record the timestamp in the format: **User Query** (yyyy-MM-dd HH:mm:ss): [query text]",
         "Calculate and record accurate durations for tasks using the actual start and end times",
-        "Include a summary section with total time and key accomplishments"
+        "Include a summary section with total time and key accomplishments",
+        "Always capture the complete text of user prompts, including URLs and references",
+        "Never truncate or summarize user prompts in log files"
       ]
     }
   ]

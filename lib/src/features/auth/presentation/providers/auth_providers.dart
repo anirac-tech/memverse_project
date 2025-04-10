@@ -52,7 +52,7 @@ class AuthState {
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isLoading: isLoading ?? this.isLoading,
       token: token ?? this.token,
-      error: error ?? this.error,
+      error: error,
     );
   }
 }
@@ -79,7 +79,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> login(String username, String password) async {
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      state = state.copyWith(isLoading: true);
 
       AppLogger.i(
         'Logging in with username: $username and clientId is non-empty: ${_clientId.isNotEmpty}',

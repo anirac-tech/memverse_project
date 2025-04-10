@@ -3,12 +3,18 @@
 # Exit on error
 set -e
 
+# Load shared project configuration
+source "$(dirname "$0")/project_config.sh"
+
 # Colors for terminal output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Configuration values
+ACCEPTABLE_COVERAGE_VALUES=("100.0%" "${MIN_COVERAGE}%")
 
 # Print section header
 print_header() {
@@ -86,12 +92,22 @@ genhtml coverage/new_lcov.info -o coverage/html
 COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
 print_info "Coverage: ${COVERAGE_LINE}"
 
-# Check if coverage meets the threshold
-if [[ "${COVERAGE_LINE}" == "100.0%" || "${COVERAGE_LINE}" == "99.3%" ]]; then
+# Check if coverage is in the list of acceptable values
+coverage_is_acceptable=false
+for value in "${ACCEPTABLE_COVERAGE_VALUES[@]}"; do
+  if [[ "${COVERAGE_LINE}" == "${value}" ]]; then
+    coverage_is_acceptable=true
+    break
+  fi
+done
+
+if [[ "${coverage_is_acceptable}" == "true" ]]; then
   print_success "Coverage is acceptable: ${COVERAGE_LINE}"
 else
   print_error "Coverage is below acceptable levels: ${COVERAGE_LINE}"
   echo "See coverage report at: $(pwd)/coverage/html/index.html"
+  # Add info on acceptable values
+  echo "Acceptable coverage values are: ${ACCEPTABLE_COVERAGE_VALUES[*]}"
   exit 1
 fi
 
