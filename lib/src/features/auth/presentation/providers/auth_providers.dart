@@ -87,19 +87,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      AppLogger.i(
-        'Logging in with username: $username and clientId is non-empty: ${_clientId.isNotEmpty}',
-      );
+      AppLogger.i('Attempting login with client ID present: ${_clientId.isNotEmpty}');
       final token = await _authService.login(username, password, _clientId);
 
       // Log token information (non-sensitive parts)
       if (token.accessToken.isNotEmpty) {
-        debugPrint('TOKEN IS NOT EMPTY - Successfully authenticated');
-        // Log additional information about token formatting
-        debugPrint(
-          'TOKEN FORMAT - Type: ${token.tokenType}, Format for Authorization header: ${token.tokenType} ${token.accessToken}',
-        );
-        AppLogger.i('Successfully authenticated with token type: ${token.tokenType}');
+        // Only log in debug mode
+        if (kDebugMode) {
+          debugPrint('Successfully authenticated');
+        }
+        AppLogger.i('Successfully authenticated');
       }
 
       state = state.copyWith(isAuthenticated: true, isLoading: false, token: token);
