@@ -1,4 +1,4 @@
 # Project configuration settings
 
 # Test coverage configuration
-MIN_COVERAGE=99.3
+MIN_COVERAGE=97

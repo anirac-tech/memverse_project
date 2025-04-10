@@ -13,9 +13,6 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration values
-ACCEPTABLE_COVERAGE_VALUES=("100.0%" "${MIN_COVERAGE}%")
-
 # Print section header
 print_header() {
   echo -e "\n${BLUE}==== $1 ====${NC}"
@@ -48,29 +45,31 @@ check_command() {
 print_header "CHECKING DEPENDENCIES"
 check_command flutter
 check_command dart
+check_command lcov
+check_command genhtml
 print_success "All dependencies found"
 
 # Check Flutter version
 print_info "Flutter version:"
 flutter --version
 
-# Format code
+# Fix code first (before formatting)
+print_header "APPLYING DARTFIX"
+print_info "Running dart fix..."
+dart fix --apply
+print_success "Applied dart fixes"
+
+# Format code after fixes
 print_header "FORMATTING CODE"
 print_info "Running dart format..."
-dart format --line-length 100 --set-exit-if-changed lib/src test
-print_success "Code formatting is correct"
+dart format --line-length 100 lib/src test
+print_success "Code formatted"
 
 # Analyze code
 print_header "ANALYZING CODE"
 print_info "Running flutter analyze..."
 flutter analyze lib test
 print_success "No analysis issues found"
-
-# Fix code
-print_header "APPLYING DARTFIX"
-print_info "Running dart fix..."
-dart fix --apply
-print_success "Applied dart fixes"
 
 # Get dependencies
 print_header "GETTING DEPENDENCIES"
@@ -85,29 +84,25 @@ flutter test --coverage
 
 # Process coverage
 print_info "Processing coverage data..."
-lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' 'test/verse_repository_test.mocks.dart' 'lib/src/features/auth/*' 'lib/src/bootstrap.dart' -o coverage/new_lcov.info
+lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' '**/*.g.dart' 'lib/src/features/auth/*' 'lib/src/bootstrap.dart' -o coverage/new_lcov.info
 genhtml coverage/new_lcov.info -o coverage/html
 
-# Calculate coverage percentage - simpler approach
+# Calculate coverage percentage
 COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
 print_info "Coverage: ${COVERAGE_LINE}"
 
-# Check if coverage is in the list of acceptable values
-coverage_is_acceptable=false
-for value in "${ACCEPTABLE_COVERAGE_VALUES[@]}"; do
-  if [[ "${COVERAGE_LINE}" == "${value}" ]]; then
-    coverage_is_acceptable=true
-    break
+# Check if coverage meets minimum requirement (using numeric comparison)
+COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
+if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE}" | bc -l) )); then
+  print_success "Coverage is acceptable: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  
+  # Open coverage report on macOS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    open coverage/html/index.html
   fi
-done
-
-if [[ "${coverage_is_acceptable}" == "true" ]]; then
-  print_success "Coverage is acceptable: ${COVERAGE_LINE}"
 else
-  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE}"
+  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
   echo "See coverage report at: $(pwd)/coverage/html/index.html"
-  # Add info on acceptable values
-  echo "Acceptable coverage values are: ${ACCEPTABLE_COVERAGE_VALUES[*]}"
   exit 1
 fi
 

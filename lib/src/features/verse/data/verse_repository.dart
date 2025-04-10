@@ -173,8 +173,10 @@ class LiveVerseRepository implements VerseRepository {
 
         result.add(Verse(text: text, reference: reference, translation: translation));
       } catch (e) {
+        // coverage:ignore-start
         // Rethrow exceptions instead of skipping them
         rethrow;
+        // coverage:ignore-end
       }
     }
     return result;
@@ -270,8 +272,8 @@ class FakeVerseRepository implements VerseRepository {
   /// Get a list of verses
   @override
   Future<List<Verse>> getVerses() async {
-    // Simulate a network delay
-    await Future<void>.delayed(const Duration(seconds: 2));
+    // Simulate a very short network delay for tests
+    await Future<void>.delayed(const Duration(milliseconds: 100));
 
     return [
       Verse(

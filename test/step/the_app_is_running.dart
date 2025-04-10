@@ -29,11 +29,13 @@ Future<void> theAppIsRunning(WidgetTester tester) async {
         authStateProvider.overrideWith(
           (ref) => TestAuthNotifier(ref.watch(authServiceProvider), ref.watch(clientIdProvider)),
         ),
+        // Override isLoggedInProvider to return true immediately
+        isLoggedInProvider.overrideWith((ref) => Future.value(true)),
       ],
       child: const App(),
     ),
   );
 
-  // Wait for the app to stabilize
-  await tester.pumpAndSettle();
+  // Wait for the app to stabilize and for async operations to complete
+  await tester.pumpAndSettle(const Duration(milliseconds: 300));
 }

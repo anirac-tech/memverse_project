@@ -27,6 +27,31 @@ class LoginPage extends HookConsumerWidget {
                 Image.network(
                   'https://www.memverse.com/assets/quill-writing-on-scroll-f758c31d9bfc559f582fcbb707d04b01a3fa11285f1157044cc81bdf50137086.png',
                   height: 100,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Column(
+                      children: [
+                        const Icon(Icons.menu_book, size: 80, color: Colors.blue),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: const LinearGradient(
+                              colors: [Colors.blue, Colors.lightBlueAccent],
+                            ),
+                          ),
+                          child: const Text(
+                            'Memverse',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 32),
                 const Text(

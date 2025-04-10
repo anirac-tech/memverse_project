@@ -122,6 +122,42 @@ void main() {
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
+
+    testWidgets('displays error state when error is provided', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(
+              progress: 0,
+              totalCorrect: 0,
+              totalAnswered: 0,
+              l10n: mockL10n,
+              error: 'Test error',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Reference Progress'), findsOneWidget);
+    });
+
+    testWidgets('displays validation error state when validationError is provided', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(
+              progress: 0,
+              totalCorrect: 0,
+              totalAnswered: 0,
+              l10n: mockL10n,
+              validationError: 'Validation error',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Reference Progress'), findsOneWidget);
+    });
   });
 
   group('VerseReferenceValidator', () {
@@ -214,6 +250,16 @@ void main() {
       await tester.pump();
       expect(find.text('75%'), findsOneWidget);
       expect(find.text('3/4'), findsOneWidget);
+
+      // Set error
+      await tester.tap(find.byKey(const Key('error-button')));
+      await tester.pump();
+      expect(find.text('Reference Progress'), findsOneWidget);
+
+      // Set validation error
+      await tester.tap(find.byKey(const Key('validation-error-button')));
+      await tester.pump();
+      expect(find.text('Reference Progress'), findsOneWidget);
     });
   });
 }
@@ -261,6 +307,18 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
     });
   }
 
+  void setError() {
+    setState(() {
+      error = 'Test error';
+    });
+  }
+
+  void setValidationError() {
+    setState(() {
+      validationError = 'Validation error';
+    });
+  }
+
   @override
   Widget build(BuildContext context) => Column(
     children: [
@@ -282,6 +340,16 @@ class _ProgressTestWrapperState extends State<ProgressTestWrapper> {
         key: const Key('incorrect-button'),
         onPressed: submitIncorrectAnswer,
         child: const Text('Incorrect Answer'),
+      ),
+      ElevatedButton(
+        key: const Key('error-button'),
+        onPressed: setError,
+        child: const Text('Set Error'),
+      ),
+      ElevatedButton(
+        key: const Key('validation-error-button'),
+        onPressed: setValidationError,
+        child: const Text('Set Validation Error'),
       ),
     ],
   );

@@ -9,14 +9,23 @@ class AuthWrapper extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoggedInAsync = ref.watch(isLoggedInProvider);
     final authState = ref.watch(authStateProvider);
 
-    // Show loading indicator while checking auth status
-    if (authState.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    return isLoggedInAsync.when(
+      data: (isLoggedIn) {
+        // If loading auth state, show loading indicator
+        if (authState.isLoading) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
 
-    // Show login if not authenticated, otherwise show the app content
-    return authState.isAuthenticated ? const MemversePage() : const LoginPage();
+        // Show login if not authenticated, otherwise show the app content
+        return authState.isAuthenticated ? const MemversePage() : const LoginPage();
+      },
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error:
+          (_, __) =>
+              const Scaffold(body: Center(child: Text('Error checking authentication status'))),
+    );
   }
 }

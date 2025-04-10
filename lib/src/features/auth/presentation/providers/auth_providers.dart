@@ -5,6 +5,12 @@ import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
+/// Provider to check if user is logged in
+final isLoggedInProvider = FutureProvider<bool>((ref) async {
+  final authService = ref.watch(authServiceProvider);
+  return authService.isLoggedIn();
+});
+
 /// Provider for accessing the access token across the app
 final accessTokenProvider = Provider<String>((ref) {
   final authState = ref.watch(authStateProvider);
