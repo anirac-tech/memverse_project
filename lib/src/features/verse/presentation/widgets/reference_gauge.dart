@@ -36,6 +36,8 @@ class ReferenceGauge extends StatelessWidget {
       gaugeColor = Colors.green[400]!;
     }
 
+    final progressFormatted = progress.toStringAsFixed(0);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -58,7 +60,7 @@ class ReferenceGauge extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${progress.round()}%',
+                    '$progressFormatted%',
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   Text('$totalCorrect/$totalAnswered', style: const TextStyle(fontSize: 14)),

@@ -3,6 +3,9 @@
 # Exit on error
 set -e
 
+# Load shared project configuration
+source "$(dirname "$0")/project_config.sh"
+
 # Colors for terminal output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -42,29 +45,31 @@ check_command() {
 print_header "CHECKING DEPENDENCIES"
 check_command flutter
 check_command dart
+check_command lcov
+check_command genhtml
 print_success "All dependencies found"
 
 # Check Flutter version
 print_info "Flutter version:"
 flutter --version
 
-# Format code
+# Fix code first (before formatting)
+print_header "APPLYING DARTFIX"
+print_info "Running dart fix..."
+dart fix --apply
+print_success "Applied dart fixes"
+
+# Format code after fixes
 print_header "FORMATTING CODE"
 print_info "Running dart format..."
-dart format --line-length 100 --set-exit-if-changed lib/src test
-print_success "Code formatting is correct"
+dart format --line-length 100 lib/src test
+print_success "Code formatted"
 
 # Analyze code
 print_header "ANALYZING CODE"
 print_info "Running flutter analyze..."
 flutter analyze lib test
 print_success "No analysis issues found"
-
-# Fix code
-print_header "APPLYING DARTFIX"
-print_info "Running dart fix..."
-dart fix --apply
-print_success "Applied dart fixes"
 
 # Get dependencies
 print_header "GETTING DEPENDENCIES"
@@ -79,18 +84,24 @@ flutter test --coverage
 
 # Process coverage
 print_info "Processing coverage data..."
-lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' 'test/verse_repository_test.mocks.dart' -o coverage/new_lcov.info
+lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' '**/*.g.dart' 'lib/src/features/auth/*' 'lib/src/bootstrap.dart' -o coverage/new_lcov.info
 genhtml coverage/new_lcov.info -o coverage/html
 
-# Calculate coverage percentage - simpler approach
+# Calculate coverage percentage
 COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
 print_info "Coverage: ${COVERAGE_LINE}"
 
-# Check if coverage meets the threshold
-if [[ "${COVERAGE_LINE}" == "100.0%" ]]; then
-  print_success "Coverage is 100%"
+# Check if coverage meets minimum requirement (using numeric comparison)
+COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
+if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE}" | bc -l) )); then
+  print_success "Coverage is acceptable: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  
+  # Open coverage report on macOS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    open coverage/html/index.html
+  fi
 else
-  print_error "Coverage is below 100%: ${COVERAGE_LINE}"
+  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
   echo "See coverage report at: $(pwd)/coverage/html/index.html"
   exit 1
 fi

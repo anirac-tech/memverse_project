@@ -15,8 +15,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: 2.6.1
+  flutter_secure_storage: ^9.0.0
   freezed_annotation: ^3.0.0
   hooks_riverpod: ^2.6.1
+  http: ^1.1.0
   intl: 0.19.0
   json_annotation: ^4.9.0
   logger: ^2.0.2+1
@@ -46,6 +48,7 @@ scripts:
   format: dart format . -l 100
   analyze: flutter analyze
   fix: dart fix --apply
+  test_live_login: flutter test integration_test/live_login_test.dart --flavor development --dart-define=USERNAME=$MEMVERSE_USERNAME --dart-define=PASSWORD=$MEMVERSE_PASSWORD --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID
 
 flutter:
   uses-material-design: true

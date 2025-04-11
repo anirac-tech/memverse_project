@@ -9,14 +9,15 @@
     "Exclude generated code and 'l10n' directory from test coverage similar to flutter test --coverage;lcov --remove coverage/lcov.info 'lib/l10n' '**/*.g.dart' -o coverage/new_lcov.info ;genhtml coverage/new_lcov.info -o coverage/html\n\n",
     "Always run dart format for 100 characters",
     "Please insert all appropriate trailing commas so no lint errors",
-    "Always run flutter analyze and fix all issues",
-    "always run dart fix --apply",
+    "Always run dart fix --apply before flutter analyze to automatically fix issues",
     "Always make sure tests pass at the end",
     "always remove unused imports",
     "always remove unused local variables",
     "As a rule of thumb - if a widget is over 10 lines long give it its own file",
     "use feature based directory structure",
-    "Always run ./scripts/check_before_commit.sh before committing code to ensure all checks pass",
+    "Always run ./scripts/check_before_commit.sh  to ensure all checks pass",
+    "if check_before_commit.sh doesn't yet it exist please create it and make it run dart fix --apply before flutter analyze and dart format with 100 character line length and set it up as precommit hook",
+    "Always capture all user prompts in AI prompts log files with accurate timestamps",
     {
       "filePathMatches": "*.feature",
       "rules": [
@@ -32,7 +33,8 @@
         "For each user query, use the format: **User Query** (yyyy-MM-dd HH:mm:ss): [query text]",
         "Calculate and record accurate durations for tasks by using the actual start and end times",
         "When recording timestamps, use `date '+%Y-%m-%d %H:%M:%S'` format for consistency",
-        "Ensure total time in summary reflects actual elapsed time between first and last interactions"
+        "Ensure total time in summary reflects actual elapsed time between first and last interactions",
+        "Capture full text of all user prompts without omissions"
       ]
     },
     {
@@ -42,25 +44,14 @@
         "If branch name doesn't match a ticket pattern, use date format like 'April08_2025_ai_prompts.log'",
         "When creating a new log file, determine if there is already a log file for the current branch",
         "If no log file exists for the current branch, create one using the branch name prefix",
-        "For each user query, record the timestamp in the format: **User Query** (yyyy-MM-dd HH:mm:ss): [query text]",
+        "For each user query, record the timestamp in the format: **User Query** (yyyy-MM-dd hh:mm:ss AM/PM): [query text]",
+        "Use system date command (`date '+%Y-%m-%d %I:%M:%S %p'`) to get accurate timestamps in AM/PM format for each entry",
+        "After each user prompt, immediately update the log file with the current timestamp and full prompt text",
         "Calculate and record accurate durations for tasks using the actual start and end times",
-        "Include a summary section with total time and key accomplishments"
+        "Include a summary section with total time and key accomplishments",
+        "Always capture the complete text of user prompts, including URLs and references",
+        "Never truncate or summarize user prompts in log files"
       ]
-    },
-    {
-      "beforeCommit": true,
-      "command": "./scripts/check_before_commit.sh",
-      "name": "Run pre-commit checks"
-    },
-    {
-      "onSessionStart": true,
-      "command": "BRANCH_NAME=$(git branch --show-current); TICKET=$(echo $BRANCH_NAME | grep -o 'MEM-[0-9]\\+' || echo \"$(date '+%B%d_%Y')\"); LOG_FILE=\"${TICKET}_ai_prompts.log\"; if [ ! -f \"$LOG_FILE\" ]; then find . -maxdepth 1 -name \"*_ai_prompts.log\" -not -name \"$LOG_FILE\" -delete; fi; touch \"$LOG_FILE\"; git add -f \"$LOG_FILE\" 2>/dev/null || true",
-      "name": "Create AI log file based on branch name, delete old ones, and add to git"
-    },
-    {
-      "beforeCommit": true,
-      "command": "LOG_FILES=$(find . -maxdepth 1 -name '*_ai_prompts*.log'); if [ ! -z \"$LOG_FILES\" ]; then git add -f $LOG_FILES 2>/dev/null || true; fi",
-      "name": "Add AI log files to git before committing"
     }
   ]
 }

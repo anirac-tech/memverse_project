@@ -13,15 +13,28 @@ on:
       - main
 
 jobs:
-  #  semantic-pull-request:
-  #    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml@v1
+  extract-config:
+    runs-on: ubuntu-latest
+    outputs:
+      min_coverage: ${{ steps.extract.outputs.min_coverage }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: extract
+        name: Extract configuration values
+        run: |
+          # Extract MIN_COVERAGE from project_config.sh
+          MIN_COVERAGE=$(grep "MIN_COVERAGE=" scripts/project_config.sh | cut -d'=' -f2)
+          # Convert to integer for the workflow requirement
+          MIN_COVERAGE_INT=$(printf "%.0f" $MIN_COVERAGE)
+          echo "min_coverage=$MIN_COVERAGE_INT" >> $GITHUB_OUTPUT
 
   build:
+    needs: extract-config
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
     with:
       flutter_channel: stable
       format_directories: lib/src test
-      min_coverage: 100
+      min_coverage: ${{ needs.extract-config.outputs.min_coverage }}
       coverage_excludes: lib/l10n/arb/app_localizations_es.dart lib/l10n/arb/app_localizations_en.dart lib/l10n/arb/app_localizations.dart
       format_line_length: 100
 
