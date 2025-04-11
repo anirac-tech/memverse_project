@@ -18,7 +18,7 @@ jobs:
     outputs:
       min_coverage: ${{ steps.extract.outputs.min_coverage }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: extract
         name: Extract configuration values
         run: |
