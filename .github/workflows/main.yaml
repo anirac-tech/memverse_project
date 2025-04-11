@@ -14,7 +14,7 @@ on:
       - main
 
 jobs:
-  # TODO: Uncomment and fix the extract-config job when dynamic config extraction is working properly
+  # TODO(neiljaywarner): Uncomment and fix the extract-config job when dynamic config extraction is working properly
   # extract-config:
   #   runs-on: ubuntu-latest
   #   outputs:
@@ -36,9 +36,9 @@ jobs:
     with:
       flutter_channel: stable
       format_directories: lib/src test
-      # TODO: Fix dynamic extraction of min_coverage from config - currently using hardcoded value
+      # TODO(neiljaywarner): Fix dynamic extraction of min_coverage from config - currently using hardcoded value
       min_coverage: 97
-      coverage_excludes: "lib/l10n/arb/**"
+      coverage_excludes: lib/l10n/arb/app_localizations_es.dart lib/l10n/arb/app_localizations_en.dart lib/l10n/arb/app_localizations.dart
       format_line_length: 100
 
   spell-check:
