@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -83,4 +84,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get formatShouldBeBookChapterVerse => 'Format should be \"Book Chapter:Verse\"';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get pleaseEnterYourPassword => 'Please enter your password';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get pleaseEnterYourUsername => 'Please enter your username';
 }

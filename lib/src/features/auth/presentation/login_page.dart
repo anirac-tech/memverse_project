@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 
 class LoginPage extends HookConsumerWidget {
@@ -11,6 +13,8 @@ class LoginPage extends HookConsumerWidget {
     final usernameController = TextEditingController();
     final passwordController = TextEditingController();
     final authState = ref.watch(authStateProvider);
+    final isPasswordVisible = useState(false);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Memverse Login')),
@@ -68,33 +72,32 @@ class LoginPage extends HookConsumerWidget {
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
+                  decoration: InputDecoration(
+                    labelText: l10n.username,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.person),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your username';
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? l10n.pleaseEnterYourUsername : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                  obscureText: !isPasswordVisible.value,
+                  decoration: InputDecoration(
+                    labelText: l10n.password,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(isPasswordVisible.value ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () => isPasswordVisible.value = !isPasswordVisible.value,
+                      tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(

@@ -25,8 +25,9 @@ jobs:
           # Extract MIN_COVERAGE from project_config.sh
           MIN_COVERAGE=$(grep "MIN_COVERAGE=" scripts/project_config.sh | cut -d'=' -f2)
           # Convert to integer for the workflow requirement
-          MIN_COVERAGE_INT=$(printf "%.0f" $MIN_COVERAGE)
+          MIN_COVERAGE_INT=$(printf "%.0f" "$MIN_COVERAGE")
           echo "min_coverage=$MIN_COVERAGE_INT" >> $GITHUB_OUTPUT
+          echo "Using min_coverage: $MIN_COVERAGE_INT from project_config.sh"
 
   build:
     needs: extract-config
