@@ -59,5 +59,6 @@
   "hidePassword": "Hide password",
   "pleaseEnterYourPassword": "Please enter your password",
   "username": "Username",
-  "pleaseEnterYourUsername": "Please enter your username"
+  "pleaseEnterYourUsername": "Please enter your username",
+  "login": "Login"
 }

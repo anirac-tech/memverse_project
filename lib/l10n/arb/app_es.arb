@@ -69,5 +69,6 @@
   "hidePassword": "Ocultar contraseña", 
   "pleaseEnterYourPassword": "Por favor ingrese su contraseña",
   "username": "Nombre de usuario",
-  "pleaseEnterYourUsername": "Por favor ingrese su nombre de usuario"
+  "pleaseEnterYourUsername": "Por favor ingrese su nombre de usuario",
+  "login": "Iniciar sesión"
 }

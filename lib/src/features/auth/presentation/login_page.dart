@@ -117,7 +117,7 @@ class LoginPage extends HookConsumerWidget {
                   child:
                       authState.isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Login', style: TextStyle(fontSize: 16)),
+                          : Text(l10n.login, style: const TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(height: 16),
                 if (authState.error != null)

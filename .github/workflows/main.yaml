@@ -1,7 +1,8 @@
 name: memverse
 
+# Ensure consistent concurrency settings across workflows
 concurrency:
-  group: $-$
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
@@ -13,30 +14,31 @@ on:
       - main
 
 jobs:
-  extract-config:
-    runs-on: ubuntu-latest
-    outputs:
-      min_coverage: ${{ steps.extract.outputs.min_coverage }}
-    steps:
-      - uses: actions/checkout@v3
-      - id: extract
-        name: Extract configuration values
-        run: |
-          # Extract MIN_COVERAGE from project_config.sh
-          MIN_COVERAGE=$(grep "MIN_COVERAGE=" scripts/project_config.sh | cut -d'=' -f2)
-          # Convert to integer for the workflow requirement
-          MIN_COVERAGE_INT=$(printf "%.0f" "$MIN_COVERAGE")
-          echo "min_coverage=$MIN_COVERAGE_INT" >> $GITHUB_OUTPUT
-          echo "Using min_coverage: $MIN_COVERAGE_INT from project_config.sh"
+  # TODO: Uncomment and fix the extract-config job when dynamic config extraction is working properly
+  # extract-config:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     min_coverage: ${{ steps.extract.outputs.min_coverage }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - id: extract
+  #       name: Extract configuration values
+  #       run: |
+  #         # Extract MIN_COVERAGE from project_config.sh
+  #         MIN_COVERAGE=$(grep "MIN_COVERAGE=" scripts/project_config.sh | cut -d'=' -f2)
+  #         # Output as integer (no quotes)
+  #         echo "min_coverage=$(echo $MIN_COVERAGE | tr -d '"' | tr -d "'")" >> $GITHUB_OUTPUT
+  #         echo "Using min_coverage: $(echo $MIN_COVERAGE | tr -d '"' | tr -d "'")"
 
   build:
-    needs: extract-config
+    # needs: extract-config
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
     with:
       flutter_channel: stable
       format_directories: lib/src test
-      min_coverage: ${{ needs.extract-config.outputs.min_coverage }}
-      coverage_excludes: lib/l10n/arb/app_localizations_es.dart lib/l10n/arb/app_localizations_en.dart lib/l10n/arb/app_localizations.dart
+      # TODO: Fix dynamic extraction of min_coverage from config - currently using hardcoded value
+      min_coverage: 97
+      coverage_excludes: "lib/l10n/arb/**"
       format_line_length: 100
 
   spell-check:
@@ -45,4 +47,3 @@ jobs:
       includes: |
         **/*.md
       modified_files_only: false
-

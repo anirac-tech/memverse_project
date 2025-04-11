@@ -102,4 +102,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pleaseEnterYourUsername => 'Por favor ingrese su nombre de usuario';
+
+  @override
+  String get login => 'Iniciar sesión';
 }
