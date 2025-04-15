@@ -12,100 +12,10 @@ void main() {
 
   setUp(() {
     mockL10n = MockAppLocalizations();
-    when(() => mockL10n.referenceRecall).thenReturn('Reference Recall');
-    when(() => mockL10n.question).thenReturn('Question');
-    when(() => mockL10n.referenceFormat).thenReturn('Format: Book Chapter:Verse');
   });
 
   group('ReferenceGauge', () {
-    testWidgets('displays correct percentage based on progress', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(progress: 50, totalCorrect: 5, totalAnswered: 10, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      expect(find.text('50%'), findsOneWidget);
-      expect(find.text('5/10'), findsOneWidget);
-    });
-
-    testWidgets('displays 0% when no answers', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(progress: 0, totalCorrect: 0, totalAnswered: 0, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      expect(find.text('0%'), findsOneWidget);
-      expect(find.text('0/0'), findsOneWidget);
-    });
-
-    testWidgets('displays correct color based on progress - red for low progress', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(progress: 20, totalCorrect: 1, totalAnswered: 5, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      final progressIndicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-
-      expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
-        Colors.red[400],
-      );
-    });
-
-    testWidgets('displays correct color based on progress - orange for medium progress', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(progress: 50, totalCorrect: 5, totalAnswered: 10, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      final progressIndicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-
-      expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
-        Colors.orange[400],
-      );
-    });
-
-    testWidgets('displays correct color based on progress - green for high progress', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ReferenceGauge(progress: 80, totalCorrect: 8, totalAnswered: 10, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      final progressIndicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-
-      expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
-        Colors.green[400],
-      );
-    });
-
-    testWidgets('displays loading state when verse is loading', (tester) async {
+    testWidgets('displays loading indicator when isLoading is true', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -116,6 +26,70 @@ void main() {
               l10n: mockL10n,
               isLoading: true,
             ),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('0%'), findsNothing);
+    });
+
+    testWidgets('displays red gauge for low progress', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(progress: 25, totalCorrect: 1, totalAnswered: 4, l10n: mockL10n),
+          ),
+        ),
+      );
+
+      expect(find.text('25%'), findsOneWidget);
+      expect(find.text('1/4'), findsOneWidget);
+
+      // Check that the CircularProgressIndicator exists
+      final progressIndicator = tester.widget<CircularProgressIndicator>(
+        find.byType(CircularProgressIndicator),
+      );
+
+      // Value should be 0.25
+      expect(progressIndicator.value, equals(0.25));
+
+      // Color should be red (for progress < 33)
+      expect(
+        (progressIndicator.valueColor! as AlwaysStoppedAnimation<Color>).value,
+        equals(Colors.red[400]),
+      );
+    });
+
+    testWidgets('displays orange gauge for medium progress', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(progress: 50, totalCorrect: 2, totalAnswered: 4, l10n: mockL10n),
+          ),
+        ),
+      );
+
+      expect(find.text('50%'), findsOneWidget);
+      expect(find.text('2/4'), findsOneWidget);
+
+      // Check that the CircularProgressIndicator exists
+      final progressIndicator = tester.widget<CircularProgressIndicator>(
+        find.byType(CircularProgressIndicator),
+      );
+
+      // Color should be orange (for progress between 33 and 66)
+      expect(
+        (progressIndicator.valueColor! as AlwaysStoppedAnimation<Color>).value,
+        equals(Colors.orange[400]),
+      );
+    });
+
+    testWidgets('displays green gauge for high progress', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReferenceGauge(progress: 75, totalCorrect: 3, totalAnswered: 4, l10n: mockL10n),
           ),
         ),
       );

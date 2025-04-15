@@ -2,49 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:memverse/main_development.dart' as app;
+import 'package:memverse/src/features/auth/presentation/login_page.dart';
+import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('End-to-end test', () {
-    testWidgets('Verify API data is displayed correctly', (WidgetTester tester) async {
-      // Start the app
+  group('end-to-end app test', () {
+    testWidgets('Verify app launches and login page appears', (tester) async {
+      // Load app widget
       app.main();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
 
-      // Verify that we see the expected API content (from the gist)
+      // Should be on the login page initially
+      expect(find.byType(LoginPage), findsOneWidget);
+
+      // Verify login form elements are visible
+      expect(find.byKey(const Key('username_field')), findsOneWidget);
+      expect(find.byKey(const Key('password_field')), findsOneWidget);
+      expect(find.byType(ElevatedButton), findsOneWidget);
+
+      // Enter credentials
+      await tester.enterText(find.byKey(const Key('username_field')), 'test_user');
+      await tester.enterText(find.byKey(const Key('password_field')), 'password123');
+
+      // Test password visibility toggle
+      expect(tester.widget<TextField>(find.byKey(const Key('password_field'))).obscureText, isTrue);
+      await tester.tap(find.byIcon(Icons.visibility_off));
+      await tester.pump();
       expect(
-        find.textContaining('He existed before anything else'),
-        findsOneWidget,
-        reason: 'API data from Gist should be displayed',
+        tester.widget<TextField>(find.byKey(const Key('password_field'))).obscureText,
+        isFalse,
       );
+      await tester.tap(find.byIcon(Icons.visibility));
+      await tester.pump();
+      expect(tester.widget<TextField>(find.byKey(const Key('password_field'))).obscureText, isTrue);
 
-      // Test answering with correct reference
-      await tester.enterText(find.byType(TextField), 'Col 1:17');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pump(const Duration(milliseconds: 500));
+      // Tap login button (assuming successful navigation to MemversePage for this integration test)
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle(const Duration(seconds: 3)); // Give time for auth and navigation
 
-      // Verify snackbar appears with correct message
-      expect(
-        find.byType(SnackBar),
-        findsOneWidget,
-        reason: 'Snackbar should appear after submission',
-      );
-      expect(
-        find.textContaining('Correct'),
-        findsOneWidget,
-        reason: 'Should show correct feedback for API reference',
-      );
+      // Should now be on the MemversePage (main content page)
+      // This may not work if real auth is required - mock would be needed for CI
+      expect(find.byType(MemversePage), findsOneWidget);
 
-      // Wait for the next verse to load
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      // Test MemversePage interaction - answer a question
+      if (find.byType(TextField).evaluate().isNotEmpty) {
+        final referenceField = find.byType(TextField).first;
+        await tester.enterText(referenceField, 'John 3:16');
+        await tester.tap(find.text('Submit'));
+        await tester.pumpAndSettle();
+      }
 
-      // Verify second verse appears
-      expect(
-        find.textContaining('For I can do everything through Christ'),
-        findsOneWidget,
-        reason: 'Second API verse should be displayed after answering first',
-      );
+      // Test navigation through bottom navigation
+      if (find.byType(BottomNavigationBar).evaluate().isNotEmpty) {
+        final bottomNav = find.byType(BottomNavigationBar).first;
+        await tester.tap(bottomNav);
+        await tester.pumpAndSettle();
+      }
     });
   });
 }

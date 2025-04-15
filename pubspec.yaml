@@ -35,6 +35,7 @@ dev_dependencies:
   json_serializable: ^6.9.4
   mockito: ^5.4.5
   mocktail: 1.0.4
+  network_image_mock: ^2.1.1
   riverpod_generator: ^2.6.5
   very_good_analysis: 7.0.0
 
@@ -49,6 +50,7 @@ scripts:
   analyze: flutter analyze
   fix: dart fix --apply
   test_live_login: flutter test integration_test/live_login_test.dart --flavor development --dart-define=USERNAME=$MEMVERSE_USERNAME --dart-define=PASSWORD=$MEMVERSE_PASSWORD --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID
+  integration_test: flutter test integration_test
 
 flutter:
   uses-material-design: true

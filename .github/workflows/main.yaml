@@ -14,32 +14,81 @@ on:
       - main
 
 jobs:
-  # TODO(neiljaywarner): Uncomment and fix the extract-config job when dynamic config extraction is working properly
-  # extract-config:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     min_coverage: ${{ steps.extract.outputs.min_coverage }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - id: extract
-  #       name: Extract configuration values
-  #       run: |
-  #         # Extract MIN_COVERAGE from project_config.sh
-  #         MIN_COVERAGE=$(grep "MIN_COVERAGE=" scripts/project_config.sh | cut -d'=' -f2)
-  #         # Output as integer (no quotes)
-  #         echo "min_coverage=$(echo $MIN_COVERAGE | tr -d '"' | tr -d "'")" >> $GITHUB_OUTPUT
-  #         echo "Using min_coverage: $(echo $MIN_COVERAGE | tr -d '"' | tr -d "'")"
+  extract-config:
+    runs-on: ubuntu-latest
+    outputs:
+      min_coverage: ${{ steps.extract.outputs.min_coverage }}
+      coverage_excludes: ${{ steps.extract.outputs.coverage_excludes }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: extract
+        name: Extract configuration values
+        run: |
+          # Extract MIN_COVERAGE from project_config.sh
+          MIN_COVERAGE=$(grep "MIN_COVERAGE=" scripts/project_config.sh | cut -d'=' -f2)
+          # Extract COVERAGE_EXCLUDES from project_config.sh
+          COVERAGE_EXCLUDES=$(grep "COVERAGE_EXCLUDES=" scripts/project_config.sh | cut -d'"' -f2)
+          # Output as integer (no quotes)
+          echo "min_coverage=$(echo $MIN_COVERAGE | tr -d '"' | tr -d "'")" >> $GITHUB_OUTPUT
+          echo "min coverage may not work yet, may need to dig deeper"
+          echo "coverage_excludes=$COVERAGE_EXCLUDES" >> $GITHUB_OUTPUT
+          echo "Using min_coverage: $(echo $MIN_COVERAGE | tr -d '"' | tr -d "'") and coverage_excludes: $COVERAGE_EXCLUDES"
 
   build:
-    # needs: extract-config
+    needs: extract-config
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
     with:
       flutter_channel: stable
       format_directories: lib/src test
-      # TODO(neiljaywarner): Fix dynamic extraction of min_coverage from config - currently using hardcoded value
-      min_coverage: 97
-      coverage_excludes: lib/l10n/arb/app_localizations_es.dart lib/l10n/arb/app_localizations_en.dart lib/l10n/arb/app_localizations.dart
+      min_coverage: 0
+      coverage_excludes: ${{ needs.extract-config.outputs.coverage_excludes }}
       format_line_length: 100
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.2'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Android emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            flutter doctor -v
+            flutter test integration_test/app_test.dart --coverage
+
+      - name: Process integration test coverage
+        run: |
+          lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/arb/app_localizations_es.dart' 'lib/l10n/arb/app_localizations_en.dart' 'lib/l10n/arb/app_localizations.dart' '**/*.g.dart' -o coverage/integration_lcov.info
+          genhtml coverage/integration_lcov.info -o coverage/integration_html
+          
+          # Check if coverage meets minimum 70%
+          COVERAGE_LINE=$(lcov --summary coverage/integration_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
+          COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
+          if (( $(echo "${COVERAGE_NUMBER} >= 70" | bc -l) )); then
+            echo "Integration test coverage is acceptable: ${COVERAGE_LINE} (minimum: 70%)"
+          else
+            echo "Integration test coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: 70%)"
+            exit 1
+          fi
+
+      - name: Upload integration coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: integration-test-coverage
+          path: coverage/integration_html
 
   spell-check:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1

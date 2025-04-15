@@ -175,11 +175,13 @@ class MemversePage extends HookConsumerWidget {
           margin: const EdgeInsets.all(16),
           child:
               isSmallScreen
-                  // coverage:ignore-start
                   ? Column(
                     children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.6,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.5,
+                          minHeight: 250,
+                        ),
                         child: QuestionSection(
                           versesAsync: versesAsync,
                           currentVerseIndex: currentVerseIndex.value,
@@ -203,7 +205,6 @@ class MemversePage extends HookConsumerWidget {
                       ),
                     ],
                   )
-                  // coverage:ignore-end
                   : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

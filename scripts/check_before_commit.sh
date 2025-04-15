@@ -84,25 +84,36 @@ flutter test --coverage
 
 # Process coverage
 print_info "Processing coverage data..."
-lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' '**/*.g.dart' 'lib/src/features/auth/*' 'lib/src/bootstrap.dart' -o coverage/new_lcov.info
-genhtml coverage/new_lcov.info -o coverage/html
+# Using exclusions from project_config.sh
+for exclude in $COVERAGE_EXCLUDES; do
+  EXCLUDE_ARGS="${EXCLUDE_ARGS} '${exclude}'"
+done
+eval "lcov --rc lcov_branch=1 --ignore-errors unused --remove coverage/lcov.info ${EXCLUDE_ARGS} -o coverage/new_lcov.info"
+genhtml coverage/new_lcov.info --branch-coverage -o coverage/html
+
+# Print detailed coverage report
+print_header "DETAILED COVERAGE"
+eval "lcov --rc lcov_branch=1 --list coverage/new_lcov.info"
 
 # Calculate coverage percentage
 COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
-print_info "Coverage: ${COVERAGE_LINE}"
+COVERAGE_FUNCTIONS=$(lcov --summary coverage/new_lcov.info | grep "functions" | sed 's/.*functions...: \([0-9.]*%\).*/\1/')
+print_info "Line Coverage: ${COVERAGE_LINE}"
+print_info "Function Coverage: ${COVERAGE_FUNCTIONS}"
 
 # Check if coverage meets minimum requirement (using numeric comparison)
 COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
 if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE}" | bc -l) )); then
   print_success "Coverage is acceptable: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
   
+
+else
+  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  echo "See coverage report at: $(pwd)/coverage/html/index.html"
   # Open coverage report on macOS
   if [[ "$OSTYPE" == "darwin"* ]]; then
     open coverage/html/index.html
   fi
-else
-  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
-  echo "See coverage report at: $(pwd)/coverage/html/index.html"
   exit 1
 fi
 

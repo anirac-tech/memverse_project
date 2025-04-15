@@ -51,22 +51,26 @@ class QuestionSection extends HookConsumerWidget {
       ),
 
       // Verse text container
-      SizedBox(
-        height: 180,
-        child: versesAsync.when(
-          data: (verses) => VerseCard(verse: verses[currentVerseIndex]),
-          loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-          error:
-              (error, stackTrace) => Center(
-                child: Text(
-                  'Error loading verses: $error',
-                  style: const TextStyle(color: Colors.red),
+      Flexible(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 50, maxHeight: 150),
+          child: versesAsync.when(
+            data: (verses) => VerseCard(verse: verses[currentVerseIndex]),
+            loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+            error:
+                (error, stackTrace) => Center(
+                  child: Text(
+                    'Error loading verses: $error',
+                    style: const TextStyle(color: Colors.red),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
+                  ),
                 ),
-              ),
+          ),
         ),
       ),
 
-      const SizedBox(height: 24),
+      const SizedBox(height: 16),
 
       // Reference form
       versesAsync.maybeWhen(
