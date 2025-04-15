@@ -1,5 +1,9 @@
 # Project configuration settings
 
+# Flutter version - used in CI workflows
+# Needs to match the version specified in pubspec.yaml
+export FLUTTER_VERSION="3.29.3"
+
 # Test coverage configuration - used in check_before_commit.sh
 export MIN_COVERAGE=95
 

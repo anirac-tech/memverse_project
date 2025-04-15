@@ -5,7 +5,7 @@ publish_to: none
 
 environment:
   sdk: 3.7.2
-  flutter: 3.29.3
+  flutter: 3.29.3 # Needs to match FLUTTER_VERSION in scripts/project_config.sh
 
 dependencies:
   dio: 5.8.0+1
