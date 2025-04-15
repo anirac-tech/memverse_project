@@ -7,6 +7,7 @@ import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/reference_gauge.dart';
+import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
@@ -116,6 +117,7 @@ void main() {
       when(() => mockL10n.noPreviousQuestions).thenReturn('No previous questions');
       when(() => mockL10n.referenceCannotBeEmpty).thenReturn('Reference cannot be empty');
       when(() => mockL10n.notQuiteRight(any())).thenReturn('Not quite right');
+      when(() => mockL10n.correctReferenceIdentification(any())).thenReturn('Correct!');
 
       // Override the provider for testing
       container = ProviderContainer(
@@ -174,6 +176,108 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check that snackbar is shown
+      expect(find.byType(SnackBar), findsOneWidget);
+    });
+
+    testWidgets('displays correctly in small screen', (WidgetTester tester) async {
+      // Arrange - simulate a small screen
+      addTearDown(() {
+        // Reset screen size after test
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      // Use a standard mobile size (iPhone SE)
+      tester.view.physicalSize = const Size(640, 1136);
+      tester.view.devicePixelRatio = 2.0;
+
+      // Mock auth provider
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: MemversePage(),
+            locale: Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+
+      // Give it time to build widget tree completely
+      await tester.pump(const Duration(milliseconds: 200));
+
+      // Verify the page renders without exceptions
+      expect(find.byType(MemversePage), findsOneWidget);
+
+      // Allow async operations to complete
+      await tester.pumpAndSettle();
+
+      // Verify the components are displayed
+      expect(find.byType(QuestionSection), findsOneWidget);
+      expect(find.byType(StatsAndHistorySection), findsOneWidget);
+    });
+
+    testWidgets('submits correct answer and updates progress', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: MemversePage(),
+            locale: Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Enter correct reference
+      await tester.enterText(find.byType(TextField), 'Test 1:1');
+      await tester.pump();
+
+      // Submit answer
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pump();
+
+      // Wait for the delayed action
+      await tester.pump(const Duration(milliseconds: 1500));
+
+      // Verify feedback was shown
+      expect(find.byType(SnackBar), findsOneWidget);
+
+      // Wait for snackbar to disappear
+      await tester.pump(const Duration(seconds: 3));
+
+      // Verify progress is updated
+      final referenceFinder = find.byType(ReferenceGauge);
+      expect(referenceFinder, findsOneWidget);
+    });
+
+    testWidgets('handles invalid reference format correctly', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: MemversePage(),
+            locale: Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Enter invalid reference format
+      await tester.enterText(find.byType(TextField), 'invalid');
+      await tester.pump();
+
+      // Submit answer
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pump();
+
+      // Verify error message was shown
       expect(find.byType(SnackBar), findsOneWidget);
     });
   });

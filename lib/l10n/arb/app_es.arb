@@ -63,5 +63,12 @@
   "noPreviousQuestions": "Aún no hay preguntas anteriores",
   "referenceCannotBeEmpty": "La referencia no puede estar vacía",
   "invalidBookName": "Nombre de libro inválido",
-  "formatShouldBeBookChapterVerse": "El formato debe ser \"Libro Capítulo:Versículo\""
+  "formatShouldBeBookChapterVerse": "El formato debe ser \"Libro Capítulo:Versículo\"",
+  "password": "Contraseña",
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña", 
+  "pleaseEnterYourPassword": "Por favor ingrese su contraseña",
+  "username": "Nombre de usuario",
+  "pleaseEnterYourUsername": "Por favor ingrese su nombre de usuario",
+  "login": "Iniciar sesión"
 }

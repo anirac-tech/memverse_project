@@ -82,9 +82,12 @@ final bootstrapProvider = Provider<BootstrapConfig>((ref) {
 });
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+  /*
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
+
+   */
 
   try {
     // Check for CLIENT_ID early in the bootstrap process

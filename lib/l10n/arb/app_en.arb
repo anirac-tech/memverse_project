@@ -53,5 +53,12 @@
   "noPreviousQuestions": "No previous questions yet",
   "referenceCannotBeEmpty": "Reference cannot be empty",
   "invalidBookName": "Invalid book name",
-  "formatShouldBeBookChapterVerse": "Format should be \"Book Chapter:Verse\""
+  "formatShouldBeBookChapterVerse": "Format should be \"Book Chapter:Verse\"",
+  "password": "Password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "pleaseEnterYourPassword": "Please enter your password",
+  "username": "Username",
+  "pleaseEnterYourUsername": "Please enter your username",
+  "login": "Login"
 }

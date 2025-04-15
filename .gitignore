@@ -1,6 +1,4 @@
 # Miscellaneous
-!*_ai_prompts.log
-!*_ai_prompts_and_responses.log
 *.class
 *.log
 *.pyc
@@ -13,6 +11,10 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+
+# AI Prompts logs
+!*_ai_prompts.log
+!*_ai_prompts_and_responses.log
 
 # IntelliJ related
 *.iml
