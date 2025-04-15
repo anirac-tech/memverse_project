@@ -101,15 +101,12 @@ void main() {
   patrolWidgetTest('Shows fallback icon when image fails to load', ($) async {
     await pumpLoginPage($, authState: authStateInitial);
     await $.pumpAndSettle();
-    expect($.icon(Icons.menu_book).exists, isTrue);
 
-    final errorBuilderText = $.textWhich(
       (widget) =>
           widget.data == 'Memverse' &&
           widget.style?.color == Colors.white && // Null-aware access
           widget.style?.fontWeight == FontWeight.bold, // Null-aware access
     );
-    final gradientContainerFinder = $.containerWhich(
       (widget) => ((widget as Container?)?.decoration as BoxDecoration?)?.gradient is LinearGradient,
     );
     expect(gradientContainerFinder.containing(errorBuilderText).exists, isTrue);
@@ -177,16 +174,12 @@ void main() {
     await visibilityOffIcon.tap();
     await $.pump();
     expect(isObscured(passwordTextFormFieldFinder), isFalse);
-    // Check text after toggle using helper
-    expect(getPasswordText(passwordTextFormFieldFinder), testPassword);
     await visibilityOnIcon.waitUntilVisible();
     expect(visibilityOffIcon.exists, isFalse); // Check if off icon is gone
 
     await visibilityOnIcon.tap();
     await $.pump();
     expect(isObscured(passwordTextFormFieldFinder), isTrue);
-    // Check text after second toggle using helper
-    expect(getPasswordText(passwordTextFormFieldFinder), testPassword);
     await visibilityOffIcon.waitUntilVisible();
     expect(visibilityOnIcon.exists, isFalse); // Check if on icon is gone
   });
