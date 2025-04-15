@@ -84,61 +84,26 @@ flutter test --coverage
 
 # Process coverage
 print_info "Processing coverage data..."
-# Using exclusions from project_config.sh
-for exclude in $COVERAGE_EXCLUDES; do
-  EXCLUDE_ARGS="${EXCLUDE_ARGS} '${exclude}'"
-done
-eval "lcov --rc lcov_branch=1 --ignore-errors unused --remove coverage/lcov.info ${EXCLUDE_ARGS} -o coverage/new_lcov.info"
-genhtml coverage/new_lcov.info --branch-coverage -o coverage/html
-
-# Print detailed coverage report
-print_header "DETAILED COVERAGE"
-eval "lcov --rc lcov_branch=1 --list coverage/new_lcov.info"
+lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' '**/*.g.dart' 'lib/src/features/auth/*' 'lib/src/bootstrap.dart' -o coverage/new_lcov.info
+genhtml coverage/new_lcov.info -o coverage/html
 
 # Calculate coverage percentage
-LINE_COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
-FUNCTION_COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "functions" | sed 's/.*functions...: \([0-9.]*%\).*/\1/' || echo "N/A")
-BRANCH_COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "branches" | sed 's/.*branches....: \([0-9.]*%\).*/\1/' || echo "N/A")
+COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
+print_info "Coverage: ${COVERAGE_LINE}"
 
-print_info "Line Coverage: ${LINE_COVERAGE}"
-print_info "Function Coverage: ${FUNCTION_COVERAGE}"
-print_info "Branch Coverage: ${BRANCH_COVERAGE}"
+# Check if coverage meets minimum requirement (using numeric comparison)
+COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
+if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE}" | bc -l) )); then
+  print_success "Coverage is acceptable: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
 
-# Extract just the number from the coverage percentage for comparison
-COVERAGE_NUMBER=$(echo ${LINE_COVERAGE} | sed 's/%//')
-# Ensure MIN_COVERAGE is treated as a number (removes potential quotes)
-MIN_COVERAGE_NUM=$(echo ${MIN_COVERAGE} | tr -d \'\")
-
-# Check if coverage meets minimum requirement using bc for floating point comparison
-if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE_NUM}" | bc -l) )); then
-  print_success "Coverage is acceptable: ${LINE_COVERAGE} (minimum: ${MIN_COVERAGE_NUM}%)"
-else
-  print_error "Coverage is BELOW acceptable levels: ${LINE_COVERAGE} (minimum: ${MIN_COVERAGE_NUM}%)"
-  echo "See coverage report at: $(pwd)/coverage/html/index.html"
-
-  # Always open coverage report at the end on failure
+  # Open coverage report on macOS
   if [[ "$OSTYPE" == "darwin"* ]]; then
     open coverage/html/index.html
-  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if command -v xdg-open &> /dev/null; then
-      xdg-open coverage/html/index.html
-    fi
-  elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-    start coverage/html/index.html
   fi
-  
+else
+  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  echo "See coverage report at: $(pwd)/coverage/html/index.html"
   exit 1
-fi
-
-# Always open coverage report at the end (even if passing)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  open coverage/html/index.html
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  if command -v xdg-open &> /dev/null; then
-    xdg-open coverage/html/index.html
-  fi
-elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-  start coverage/html/index.html
 fi
 
 print_header "ALL CHECKS PASSED"

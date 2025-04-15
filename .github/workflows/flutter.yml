@@ -52,14 +52,13 @@ jobs:
               '**/*.g.dart')         REGEX_FLAGS+=" -r '\.g\.dart$'" ;;
               'lib/src/bootstrap.dart') REGEX_FLAGS+=" -r '\/lib\/src\/bootstrap\.dart$'" ;;
               'lib/src/app/app.dart') REGEX_FLAGS+=" -r '\/lib\/src\/app\/app\.dart$'" ;;
+              'lib/src/app/view/app.dart') REGEX_FLAGS+=" -r '\/lib\/src\/app\/view\/app\.dart$'" ;;
               '**/generated/**/*')    REGEX_FLAGS+=" -r '\/generated\/'" ;;
-              # Add more specific cases if needed
-              *) echo "Warning: Unhandled exclusion pattern '$pattern'" ;;
+              '**/*.freezed.dart')   REGEX_FLAGS+=" -r '\.freezed\.dart$'" ;;
+              '**/generated_plugin_registrant.dart') REGEX_FLAGS+=" -r 'generated_plugin_registrant\.dart$'" ;;
+              *) echo "Warning: Unhandled exclusion pattern '$pattern' in CI workflow" ;;
             esac
           done
-          # Add common fixed exclusions
-          REGEX_FLAGS+=" -r '\.freezed\.dart$' -r 'generated_plugin_registrant'"
-
           echo "Generated Regex Flags: $REGEX_FLAGS"
           # Output the full string of flags
           echo "COVERAGE_EXCLUDES_REGEX_FLAGS=$REGEX_FLAGS" >> $GITHUB_OUTPUT
