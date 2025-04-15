@@ -1,0 +1,208 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  setup:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    outputs:
+      flutter_version: ${{ steps.flutter-version.outputs.FLUTTER_VERSION }}
+      coverage_excludes_regex_flags: ${{ steps.extract-config.outputs.COVERAGE_EXCLUDES_REGEX_FLAGS }}
+    steps:
+      - uses: actions/checkout@v3
+
+      # Extract Flutter version from pubspec.yaml
+      - name: Extract Flutter version
+        id: flutter-version
+        run: |
+          # Use awk to find the line with 'sdk: flutter' under 'environment:' and extract the version constraint
+          FLUTTER_CONSTRAINT=$(awk '/environment:/,/^$/{if(/sdk: flutter/){print $NF}}' pubspec.yaml | tr -d \'\"')
+          # Extract the first version number found (handles >= constraints)
+          FLUTTER_VERSION=$(echo $FLUTTER_CONSTRAINT | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+          if [ -z "$FLUTTER_VERSION" ]; then
+            echo "Could not extract Flutter version constraint from pubspec.yaml, trying sdk line..."
+            # Fallback: Try finding 'sdk: flutter' directly (less robust)
+            FLUTTER_CONSTRAINT=$(grep 'sdk: flutter:' pubspec.yaml | sed -e 's/.*sdk: flutter: \(.*\)/\1/' | tr -d \'\"')
+            FLUTTER_VERSION=$(echo $FLUTTER_CONSTRAINT | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+          fi
+          if [ -z "$FLUTTER_VERSION" ]; then
+             echo "Could not extract Flutter version from pubspec.yaml, defaulting to latest stable."
+             # Fallback to latest stable if extraction fails
+             FLUTTER_VERSION="latest"
+          fi
+          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
+          echo "Detected Flutter version: $FLUTTER_VERSION"
+
+      # Extract and process coverage exclusions
+      - name: Extract config and generate regex flags
+        id: extract-config
+        run: |
+          COVERAGE_EXCLUDES=$(grep "COVERAGE_EXCLUDES=" scripts/project_config.sh | cut -d'"' -f2)
+          echo "Raw Excludes: $COVERAGE_EXCLUDES"
+          # Convert shell globs to regex patterns for remove_from_coverage
+          REGEX_FLAGS=""
+          for pattern in $COVERAGE_EXCLUDES; do
+            case "$pattern" in
+              'lib/l10n/**/*')       REGEX_FLAGS+=" -r '\/lib\/l10n\/'" ;;
+              '**/*.g.dart')         REGEX_FLAGS+=" -r '\.g\.dart$'" ;;
+              'lib/src/bootstrap.dart') REGEX_FLAGS+=" -r '\/lib\/src\/bootstrap\.dart$'" ;;
+              'lib/src/app/app.dart') REGEX_FLAGS+=" -r '\/lib\/src\/app\/app\.dart$'" ;;
+              '**/generated/**/*')    REGEX_FLAGS+=" -r '\/generated\/'" ;;
+              # Add more specific cases if needed
+              *) echo "Warning: Unhandled exclusion pattern '$pattern'" ;;
+            esac
+          done
+          # Add common fixed exclusions
+          REGEX_FLAGS+=" -r '\.freezed\.dart$' -r 'generated_plugin_registrant'"
+
+          echo "Generated Regex Flags: $REGEX_FLAGS"
+          # Output the full string of flags
+          echo "COVERAGE_EXCLUDES_REGEX_FLAGS=$REGEX_FLAGS" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.setup.outputs.flutter_version }} # Use extracted version
+          channel: 'stable' # Keep stable channel for consistency
+          cache: true # Enable Flutter cache
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project
+        run: flutter analyze
+
+      - name: Run unit and widget tests with coverage
+        run: flutter test --coverage
+
+      - name: Generate coverage report
+        run: |
+          dart pub global activate lcov || true
+          dart pub global activate remove_from_coverage || true
+          echo "Using exclusion flags: ${{ needs.setup.outputs.coverage_excludes_regex_flags }}"
+          remove_from_coverage -f coverage/lcov.info ${{ needs.setup.outputs.coverage_excludes_regex_flags }}
+          echo "Unit/Widget Test Coverage Summary:"
+          lcov --list coverage/lcov.info 
+          lcov --summary coverage/lcov.info
+
+      - name: Upload coverage to Codecov (Unit/Widget)
+        uses: codecov/codecov-action@v3
+        continue-on-error: true
+        with:
+          file: coverage/lcov.info
+          flags: unit_widget_tests
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  integration_tests_emulator:
+    name: Integration Tests (Emulator - Warnings Only)
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.setup.outputs.flutter_version }} # Use extracted version
+          channel: 'stable'
+          cache: true # Enable Flutter cache
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Android emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          # Run integration tests with coverage
+          script: |
+            echo "⚠️ Integration tests (Emulator) starting (with coverage) - failures won't block pipeline"
+            flutter test integration_test --coverage || true # Collect coverage, allow failure
+            echo "⚠️ Integration tests (Emulator) completed"
+
+      - name: Generate Integration Test Coverage Report (Emulator)
+        if: always()
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            echo "Processing integration test coverage (Emulator)..."
+            dart pub global activate lcov || true
+            dart pub global activate remove_from_coverage || true
+            echo "Using exclusion flags: ${{ needs.setup.outputs.coverage_excludes_regex_flags }}"
+            remove_from_coverage -f coverage/lcov.info ${{ needs.setup.outputs.coverage_excludes_regex_flags }}
+            echo "Integration Test Coverage Summary (Emulator):"
+            lcov --list coverage/lcov.info
+            lcov --summary coverage/lcov.info
+          else
+            echo "No coverage/lcov.info file found from integration tests (Emulator)."
+          fi
+
+      - name: Upload Integration Test Coverage to Codecov (Emulator)
+        if: always() # Upload regardless of test outcome due to || true
+        uses: codecov/codecov-action@v3
+        continue-on-error: true # Don't fail pipeline if upload fails
+        with:
+          file: coverage/lcov.info
+          flags: integration_tests_emulator # Flag for Codecov reporting
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  firebase_test_lab:
+    name: Integration Tests (Firebase Test Lab - Warnings Only)
+    runs-on: ubuntu-latest
+    needs: setup # Depends on the setup job
+    continue-on-error: true # Don't fail pipeline if FTL tests fail
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.setup.outputs.flutter_version }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK for Integration Tests
+        run: flutter build apk --debug
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }} # Requires GCP_SA_KEY secret
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Run Integration Tests on Firebase Test Lab
+        run: |
+          gcloud firebase test android run \
+            --type instrumentation \
+            --app build/app/outputs/apk/debug/app-debug.apk \
+            --test build/app/outputs/apk/debug/app-debug-androidTest.apk \
+            --device model=Pixel6,version=31,locale=en,orientation=portrait \
+            --timeout 5m \
+            --results-bucket gs://YOUR_RESULTS_BUCKET_NAME # TODO: Replace with your bucket name
+            --project YOUR_GCP_PROJECT_ID # TODO: Replace with your GCP project ID
+
+      - name: Check Firebase Test Lab Results (Optional)
+        if: always() # Run even if gcloud command failed
+        run: |
+          echo "Firebase Test Lab run finished. Check GCP console for detailed results."
+          # Add more sophisticated result checking here if needed

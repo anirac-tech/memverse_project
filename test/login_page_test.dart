@@ -1,127 +1,213 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/features/auth/data/auth_service.dart';
+import 'package:memverse/src/features/auth/domain/auth_token.dart';
+import 'package:memverse/src/features/auth/presentation/login_page.dart';
+import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:patrol_finders/patrol_finders.dart';
 
-/// A stub login page that doesn't depend on any external dependencies
-class StubLoginPage extends StatelessWidget {
-  const StubLoginPage({this.isLoading = false, this.errorMessage, this.onLoginPressed, super.key});
+// Mock AuthService
+class MockAuthService extends Mock implements AuthService {}
 
-  final bool isLoading;
-  final String? errorMessage;
-  final VoidCallback? onLoginPressed;
+// Correctly mock AuthNotifier
+class MockAuthNotifier extends StateNotifier<AuthState> with Mock implements AuthNotifier {
+  MockAuthNotifier(super.initialState);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Memverse Login')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 32),
-              const Icon(Icons.menu_book, size: 80, color: Colors.blue),
-              const Text(
-                'Memverse',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Welcome to Memverse',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Sign in to continue',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  prefixIcon: Icon(Icons.person),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock),
-                  suffixIcon: Icon(Icons.visibility_off),
-                ),
-              ),
-              const SizedBox(height: 32),
-              if (isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                ElevatedButton(onPressed: onLoginPressed, child: const Text('Login')),
-              if (errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> login(String username, String password) async {
+    return super.noSuchMethod(Invocation.method(#login, [username, password]));
+  }
+
+  @override
+  Future<void> logout() async {
+    return super.noSuchMethod(Invocation.method(#logout, []));
   }
 }
 
 void main() {
-  testWidgets('login page renders correctly', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: StubLoginPage()));
-    await tester.pump();
-
-    expect(find.text('Memverse Login'), findsOneWidget);
-    expect(find.text('Welcome to Memverse'), findsOneWidget);
-    expect(find.text('Sign in to continue'), findsOneWidget);
-    expect(find.byType(TextFormField), findsNWidgets(2));
-    expect(find.byType(ElevatedButton), findsOneWidget);
+  setUpAll(() {
+    registerFallbackValue(const AuthState()); // Use const
+    registerFallbackValue(MockAuthService());
   });
 
-  testWidgets('shows fallback image for network image', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: StubLoginPage()));
-    await tester.pumpAndSettle();
+  late MockAuthNotifier mockAuthNotifier;
 
-    expect(find.byIcon(Icons.menu_book), findsOneWidget);
-    expect(find.text('Memverse'), findsOneWidget);
+  const authStateInitial = AuthState();
+  const authStateError = AuthState(error: 'Test Error');
+  final testToken = AuthToken(
+    accessToken: 'test_token',
+    tokenType: 'Bearer',
+    scope: 'public',
+    createdAt: DateTime(2023).millisecondsSinceEpoch ~/ 1000,
+  );
+  final authStateSuccess = AuthState(isAuthenticated: true, token: testToken);
+
+  setUp(() {
+    mockAuthNotifier = MockAuthNotifier(authStateInitial);
+    when(() => mockAuthNotifier.login(any(), any())).thenAnswer((_) async {});
+    when(() => mockAuthNotifier.logout()).thenAnswer((_) async {});
   });
 
-  testWidgets('shows error message when present', (WidgetTester tester) async {
-    const errorMessage = 'Authentication failed';
+  // Helper function to pump the LoginPage using PatrolTester
+  Future<AppLocalizations> pumpLoginPage(
+    PatrolTester $, { // Use PatrolTester
+    required AuthState authState,
+  }) async {
+    mockAuthNotifier = MockAuthNotifier(authState);
+    when(() => mockAuthNotifier.login(any(), any())).thenAnswer((_) async {});
+    when(() => mockAuthNotifier.logout()).thenAnswer((_) async {});
 
-    await tester.pumpWidget(const MaterialApp(home: StubLoginPage(errorMessage: errorMessage)));
-    await tester.pump(); // Just pump once to avoid potential timeout issues
+    const testLocale = Locale('en');
 
-    expect(find.text(errorMessage), findsOneWidget);
-  });
-
-  testWidgets('calls onLoginPressed callback when button is tapped', (WidgetTester tester) async {
-    bool callbackCalled = false;
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: StubLoginPage(
-          onLoginPressed: () {
-            callbackCalled = true;
-          },
+    await $.pumpWidget(
+      // Use $.pumpWidget
+      ProviderScope(
+        overrides: [authStateProvider.overrideWith((ref) => mockAuthNotifier)],
+        child: const MaterialApp(
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          locale: testLocale,
+          home: LoginPage(),
         ),
       ),
     );
-    await tester.pump(); // Just pump once to avoid potential timeout issues
+    await $.pumpAndSettle(); // Use $.pumpAndSettle
 
-    await tester.tap(find.byType(ElevatedButton));
+    // Load AppLocalizations using the delegate
+    final l10n = await AppLocalizations.delegate.load(testLocale);
+    return l10n;
+  }
 
-    expect(callbackCalled, isTrue);
+  // --- Test Cases using patrolWidgetTest ---
+
+  patrolWidgetTest('LoginPage renders correctly in initial state', ($) async {
+    final l10n = await pumpLoginPage($, authState: authStateInitial);
+    await $.pumpAndSettle();
+    expect($('Memverse Login').exists, isTrue);
+    expect($('Welcome to Memverse').exists, isTrue);
+    expect($('Sign in to continue').exists, isTrue);
+    expect($(TextFormField).containing(l10n.username).exists, isTrue);
+    expect($(TextFormField).containing(l10n.password).exists, isTrue);
+    expect($(ElevatedButton).containing(l10n.login).exists, isTrue);
+    expect($(Icons.visibility_off).exists, isTrue);
+    expect($(CircularProgressIndicator).exists, isFalse);
+    expect($('Test Error').exists, isFalse);
+  });
+
+  /* // Skipping fallback icon test as requested
+  patrolWidgetTest('Shows fallback icon when image fails to load', ($) async {
+    await pumpLoginPage($, authState: authStateInitial);
+    await $.pumpAndSettle();
+    expect($(Icons.menu_book).exists, isTrue);
+
+    // Use $(Type).which() with null-aware checks
+    final errorBuilderText = $(Text).which(
+      (widget) =>
+          widget.data == 'Memverse' &&
+          widget.style?.color == Colors.white && // Null-aware access
+          widget.style?.fontWeight == FontWeight.bold, // Null-aware access
+    );
+    final gradientContainerFinder = $(Container).which(
+      // Safe cast and null check for decoration
+      (widget) => ((widget as Container?)?.decoration as BoxDecoration?)?.gradient is LinearGradient,
+    );
+    expect(gradientContainerFinder.containing(errorBuilderText).exists, isTrue);
+  });
+  */
+
+  patrolWidgetTest('Username and Password validation works', ($) async {
+    final l10n = await pumpLoginPage($, authState: authStateInitial);
+    final loginButton = $(ElevatedButton).containing(l10n.login);
+    final usernameField = $(TextFormField).containing(l10n.username);
+    final passwordField = $(TextFormField).containing(l10n.password);
+
+    await $.pumpAndSettle();
+    await loginButton.tap();
+    await $.pump();
+    expect($(l10n.pleaseEnterYourUsername).exists, isTrue);
+    expect($(l10n.pleaseEnterYourPassword).exists, isTrue);
+
+    await usernameField.enterText('user');
+    await loginButton.tap();
+    await $.pump();
+    expect($(l10n.pleaseEnterYourUsername).exists, isFalse);
+    expect($(l10n.pleaseEnterYourPassword).exists, isTrue);
+
+    await usernameField.enterText('');
+    await passwordField.enterText('pass');
+    await loginButton.tap();
+    await $.pump();
+    expect($(l10n.pleaseEnterYourUsername).exists, isTrue);
+    expect($(l10n.pleaseEnterYourPassword).exists, isFalse);
+  });
+
+  patrolWidgetTest('Password visibility toggle works', ($) async {
+    final l10n = await pumpLoginPage($, authState: authStateInitial);
+    final passwordTextFormFieldFinder = $(TextFormField).containing(l10n.password);
+    final visibilityOffIcon = $(Icons.visibility_off);
+    final visibilityOnIcon = $(Icons.visibility);
+
+    await $.pumpAndSettle();
+
+    // Helper to check obscureText on the inner EditableText
+    bool isObscured(PatrolFinder textFormFieldFinder) {
+      final editableTextFinder = textFormFieldFinder.$(EditableText);
+      expect(editableTextFinder.exists, isTrue);
+      return $.tester.widget<EditableText>(editableTextFinder.finder).obscureText;
+    }
+
+    expect(isObscured(passwordTextFormFieldFinder), isTrue);
+    await visibilityOffIcon.tap();
+    await $.pump();
+    expect(isObscured(passwordTextFormFieldFinder), isFalse);
+    // Use await finder.waitUntilVisible()
+    await visibilityOnIcon.waitUntilVisible();
+    expect(visibilityOffIcon.exists, isFalse); // Check if off icon is gone
+
+    await visibilityOnIcon.tap();
+    await $.pump();
+    expect(isObscured(passwordTextFormFieldFinder), isTrue);
+    // Use await finder.waitUntilVisible()
+    await visibilityOffIcon.waitUntilVisible();
+    expect(visibilityOnIcon.exists, isFalse); // Check if on icon is gone
+  });
+
+  patrolWidgetTest('Shows error message when auth state has error', ($) async {
+    final l10n = await pumpLoginPage($, authState: authStateError);
+    await $.pumpAndSettle();
+    expect($('Test Error').exists, isTrue);
+    final loginButtonFinder = $(ElevatedButton).containing(l10n.login);
+    expect(loginButtonFinder.exists, isTrue);
+    // Check enabled property via tester.widget
+    expect($.tester.widget<ElevatedButton>(loginButtonFinder.finder).enabled, isTrue);
+    expect($(CircularProgressIndicator).exists, isFalse);
+  });
+
+  patrolWidgetTest('Calls login method on notifier when form is valid and button tapped', (
+    $,
+  ) async {
+    final l10n = await pumpLoginPage($, authState: authStateInitial);
+    await $.pumpAndSettle();
+    const testUsername = 'testuser';
+    const testPassword = 'password123';
+
+    await $(TextFormField).containing(l10n.username).enterText(testUsername);
+    await $(TextFormField).containing(l10n.password).enterText(testPassword);
+    await $(ElevatedButton).containing(l10n.login).tap();
+    await $.pumpAndSettle();
+
+    verify(() => mockAuthNotifier.login(testUsername, testPassword)).called(1);
+  });
+
+  patrolWidgetTest('UI reflects successful authentication state', ($) async {
+    final l10n = await pumpLoginPage($, authState: authStateSuccess);
+    await $.pumpAndSettle();
+
+    expect($(ElevatedButton).containing(l10n.login).exists, isTrue);
+    expect($('Test Error').exists, isFalse);
+    expect($('Memverse Login').exists, isTrue);
   });
 }

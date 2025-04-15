@@ -96,25 +96,49 @@ print_header "DETAILED COVERAGE"
 eval "lcov --rc lcov_branch=1 --list coverage/new_lcov.info"
 
 # Calculate coverage percentage
-COVERAGE_LINE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
-COVERAGE_FUNCTIONS=$(lcov --summary coverage/new_lcov.info | grep "functions" | sed 's/.*functions...: \([0-9.]*%\).*/\1/')
-print_info "Line Coverage: ${COVERAGE_LINE}"
-print_info "Function Coverage: ${COVERAGE_FUNCTIONS}"
+LINE_COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
+FUNCTION_COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "functions" | sed 's/.*functions...: \([0-9.]*%\).*/\1/' || echo "N/A")
+BRANCH_COVERAGE=$(lcov --summary coverage/new_lcov.info | grep "branches" | sed 's/.*branches....: \([0-9.]*%\).*/\1/' || echo "N/A")
 
-# Check if coverage meets minimum requirement (using numeric comparison)
-COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
-if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE}" | bc -l) )); then
-  print_success "Coverage is acceptable: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
-  
+print_info "Line Coverage: ${LINE_COVERAGE}"
+print_info "Function Coverage: ${FUNCTION_COVERAGE}"
+print_info "Branch Coverage: ${BRANCH_COVERAGE}"
 
+# Extract just the number from the coverage percentage for comparison
+COVERAGE_NUMBER=$(echo ${LINE_COVERAGE} | sed 's/%//')
+# Ensure MIN_COVERAGE is treated as a number (removes potential quotes)
+MIN_COVERAGE_NUM=$(echo ${MIN_COVERAGE} | tr -d \'\")
+
+# Check if coverage meets minimum requirement using bc for floating point comparison
+if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE_NUM}" | bc -l) )); then
+  print_success "Coverage is acceptable: ${LINE_COVERAGE} (minimum: ${MIN_COVERAGE_NUM}%)"
 else
-  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  print_error "Coverage is BELOW acceptable levels: ${LINE_COVERAGE} (minimum: ${MIN_COVERAGE_NUM}%)"
   echo "See coverage report at: $(pwd)/coverage/html/index.html"
-  # Open coverage report on macOS
+
+  # Always open coverage report at the end on failure
   if [[ "$OSTYPE" == "darwin"* ]]; then
     open coverage/html/index.html
+  elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if command -v xdg-open &> /dev/null; then
+      xdg-open coverage/html/index.html
+    fi
+  elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+    start coverage/html/index.html
   fi
+  
   exit 1
+fi
+
+# Always open coverage report at the end (even if passing)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  open coverage/html/index.html
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  if command -v xdg-open &> /dev/null; then
+    xdg-open coverage/html/index.html
+  fi
+elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+  start coverage/html/index.html
 fi
 
 print_header "ALL CHECKS PASSED"

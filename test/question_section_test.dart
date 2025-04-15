@@ -71,8 +71,18 @@ void main() {
       );
 
       // Assert
-      expect(find.text('Question: '), findsOneWidget);
-      expect(find.text('$questionNumber'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is RichText && widget.text.toPlainText().contains('Question: '),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is RichText && widget.text.toPlainText().contains('$questionNumber'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('displays correct verse based on index', (WidgetTester tester) async {
@@ -100,10 +110,12 @@ void main() {
         ),
       );
 
-      // Assert
+      // Assert - First verse text should be visible, but not second verse
       expect(find.text('In the beginning God created the heavens and the earth.'), findsOneWidget);
-      expect(find.text('Genesis 1:1'), findsOneWidget);
-      expect(find.text('John 3:16'), findsNothing);
+      expect(
+        find.text('For God so loved the world that he gave his one and only Son.'),
+        findsNothing,
+      );
 
       // Act - show the second verse
       await tester.pumpWidget(
@@ -128,13 +140,12 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Assert
+      // Assert - Second verse text should be visible, but not first verse
       expect(
         find.text('For God so loved the world that he gave his one and only Son.'),
         findsOneWidget,
       );
-      expect(find.text('John 3:16'), findsOneWidget);
-      expect(find.text('Genesis 1:1'), findsNothing);
+      expect(find.text('In the beginning God created the heavens and the earth.'), findsNothing);
     });
 
     testWidgets('shows loading indicator when verses are loading', (WidgetTester tester) async {

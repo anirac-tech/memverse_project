@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart' as integration;
 import 'package:integration_test/integration_test.dart';
 import 'package:memverse/main_development.dart' as app;
-import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 
 /// Live login test that makes actual network calls to authenticate
 /// Run with:
@@ -16,7 +13,6 @@ import 'package:memverse/src/features/auth/presentation/providers/auth_providers
 /// ```
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  final binding = IntegrationTestWidgetsFlutterBinding.instance;
 
   group('Live Login Flow Test', () {
     // Get credentials from environment variables passed via --dart-define
@@ -154,38 +150,4 @@ void main() {
       */
     });
   });
-}
-
-/// Helper to check if authentication state shows as authenticated
-bool _isAuthenticated(WidgetTester tester) {
-  final providerContainer = _getProviderContainer(tester);
-  if (providerContainer == null) return false;
-
-  final authState = providerContainer.read(authStateProvider);
-  return authState.isAuthenticated && !authState.isLoading;
-}
-
-/// Helper to get the ProviderContainer from the widget tree
-ProviderContainer? _getProviderContainer(WidgetTester tester) {
-  try {
-    final element = tester.element(find.byType(ProviderScope));
-    return ProviderScope.containerOf(element);
-  } catch (e) {
-    // If we can't find the container, return null
-    return null;
-  }
-}
-
-/// Take screenshot using the IntegrationTestWidgetsFlutterBinding
-Future<void> _takeScreenshot(
-  integration.IntegrationTestWidgetsFlutterBinding binding,
-  String name,
-) async {
-  try {
-    await binding.convertFlutterSurfaceToImage();
-    await binding.takeScreenshot(name);
-    debugPrint('Screenshot taken: $name');
-  } catch (e) {
-    debugPrint('Could not take screenshot: $e');
-  }
 }
