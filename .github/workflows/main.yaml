@@ -12,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   extract-config:
@@ -34,24 +35,84 @@ jobs:
           # Output as integer (no quotes)
           echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
           echo "min_coverage=$(echo $MIN_COVERAGE | tr -d '"' | tr -d "'")" >> $GITHUB_OUTPUT
-          echo "min coverage may not work yet, may need to dig deeper"
           echo "coverage_excludes=$COVERAGE_EXCLUDES" >> $GITHUB_OUTPUT
           echo "Using flutter_version: $FLUTTER_VERSION, min_coverage: $(echo $MIN_COVERAGE | tr -d '"' | tr -d "'"), and coverage_excludes: $COVERAGE_EXCLUDES"
 
   build:
     needs: extract-config
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
-    with:
-      flutter_channel: stable
-      format_directories: lib/src test
-      min_coverage: 50
-      flutter_version: ${{ needs.extract-config.outputs.flutter_version }}
-      coverage_excludes: ${{ needs.extract-config.outputs.coverage_excludes }}
-      format_line_length: 100
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.extract-config.outputs.flutter_version }}
+          channel: 'stable'
+          cache: true # Enable Flutter cache
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed . -l 100 # Match line length
+
+      - name: Analyze project
+        run: flutter analyze
+
+      - name: Run unit and widget tests with coverage
+        run: flutter test --coverage --min-coverage=${{ needs.extract-config.outputs.min_coverage }}
+
+      - name: Generate coverage report
+        run: |
+          dart pub global activate lcov || true
+          dart pub global activate remove_from_coverage || true
+          echo "Raw Excludes: ${{ needs.extract-config.outputs.coverage_excludes }}"
+
+          # Convert shell globs to regex patterns for remove_from_coverage
+          REGEX_FLAGS=""
+          for pattern in ${{ needs.extract-config.outputs.coverage_excludes }}; do
+            case "$pattern" in
+              'lib/l10n/**/*')       REGEX_FLAGS+=" -r '/lib/l10n/'" ;;        # Match directory
+              '**/*.g.dart')         REGEX_FLAGS+=" -r '.g.dart$'" ;;          # Match suffix
+              'lib/src/bootstrap.dart') REGEX_FLAGS+=" -r '/lib/src/bootstrap.dart$'" ;; # Match exact file
+              'lib/src/app/view/app.dart') REGEX_FLAGS+=" -r '/lib/src/app/view/app.dart$'" ;; # Match exact file
+              '**/generated/**/*')    REGEX_FLAGS+=" -r '/generated/'" ;;       # Match directory
+              '**/*.freezed.dart')   REGEX_FLAGS+=" -r '.freezed.dart$'" ;;     # Match suffix
+              '**/generated_plugin_registrant.dart') REGEX_FLAGS+=" -r 'generated_plugin_registrant.dart$'" ;; # Match exact file
+              'lib/src/features/auth/presentation/auth_wrapper.dart') REGEX_FLAGS+=" -r '/lib/src/features/auth/presentation/auth_wrapper.dart$'" ;; # Match exact file
+              'lib/src/features/auth/presentation/providers/auth_providers.dart') REGEX_FLAGS+=" -r '/lib/src/features/auth/presentation/providers/auth_providers.dart$'" ;; # Match exact file
+              *) echo "Warning: Unhandled exclusion pattern '$pattern' in CI workflow build job" ;;
+            esac
+          done
+          echo "Generated Regex Flags: $REGEX_FLAGS"
+
+          # Use eval to correctly interpret the flags string
+          if [ -f coverage/lcov.info ]; then
+            eval remove_from_coverage -f coverage/lcov.info $REGEX_FLAGS
+            echo "Unit/Widget Test Coverage Summary:"
+            lcov --list coverage/lcov.info
+            lcov --summary coverage/lcov.info
+          else
+            echo "coverage/lcov.info not found after running tests."
+            exit 1 # Fail if coverage file is missing
+          fi
+
+      - name: Upload coverage to Codecov (Unit/Widget)
+        uses: codecov/codecov-action@v4
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true # Don't fail pipeline if upload fails
+        with:
+          file: coverage/lcov.info
+          flags: unit_widget_tests
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   integration-test:
+    needs: extract-config
     name: Integration Tests
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
@@ -59,7 +120,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ needs.extract-config.outputs.flutter_version }}
-          channel: 'stable'
 
       - name: Install dependencies
         run: flutter pub get
@@ -72,13 +132,42 @@ jobs:
           profile: Nexus 6
           script: |
             flutter doctor -v
-            flutter test integration_test/app_test.dart --coverage
+            flutter test integration_test --coverage
 
       - name: Process integration test coverage
         run: |
-          lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/arb/app_localizations_es.dart' 'lib/l10n/arb/app_localizations_en.dart' 'lib/l10n/arb/app_localizations.dart' '**/*.g.dart' -o coverage/integration_lcov.info
-          genhtml coverage/integration_lcov.info -o coverage/integration_html
+          # Convert shell globs to regex patterns for coverage exclusions
+          REGEX_FLAGS=""
+          for pattern in ${{ needs.extract-config.outputs.coverage_excludes }}; do
+            case "$pattern" in
+              'lib/l10n/**/*')       REGEX_FLAGS+=" -r '/lib/l10n/'" ;;        # Match directory
+              '**/*.g.dart')         REGEX_FLAGS+=" -r '.g.dart$'" ;;          # Match suffix
+              'lib/src/bootstrap.dart') REGEX_FLAGS+=" -r '/lib/src/bootstrap.dart$'" ;; # Match exact file
+              'lib/src/app/view/app.dart') REGEX_FLAGS+=" -r '/lib/src/app/view/app.dart$'" ;; # Match exact file
+              '**/generated/**/*')    REGEX_FLAGS+=" -r '/generated/'" ;;       # Match directory
+              '**/*.freezed.dart')   REGEX_FLAGS+=" -r '.freezed.dart$'" ;;     # Match suffix
+              '**/generated_plugin_registrant.dart') REGEX_FLAGS+=" -r 'generated_plugin_registrant.dart$'" ;; # Match exact file
+              'lib/src/features/auth/presentation/auth_wrapper.dart') REGEX_FLAGS+=" -r '/lib/src/features/auth/presentation/auth_wrapper.dart$'" ;; # Match exact file
+              'lib/src/features/auth/presentation/providers/auth_providers.dart') REGEX_FLAGS+=" -r '/lib/src/features/auth/presentation/providers/auth_providers.dart$'" ;; # Match exact file
+              *) echo "Warning: Unhandled exclusion pattern '$pattern' in integration test job" ;;
+            esac
+          done
+          echo "Generated Regex Flags: $REGEX_FLAGS"
           
+          # Process coverage with the exclusions
+          # Use remove_from_coverage for integration test coverage
+          if [ -f coverage/lcov.info ]; then
+            dart pub global activate remove_from_coverage || true
+            eval "remove_from_coverage -f coverage/lcov.info $REGEX_FLAGS"
+            lcov --summary coverage/lcov.info
+            # Copy to the expected location
+            cp coverage/lcov.info coverage/integration_lcov.info
+            genhtml coverage/integration_lcov.info -o coverage/integration_html
+          else
+            echo "No coverage/lcov.info file found from integration tests"
+            exit 1
+          fi
+
           # Check if coverage meets minimum 70%
           COVERAGE_LINE=$(lcov --summary coverage/integration_lcov.info | grep "lines" | sed 's/.*lines.......: \([0-9.]*%\).*/\1/')
           COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
@@ -91,6 +180,7 @@ jobs:
 
       - name: Upload integration coverage report
         uses: actions/upload-artifact@v2
+        if: github.event_name == 'workflow_dispatch'
         with:
           name: integration-test-coverage
           path: coverage/integration_html

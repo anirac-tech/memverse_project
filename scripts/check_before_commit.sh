@@ -84,7 +84,14 @@ flutter test --coverage
 
 # Process coverage
 print_info "Processing coverage data..."
-lcov --ignore-errors unused --remove coverage/lcov.info 'lib/l10n/*' '**/*.g.dart' 'lib/src/features/auth/*' 'lib/src/bootstrap.dart' -o coverage/new_lcov.info
+# Convert space-separated glob patterns to lcov exclusion args
+LCOV_EXCLUDE_ARGS=""
+for pattern in $COVERAGE_EXCLUDES; do
+  LCOV_EXCLUDE_ARGS+=" '$pattern'"
+done
+
+# Apply the exclusions
+eval "lcov --ignore-errors unused --remove coverage/lcov.info $LCOV_EXCLUDE_ARGS -o coverage/new_lcov.info"
 genhtml coverage/new_lcov.info -o coverage/html
 
 # Calculate coverage percentage
