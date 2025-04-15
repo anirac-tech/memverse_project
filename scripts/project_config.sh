@@ -5,7 +5,7 @@
 export FLUTTER_VERSION="3.29.3"
 
 # Test coverage configuration - used in check_before_commit.sh
-export MIN_COVERAGE=86
+export MIN_COVERAGE=97
 
 # Coverage exclusions (shell globs) - used in check_before_commit.sh and translated in CI
 # Exclude l10n, generated, bootstrap, app views, freezed, and plugin registrant

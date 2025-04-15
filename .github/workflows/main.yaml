@@ -49,7 +49,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ needs.extract-config.outputs.flutter_version }}
-          channel: 'stable'
           cache: true # Enable Flutter cache
 
       - name: Install dependencies
