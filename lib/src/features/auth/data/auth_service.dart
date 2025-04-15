@@ -51,7 +51,7 @@ class AuthService {
           final authToken = AuthToken.fromJson(jsonData);
           // Log the raw token type for debugging
           debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}');
-          await _saveToken(authToken);
+          await saveToken(authToken);
           return authToken;
         } else {
           debugPrint('LOGIN - Failed with status code: ${response.statusCode}');
@@ -84,7 +84,7 @@ class AuthService {
         final authToken = AuthToken.fromJson(jsonData);
         // Log the raw token type for debugging
         debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}');
-        await _saveToken(authToken);
+        await saveToken(authToken);
         return authToken;
       } else {
         debugPrint('LOGIN - Failed with status code: ${response.statusCode}');
@@ -135,12 +135,12 @@ class AuthService {
   }
 
   /// Saves the auth token to secure storage
-  Future<void> _saveToken(AuthToken token) async {
+  Future<void> saveToken(AuthToken token) async {
     try {
       final tokenJson = jsonEncode(token.toJson());
       await _secureStorage.write(key: _tokenKey, value: tokenJson);
     } catch (e) {
-      AppLogger.e('Error saving token', e); // coverage:ignore-line
+      AppLogger.e('Error saving token', e);
       rethrow;
     }
   }

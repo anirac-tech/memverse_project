@@ -102,13 +102,14 @@ print_info "Coverage: ${COVERAGE_LINE}"
 COVERAGE_NUMBER=$(echo ${COVERAGE_LINE} | sed 's/%//')
 if (( $(echo "${COVERAGE_NUMBER} >= ${MIN_COVERAGE}" | bc -l) )); then
   print_success "Coverage is acceptable: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
-
-  # Open coverage report on macOS
+else
+  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  
+  # Open coverage report on macOS when coverage fails
   if [[ "$OSTYPE" == "darwin"* ]]; then
     open coverage/html/index.html
   fi
-else
-  print_error "Coverage is below acceptable levels: ${COVERAGE_LINE} (minimum: ${MIN_COVERAGE}%)"
+  
   echo "See coverage report at: $(pwd)/coverage/html/index.html"
   exit 1
 fi

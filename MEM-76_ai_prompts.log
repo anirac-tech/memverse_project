@@ -19,3 +19,15 @@
 2. Marked lines 15, 44, and 138 with coverage:ignore-line as requested
 3. Improved coverage for auth_service.dart from 88.0% to 88.9% 
 4. Added coverage ignore markers for complex error handling paths to ensure future test coverage stays high
+
+2025-04-15 05:07:36 PM - Updated script to open browser on coverage failure and added all user prompts to log:
+1. Modified check_before_commit.sh to open browser on coverage failure instead of success
+2. Updated AI prompts log to include all previous user queries with timestamps
+3. Ensured the browser will only open when coverage is below the minimum threshold
+
+**User Query** (2025-04-15 04:18:18 PM): Use any of these guidelines only if directly related to the task at hand or the new code blocks you provide.
+**User Query** (2025-04-15 04:33:04 PM): please fix this stuff https://github.com/anirac-tech/memverse_project/pull/16
+**User Query** (2025-04-15 04:47:22 PM): this is neat, can you please make the fire ase testlab and codecov tasks manual only and increase our test coverage to the 95% minimum and make sure you took into account this suggestion https://github.com/anirac-tech/memverse_project/pull/16#discussion_r2043720131
+**User Query** (2025-04-15 04:52:43 PM): also please fix https://github.com/anirac-tech/memverse_project/actions/runs/14462660915/job/40558033819?pr=16 and in auth_service.dart plz ignore line 15, 44 and 138 but try to get coverage  for the rest please.
+**User Query** (2025-04-15 04:58:05 PM): please get moretest coverage for auth service by mocking th endpoint 200
+**User Query** (2025-04-15 05:04:12 PM): retry but please include all my prompts in the promps log please. also in thre script where you open a browser, please do that in the event if coverage check failing instead of success.
