@@ -2,3 +2,18 @@
 2025-04-15 07:58:00 PM
 ===================
 please make a features.md or similar file that lists all the features or capabilities of the app and make a golden and integration test to demonstrate each of them where possible and a link to a picture or video that the test created and/or instructions for them. Golden tests should be run in a separate github job then regular tests and for now should not fail in hte pipeline. They should be run in the precommit hook and not fail it either but generate picture diffs that can be reviewed in the pr. please keep going for 100% in widget and integration tests Good luck! thanks!
+
+===================
+2025-04-16 00:00:00 AM
+===================
+Creating a new AI prompts log entry:
+2025-04-15 06:30:47 PM - Fixed workflow errors and cleaned up test coverage:
+1. Removed tests for files that are already excluded from coverage (auth_wrapper_test.dart, bootstrap_test.dart, auth_providers_test.dart, app_test.dart)
+2. Fixed the Flutter version extraction in GitHub workflow by simplifying the awk command
+3. Added proper fallback to latest stable Flutter version if extraction fails
+4. Recreated simplified live_login_test.dart integration test
+5. Ensured all tests and analyses pass without errors
+
+**User Query** (2025-04-15 06:10:23 PM): fix error • The returned type 'StateController<AuthState>' isn't returnable from a 'AuthNotifier' function, as required by the closure's context • test/auth_wrapper_test.dart:45:53 • return_of_invalid_type_from_closure and try one last time for now to increase test coverage
+**User Query** (2025-04-15 06:22:35 PM): delete tests for stuff in the exclusions, fix flutter analyze issues and check coverage for integration tests
+**User Query** (2025-04-15 06:30:47 PM): try again and fix Run # Use awk to find the line with 'sdk: flutter' under 'environment:' and extract the version constraint /home/runner/work/_temp/fd0bbdc2-c4b2-44dc-9c78-6d6976045dcb.sh: line 9: unexpected EOF while looking for matching `'' in the pipeine extract flutter version build step
