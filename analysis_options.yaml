@@ -10,3 +10,4 @@ linter:
     public_member_api_docs: false
     lines_longer_than_80_chars: false
     eol_at_end_of_file: false
+    require_trailing_commas: false

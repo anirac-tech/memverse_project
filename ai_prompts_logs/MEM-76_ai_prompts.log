@@ -1,0 +1,4 @@
+===================
+2025-04-15 07:58:00 PM
+===================
+please make a features.md or similar file that lists all the features or capabilities of the app and make a golden and integration test to demonstrate each of them where possible and a link to a picture or video that the test created and/or instructions for them. Golden tests should be run in a separate github job then regular tests and for now should not fail in hte pipeline. They should be run in the precommit hook and not fail it either but generate picture diffs that can be reviewed in the pr. please keep going for 100% in widget and integration tests Good luck! thanks!

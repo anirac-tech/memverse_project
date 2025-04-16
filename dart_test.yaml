@@ -1,0 +1,13 @@
+tags:
+  # Define golden tests tag
+  golden:
+    timeout: 60s
+
+# Configure timeouts
+timeouts:
+  default: 30s
+  short: 10s
+  golden: 60s
+
+# Configure test-randomization to be deterministic so golden tests run consistently
+test-randomize-ordering-seed: "memverse"
