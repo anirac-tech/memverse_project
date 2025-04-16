@@ -3,21 +3,43 @@
 
   Provide a description of your changes below and a general summary in the title
 
-  Please look at the following checklist to ensure that your PR can be accepted quickly:
 -->
 
 ## Description
 
-<!--- Describe your changes in detail -->
+# Fix Workflow and Test Coverage Issues
 
-## Type of Change
+## Changes
 
-<!--- Put an `x` in all the boxes that apply: -->
+This PR adds comprehensive golden test infrastructure to the Memverse app to facilitate visual
+regression testing and ensure UI consistency.
 
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 🛠️ Bug fix (non-breaking change which fixes an issue)
-- [ ] ❌ Breaking change (fix or feature that would cause existing functionality to change)
-- [ ] 🧹 Code refactor
-- [ ] ✅ Build configuration change
-- [ ] 📝 Documentation
-- [ ] 🗑️ Chore
+### Features Added
+
+- **Visual Regression Testing**: Added golden tests for key UI components
+- **Documentation**: Created `FEATURES.md` to track app features and their test coverage
+- **GitHub Workflow**: Separate workflow for golden tests that doesn't fail builds on UI changes
+- **Pre-commit Hook**: Updated to handle golden tests without failing commits
+- **Utility Scripts**:
+    - `update_golden_files.sh`: Generate/update golden images
+    - `generate_golden_report.sh`: Create visual reports for reviewing differences
+    - `setup_git_hooks.sh`: Configure Git hooks for the project
+
+### Technical Details
+
+- Golden tests are tagged with `golden` and can be run separately
+- Directory structure organized with `goldens` folders next to test files
+- HTML reports generated for visual comparison of UI changes
+- BDD-style test structure for better readability
+- Integration with existing CI/CD infrastructure
+
+## Testing Done
+
+- Created initial golden tests for LoginPage and MemversePage
+- Tested pre-commit hooks with golden test differences
+- Verified golden test reports generation
+- Coverage improvements in both widget and integration tests
+
+## Screenshots
+
+(N/A - Golden tests themselves serve as visual documentation)

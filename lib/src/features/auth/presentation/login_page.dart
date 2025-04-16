@@ -9,9 +9,9 @@ class LoginPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final formKey = GlobalKey<FormState>();
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
+    final formKey = useMemoized(GlobalKey<FormState>.new);
+    final usernameController = useTextEditingController();
+    final passwordController = useTextEditingController();
     final authState = ref.watch(authStateProvider);
     final isPasswordVisible = useState(false);
     final l10n = context.l10n;

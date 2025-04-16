@@ -30,6 +30,15 @@ void main() {
 
       registerFallbackValue(Options());
       registerFallbackValue(Uri());
+      registerFallbackValue(Uri.parse('https://www.memverse.com/oauth/token'));
+      registerFallbackValue(
+        FormData.fromMap({
+          'grant_type': 'password',
+          'username': 'testuser',
+          'password': 'password123',
+          'client_id': 'client_123',
+        }),
+      );
     });
 
     group('login', () {
@@ -96,6 +105,58 @@ void main() {
 
         // Act & Assert
         expect(() => authService.login(username, password, clientId), throwsException);
+      });
+
+      test('throws exception when dio throws exception', () async {
+        // Arrange
+        const username = 'testuser';
+        const password = 'password123';
+        const clientId = 'client_123';
+
+        when(
+          () => mockDio.post<Map<String, dynamic>>(
+            any(),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          ),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(),
+            error: 'Network error',
+            type: DioExceptionType.connectionError,
+          ),
+        );
+
+        // Act & Assert
+        expect(() => authService.login(username, password, clientId), throwsException);
+      });
+
+      test('handles exception when saving token fails', () async {
+        // Arrange
+        when(
+          () => mockStorage.write(key: tokenKey, value: any(named: 'value')),
+        ).thenThrow(Exception('Storage error'));
+
+        // Act & Assert
+        // We can call _saveToken indirectly through login
+        final mockResponse = MockResponse();
+        when(() => mockResponse.statusCode).thenReturn(200);
+        when(() => mockResponse.data).thenReturn({
+          'access_token': 'test_token',
+          'token_type': 'Bearer',
+          'scope': 'public',
+          'created_at': 1617184800,
+        });
+
+        when(
+          () => mockDio.post<Map<String, dynamic>>(
+            any(),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          ),
+        ).thenAnswer((_) async => mockResponse);
+
+        expect(() => authService.login('testuser', 'password123', 'client_123'), throwsException);
       });
     });
 
@@ -200,6 +261,45 @@ void main() {
 
         // Assert
         expect(result, isNull);
+      });
+    });
+
+    group('saveToken', () {
+      test('saves token to secure storage successfully', () async {
+        // Arrange
+        final token = AuthToken(
+          accessToken: 'test_token',
+          tokenType: 'Bearer',
+          scope: 'public',
+          createdAt: 1617184800,
+        );
+
+        when(
+          () => mockStorage.write(key: tokenKey, value: any(named: 'value')),
+        ).thenAnswer((_) async {});
+
+        // Act - directly call saveToken
+        await authService.saveToken(token);
+
+        // Assert
+        verify(() => mockStorage.write(key: tokenKey, value: any(named: 'value'))).called(1);
+      });
+
+      test('handles exception when saving token fails', () async {
+        // Arrange
+        final token = AuthToken(
+          accessToken: 'test_token',
+          tokenType: 'Bearer',
+          scope: 'public',
+          createdAt: 1617184800,
+        );
+
+        when(
+          () => mockStorage.write(key: tokenKey, value: any(named: 'value')),
+        ).thenThrow(Exception('Storage error'));
+
+        // Act & Assert
+        expect(() => authService.saveToken(token), throwsException);
       });
     });
   });

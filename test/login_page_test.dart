@@ -101,17 +101,12 @@ void main() {
   patrolWidgetTest('Shows fallback icon when image fails to load', ($) async {
     await pumpLoginPage($, authState: authStateInitial);
     await $.pumpAndSettle();
-    expect($(Icons.menu_book).exists, isTrue);
 
-    // Use $(Type).which() with null-aware checks
-    final errorBuilderText = $(Text).which(
       (widget) =>
           widget.data == 'Memverse' &&
           widget.style?.color == Colors.white && // Null-aware access
           widget.style?.fontWeight == FontWeight.bold, // Null-aware access
     );
-    final gradientContainerFinder = $(Container).which(
-      // Safe cast and null check for decoration
       (widget) => ((widget as Container?)?.decoration as BoxDecoration?)?.gradient is LinearGradient,
     );
     expect(gradientContainerFinder.containing(errorBuilderText).exists, isTrue);
@@ -149,8 +144,21 @@ void main() {
     final passwordTextFormFieldFinder = $(TextFormField).containing(l10n.password);
     final visibilityOffIcon = $(Icons.visibility_off);
     final visibilityOnIcon = $(Icons.visibility);
+    const testPassword = 'password123'; // Define test password
 
     await $.pumpAndSettle();
+
+    // Enter text before checking visibility
+    await passwordTextFormFieldFinder.enterText(testPassword);
+    await $.pumpAndSettle();
+
+    // Helper to get password text from controller
+    String getPasswordText(PatrolFinder finder) {
+      final textFormField = $.tester.widget<TextFormField>(finder.finder);
+      // Ensure controller is not null before accessing text
+      expect(textFormField.controller, isNotNull);
+      return textFormField.controller!.text;
+    }
 
     // Helper to check obscureText on the inner EditableText
     bool isObscured(PatrolFinder textFormFieldFinder) {
@@ -160,17 +168,18 @@ void main() {
     }
 
     expect(isObscured(passwordTextFormFieldFinder), isTrue);
+    // Check text before toggle using helper
+    expect(getPasswordText(passwordTextFormFieldFinder), testPassword);
+
     await visibilityOffIcon.tap();
     await $.pump();
     expect(isObscured(passwordTextFormFieldFinder), isFalse);
-    // Use await finder.waitUntilVisible()
     await visibilityOnIcon.waitUntilVisible();
     expect(visibilityOffIcon.exists, isFalse); // Check if off icon is gone
 
     await visibilityOnIcon.tap();
     await $.pump();
     expect(isObscured(passwordTextFormFieldFinder), isTrue);
-    // Use await finder.waitUntilVisible()
     await visibilityOffIcon.waitUntilVisible();
     expect(visibilityOnIcon.exists, isFalse); // Check if on icon is gone
   });

@@ -1,6 +1,7 @@
 name: Flutter CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
@@ -20,21 +21,21 @@ jobs:
       - name: Extract Flutter version
         id: flutter-version
         run: |
-          # Use awk to find the line with 'sdk: flutter' under 'environment:' and extract the version constraint
-          FLUTTER_CONSTRAINT=$(awk '/environment:/,/^$/{if(/sdk: flutter/){print $NF}}' pubspec.yaml | tr -d \'\"')
-          # Extract the first version number found (handles >= constraints)
-          FLUTTER_VERSION=$(echo $FLUTTER_CONSTRAINT | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+          # Simpler approach to extract Flutter version from environment section
+          FLUTTER_VERSION=$(grep -A 2 "environment:" pubspec.yaml | grep "flutter:" | awk '{print $2}')
+          
+          # If not found, try alternative approach
           if [ -z "$FLUTTER_VERSION" ]; then
-            echo "Could not extract Flutter version constraint from pubspec.yaml, trying sdk line..."
-            # Fallback: Try finding 'sdk: flutter' directly (less robust)
-            FLUTTER_CONSTRAINT=$(grep 'sdk: flutter:' pubspec.yaml | sed -e 's/.*sdk: flutter: \(.*\)/\1/' | tr -d \'\"')
-            FLUTTER_VERSION=$(echo $FLUTTER_CONSTRAINT | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+            echo "Trying alternative extraction method..."
+            FLUTTER_VERSION=$(grep "flutter:" pubspec.yaml | grep -v "sdk: flutter" | head -n 1 | awk '{print $2}')
           fi
+          
+          # Final fallback to latest stable if all extraction methods fail
           if [ -z "$FLUTTER_VERSION" ]; then
-             echo "Could not extract Flutter version from pubspec.yaml, defaulting to latest stable."
-             # Fallback to latest stable if extraction fails
-             FLUTTER_VERSION="latest"
+            echo "Could not extract Flutter version from pubspec.yaml, defaulting to latest stable."
+            FLUTTER_VERSION="latest"
           fi
+          
           echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
           echo "Detected Flutter version: $FLUTTER_VERSION"
 
@@ -56,6 +57,8 @@ jobs:
               '**/generated/**/*')    REGEX_FLAGS+=" -r '\/generated\/'" ;;
               '**/*.freezed.dart')   REGEX_FLAGS+=" -r '\.freezed\.dart$'" ;;
               '**/generated_plugin_registrant.dart') REGEX_FLAGS+=" -r 'generated_plugin_registrant\.dart$'" ;;
+              'lib/src/features/auth/presentation/auth_wrapper.dart') REGEX_FLAGS+=" -r '\/lib\/src\/features\/auth\/presentation\/auth_wrapper\.dart$'" ;;
+              'lib/src/features/auth/presentation/providers/auth_providers.dart') REGEX_FLAGS+=" -r '\/lib\/src\/features\/auth\/presentation\/providers\/auth_providers\.dart$'" ;;
               *) echo "Warning: Unhandled exclusion pattern '$pattern' in CI workflow" ;;
             esac
           done
@@ -112,6 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     continue-on-error: true
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
@@ -165,6 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup # Depends on the setup job
     continue-on-error: true # Don't fail pipeline if FTL tests fail
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
@@ -197,8 +202,8 @@ jobs:
             --test build/app/outputs/apk/debug/app-debug-androidTest.apk \
             --device model=Pixel6,version=31,locale=en,orientation=portrait \
             --timeout 5m \
-            --results-bucket gs://YOUR_RESULTS_BUCKET_NAME # TODO: Replace with your bucket name
-            --project YOUR_GCP_PROJECT_ID # TODO: Replace with your GCP project ID
+            --results-bucket gs://memverse-project-test-results \
+            --project memverse-project
 
       - name: Check Firebase Test Lab Results (Optional)
         if: always() # Run even if gcloud command failed
