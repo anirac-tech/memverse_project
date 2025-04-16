@@ -50,7 +50,7 @@ jobs:
       # Save golden files and failure images as artifacts
       - name: Upload golden test artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: golden-test-artifacts
           path: |
@@ -78,7 +78,7 @@ jobs:
       # Upload the report as an artifact
       - name: Upload golden test report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: golden-test-report
           path: golden_test_report.md
