@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov (Unit/Widget)
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: github.event_name == 'workflow_dispatch'
         continue-on-error: true # Don't fail pipeline if upload fails
         with:
