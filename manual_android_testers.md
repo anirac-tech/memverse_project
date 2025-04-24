@@ -3,6 +3,10 @@
 Welcome, tester! Thank you for helping improve the Memverse app. This guide explains how to install
 internal test builds distributed via Firebase App Distribution and alternative methods.
 
+**For first-time testers:** If you're new to this process, Google provides a detailed guide with
+screenshots
+here: [Firebase App Distribution Tester Setup Guide](https://firebase.google.com/docs/app-distribution/get-set-up-as-a-tester?platform=android)
+
 ## Receiving Invitations
 
 * You will receive an email invitation from Firebase App Distribution when a new build is available

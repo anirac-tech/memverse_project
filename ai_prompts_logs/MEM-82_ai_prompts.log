@@ -1,0 +1,52 @@
+====================
+2025-04-24 12:19:48 PM
+====================
+User Prompt: I notice you aren't using ai_prompts_log for this branch, can you please use remove the old two from mem-76 (there really are two) and use the prompts for mem-82 and then improve manual_android_testers - it is missing the adb commadn at the end. also i'm wondering can you add links to screenshots for new testers that have never heard of firebase app distribution or ever doen manual qa before?
+
+====================
+2025-04-24 12:27:07 PM
+====================
+User Prompt: i guess links are ok for now
+
+====================
+2025-04-24 12:27:07 PM (Approximate timestamp for script modification request)
+====================
+User Prompt: ok, please modify the create release script so it has a help command that says how to use it and a dry run parameter that only tells what it will do and a auto feature that does it withotu asking and otherwise it runs dry run and then says do you want to do it yes/no with the default of yes
+
+====================
+2025-04-24 12:41:56 PM (Approximate timestamp for log file issue report)
+====================
+User Prompt: this sounds awesome except mem-82_ai_prlmpts log is empty, please make it contains prompts and some of your responess like the one above with "you can now run..\"
+
+AI Response Snippet (create_release.sh summary):
+Okay, I've modified the `scripts/create_release.sh` script according to your requirements.
+
+Here's a summary of the changes:
+
+1.  **Argument Parsing:** Added support for `--flavor <name>`, `--dry-run`, `--auto`, and `-h`/`--help`.
+2.  **Help (`--help`/`-h`):** Displays usage instructions and exits.
+3.  **Dry Run (`--dry-run`):** When present, the script prints the commands it *would* execute (prefixed with `DRY RUN:`) without making any changes.
+4.  **Auto Run (`--auto`):** When present, the script runs non-interactively. It uses the current semantic version, generates automatic release notes, and skips the confirmation prompt. If both `--auto` and `--dry-run` are specified, `--dry-run` takes precedence.
+5.  **Default Behavior (no flags):**
+    *   The script first shows the list of "Planned Actions" (effectively a dry run).
+    *   It then prompts interactively for the new semantic version (defaulting to the current one) and release notes.
+    *   Finally, it asks for confirmation (`Do you want to proceed...? [Y/n]`) with 'Y' as the default before executing the actions.
+6.  **Execution Logic:** Commands that modify state (git, flutter, sed, rm) are now run through a `run_command` function that respects the `--dry-run` flag.
+7.  **Cleanup:** Uses `trap` to ensure the temporary release notes file (`/tmp/memverse_release_notes.*.txt`) is always deleted on script exit, whether it finishes successfully or fails.
+8.  **Input Handling:** Prompts for version and notes are skipped in `--auto` and pure `--dry-run` modes, using defaults instead. Interactive mode now defaults the semantic version prompt to the current version.
+
+You can now run the script in several ways:
+
+*   `./scripts/create_release.sh -h`: Show help.
+*   `./scripts/create_release.sh`: Default behavior (show plan, prompt for input, ask for confirmation).
+*   `./scripts/create_release.sh --flavor production`: Run for the 'production' flavor (still with default confirmation behavior).
+*   `./scripts/create_release.sh --dry-run`: Show what would happen without executing.
+*   `./scripts/create_release.sh --auto`: Run automatically without prompts or confirmation, using defaults.
+*   `./scripts/create_release.sh --flavor development --auto`: Run automatically for the 'development' flavor.
+
+====================
+2025-04-24 12:47:19 PM (Approximate timestamp for this update)
+====================
+User Prompt: prompts file still messing up, can you add it manually or fix the script or something and rerty the last thing, also does the script need chmod, doesn't seem to show up in tab autocomplete from zsh
+
+AI Response: Manually updated log file and addressing chmod.
