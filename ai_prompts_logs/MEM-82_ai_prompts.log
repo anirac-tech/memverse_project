@@ -50,3 +50,39 @@ You can now run the script in several ways:
 User Prompt: prompts file still messing up, can you add it manually or fix the script or something and rerty the last thing, also does the script need chmod, doesn't seem to show up in tab autocomplete from zsh
 
 AI Response: Manually updated log file and addressing chmod.
+
+====================
+2025-04-24 01:09:35 PM (Approximate)
+====================
+User Prompt: i ran the script and it failed with 'Committing version update...
+fatal: options '-m' and '-F' cannot be used together"
+
+AI Response: (Acknowledged error and corrected script logic to avoid using -m and -F together)
+
+====================
+2025-04-24 01:15:02 PM (Approximate)
+====================
+User Prompt: also please fix the lint error in pubspec.yaml if possible and make it so script won't generate it again and confirm that this script should work properly
+
+AI Response: (Asked for specific lint error)
+
+====================
+2025-04-24 01:16:25 PM (Approximate)
+====================
+User Prompt: it says schema validation
+
+AI Response: (Identified pubspec version format issue, corrected script to use SEMVER+BUILD.HASH format and fixed flutter build commands)
+
+====================
+2025-04-24 01:19:58 PM (Approximate)
+====================
+User Prompt: please try again but do not use the precommit hook for the commit that is run from the release script, we do not want to get stuck at this point or make any additional changes. also pleae make release notes use a file by default so it does not ask for extra user input. Make the file currently contain the text "Initial live reference quiz barebones MVP with known one-off error bug at end of list"
+
+AI Response: (Updated script to use --no-verify, use RELEASE_NOTES.md by default, create it if needed with specific text, and adjusted commit/tag logic)
+
+====================
+2025-04-24 01:24:18 PM (Approximate)
+====================
+User Prompt: please update the prompts file and give it one last look to see if you think it will work and then try it and fix any issues
+
+AI Response: (Will update log, review script, and propose test run)
