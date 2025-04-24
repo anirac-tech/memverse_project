@@ -1,12 +1,11 @@
 #!/bin/bash
 
-# Get the directory where the script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-# Navigate two levels up to the project root
-PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." &> /dev/null && pwd )"
+# Source common utilities
+# shellcheck source=./_common_build_utils.sh
+source "$(dirname "${BASH_SOURCE[0]}")/_common_build_utils.sh"
 
-# Change to the project root directory
-cd "$PROJECT_ROOT"
+# Change to project root
+change_to_project_root
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
@@ -21,10 +20,8 @@ echo "IMPORTANT: Please ensure an Android device or emulator is connected via AD
 echo "Waiting 5 seconds..."
 sleep 5
 
-# Get the current version and git hash
-VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2 | cut -d '+' -f 1)
-GIT_HASH=$(git rev-parse --short HEAD)
-EXPECTED_VERSION_STRING="${VERSION}+${GIT_HASH}" # Version string shown in app info
+# Get version info from common utils
+get_version_info
 
 # Expected APK name for flavored debug builds
 EXPECTED_APK_NAME="app-${FLAVOR}-${BUILD_TYPE}.apk"
@@ -53,10 +50,13 @@ echo "Checking installed version..."
 adb shell dumpsys package com.spiritflightapps.memverse | grep versionName
 
 echo "--------------------------------------------------"
-echo "Process Complete!"
-echo "--------------------------------------------------"
-echo "Installation command finished."
-echo "Check your connected device for the '[STG] Memverse' app (name defined in build.gradle)."
 echo "Verify the version in Android Settings -> Apps -> [STG] Memverse."
 echo "The version should be: ${EXPECTED_VERSION_STRING}"
 echo "--------------------------------------------------"
+
+# Open the specific commit in GitHub
+GITHUB_URL="https://github.com/anirac-tech/memverse_project/tree/${GIT_HASH}"
+echo "Opening GitHub commit page for this build: ${GITHUB_URL}"
+open -a "Google Chrome" "${GITHUB_URL}"
+
+echo "Script finished."

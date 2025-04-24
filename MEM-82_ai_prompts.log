@@ -32,3 +32,29 @@ Here's the plan:
 Let's modify the scripts.
 [2025-04-24 05:12:42 PM] ok i guess. please try it and see if it works.
 [2025-04-24 05:24:57 PM] I will log your request and then run the updated `build_and_install_staging_debug.sh` script to see if it works with the added `CLIENT_ID` dart-define and the `adb` version check.
+[2025-04-24 05:18:57 PM] okay, please finish and cleanup anything you think you should cleanup. for example this is the gemini generated commit message "feat: Implement Git hash in version name and add build scripts
+
+This commit introduces the following changes:
+
+-   **Git Hash in Version Name**: Modified `android/app/build.gradle` to include the short Git hash in the app's version name. This hash is now appended to the version number (e.g., 1.0+a7b3d) and displayed in the Android OS app info.
+-   **Build Scripts**:
+    -   Created `scripts/android/build_and_install_staging_debug.sh` for building and installing a staging debug APK. This script:
+        -   Builds with the staging flavor and debug type.
+        -   Uses the correct main_staging.dart entry point.
+        -   Includes a dart-define for `CLIENT_ID`.
+        -   Installs the APK via `adb` and checks the installed version name.
+    -   Created `scripts/android/build_production_release.sh` for building a production release APK. This script:
+        -   Builds with the production flavor and release type.
+        -   Renames the APK to include project, version, and build type.
+        - Includes a dart-define for `CLIENT_ID`.
+    -   Both scripts now correctly handle project root directory changes.
+    -   The release APK is signed using the release configuration.
+-  **APK Naming**: Modified the release apk output name and path in `android/app/build.gradle` to rename the release apk to include the `memverse_version_hash_buildType.apk` format.
+-   **Updated `app_localizations_es.dart`**: removed an extra blank line.
+- **`MEM-82_ai_prompts.log`**: Added a log of the changes made in this commit.
+- **MEM-84**: Added a todo comment in `README` regarding release script.
+[2025-04-24 05:18:57 PM] okay, please finalize the scripts, perform some cleanup by refactoring common logic, add the necessary TODOs for MEM-84, create the Jira ticket description file, and ensure the staging script still works.
+[2025-04-24 05:27:13 PM] ok, this is cool, please run build_and_install_staging_debug one last time to make sure it works
+[2025-04-24 05:27:13 PM] Okay, sounds like a good final check. I'll log your request and then run the `./scripts/android/build_and_install_staging_debug.sh` script one more time.
+[2025-04-24 05:31:49 PM] ok go ahead
+[2025-04-24 05:33:13 PM] Okay, I'll log your request and run the script now.

@@ -1,0 +1,25 @@
+Title: MEM-84: Refine Android Build Scripts and Address TODOs
+
+Description:
+Finalize and refine the Android build scripts created in MEM-82. This involves:
+
+1.  **Release Signing:** Ensure the `build_production_release.sh` script correctly handles release signing. Currently, it relies on the Gradle setup, but this needs verification and potentially explicit configuration within the script or via Fastlane.
+2.  **Fastlane Integration (Optional but Recommended):** Investigate and potentially integrate Fastlane (https://fastlane.tools/) to manage build processes, signing, and potentially distribution (like Firebase App Distribution or Play Store uploads). This could replace or augment the existing shell scripts.
+3.  **Gradle Linter Errors:** Resolve the persistent linter errors in `android/app/build.gradle` related to Java class resolution (e.g., `Properties`, `ByteArrayOutputStream`, `File`). Although the build succeeds, these errors are noisy and should be fixed.
+4.  **Script Robustness:** Review both scripts (`build_and_install_staging_debug.sh` and `build_production_release.sh`) for potential improvements in error handling, variable usage, and clarity.
+
+Acceptance Criteria:
+
+*   The `build_production_release.sh` script successfully builds a *signed* release APK.
+*   The `build.gradle` file no longer shows linter errors related to Java class resolution in a standard IDE setup.
+*   A decision is made and documented (either via implementation or comments) regarding the use of Fastlane for build/signing/distribution.
+*   Both build scripts are robust and easy to understand.
+
+Test Case:
+
+1.  Ensure release signing keys and environment variables (if used by Fastlane or Gradle signing configs) are properly configured.
+2.  Run `./scripts/android/build_production_release.ksh`.
+3.  Verify the script completes successfully and produces a signed APK in the expected location (`build/app/outputs/flutter-apk/`).
+4.  Attempt to install the signed release APK on a device/emulator using `adb install <path_to_apk>`. Verify installation succeeds.
+5.  Open `android/app/build.gradle` in Android Studio or VS Code and confirm no linter errors are present for the standard Java classes.
+6.  Run `./scripts/android/build_and_install_staging_debug.sh` again to confirm it still works.

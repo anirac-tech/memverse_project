@@ -26,8 +26,16 @@ EXPECTED_APK_BASE_NAME="memverse_${SANITIZED_VERSION}_${BUILD_TYPE}"
 EXPECTED_APK_NAME="${EXPECTED_APK_BASE_NAME}.apk"
 EXPECTED_APK_DIR="build/app/outputs/flutter-apk"
 
+# TODO (MEM-84): Finalize release signing, potentially integrate Fastlane.
+# See: https://anirac-tech.atlassian.net/browse/MEM-84
+# TODO: Consider using Fastlane for managing build/signing/distribution: https://fastlane.tools/
+# TODO: Address build.gradle linter errors.
+
 echo "Building production release APK with flavor '${FLAVOR}'..."
-flutter build apk --release --flavor "${FLAVOR}" --dart-define=FLAVOR="${FLAVOR}"
+# Explicitly specify the target file and pass Client ID
+flutter build apk --release --flavor "${FLAVOR}" -t lib/main_production.dart \
+  --dart-define=FLAVOR="${FLAVOR}" \
+  --dart-define=CLIENT_ID="$MEMVERSE_CLIENT_ID"
 
 echo "Searching for the generated APK: ${EXPECTED_APK_NAME}"
 APK_PATH=$(find "${EXPECTED_APK_DIR}" -name "${EXPECTED_APK_NAME}" -print -quit)
