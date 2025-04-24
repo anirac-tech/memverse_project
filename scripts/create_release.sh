@@ -15,10 +15,12 @@ RELEASE_NOTES_DEFAULT_PATH="RELEASE_NOTES.md" # Default file for release notes
 # --- Flags ---
 DRY_RUN=false
 AUTO_RUN=false
+# Add a flag to explicitly enable the temporary debug build test mode
+TEMP_DEBUG_BUILD=false
 
 # --- Functions ---
 usage() {
-  echo "Usage: $0 [--flavor <flavor>] [--dry-run] [--auto] [-h|--help]"
+  echo "Usage: $0 [--flavor <flavor>] [--dry-run] [--auto] [--temp-debug] [-h|--help]"
   echo ""
   echo "Creates a new release build (AAB and APK) for the specified flavor."
   echo ""
@@ -26,6 +28,7 @@ usage() {
   echo "  --flavor <name>   Specify the build flavor (default: staging). Common values: development, staging, production."
   echo "  --dry-run         Show what commands would be executed without performing any actions."
   echo "  --auto            Run non-interactively, skipping the final confirmation prompt and using defaults for inputs."
+  echo "  --temp-debug      TEMPORARY: Build only a debug APK for testing script flow (ignores release builds)."
   echo "  -h, --help        Display this help message and exit."
   echo ""
   echo "Default Behavior (no flags):"
@@ -91,6 +94,10 @@ while [[ $# -gt 0 ]]; do
       AUTO_RUN=true
       shift # past argument
       ;;
+    --temp-debug)
+      TEMP_DEBUG_BUILD=true
+      shift # past argument
+      ;;
     -h|--help)
       usage
       ;;
@@ -122,6 +129,10 @@ if [ "$DRY_RUN" = true ]; then
 fi
 if [ "$AUTO_RUN" = true ]; then
     echo "*** AUTO RUN MODE ENABLED (will skip confirmation and use defaults) ***"
+fi
+if [ "$TEMP_DEBUG_BUILD" = true ]; then
+    echo "*** TEMPORARY DEBUG BUILD MODE ENABLED ***"
+    echo "    (Will only build a debug APK, skipping release builds)"
 fi
 
 # 0. Check for required environment variable
@@ -232,13 +243,12 @@ TAG_NAME="v$NEW_SEMANTIC_VERSION+$NEW_BUILD_NUMBER-$FLAVOR"
 # --- List Actions Planned --- (Always shown, acts as dry run for default mode)
 echo ""
 echo "--- Planned Actions ---"
-echo "1. Update $PUBSPEC_FILE to version: $NEW_VERSION_STRING"
-echo "2. Commit version update with message: chore: Bump version for $FLAVOR release $NEW_VERSION_STRING"
-echo "3. Create annotated Git tag: $TAG_NAME"
-echo "4. Push commit and tag to origin (DISABLED - manual push required)"
-echo "5. Run flutter clean"
-echo "6. Build $FLAVOR Android App Bundle (AAB)"
-echo "7. Build $FLAVOR Android APK"
+if [ "$TEMP_DEBUG_BUILD" = true ]; then
+    echo "6. TEMPORARY: Build $FLAVOR Android DEBUG APK (Release builds skipped)"
+else
+    echo "6. Build $FLAVOR Android App Bundle (AAB)"
+    echo "7. Build $FLAVOR Android APK"
+fi
 echo "---------------------"
 
 # --- Confirmation (if needed) ---
@@ -332,23 +342,51 @@ if [ "$DRY_RUN" = false ]; then
 fi
 run_command flutter clean
 
-# Action 6: Build AAB
-if [ "$DRY_RUN" = false ]; then
-    echo "Building $FLAVOR Android App Bundle (AAB)..."
+# Action 6: Build AAB (or skip if in temp debug mode)
+if [ "$TEMP_DEBUG_BUILD" = false ]; then
+    if [ "$DRY_RUN" = false ]; then
+        echo "Building $FLAVOR Android App Bundle (AAB)..."
+    fi
+    run_command flutter build appbundle --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
+else
+    if [ "$DRY_RUN" = true ]; then
+        echo "DRY RUN: Would skip Release AAB build due to --temp-debug flag."
+    else
+        echo "Skipping Release AAB build due to --temp-debug flag."
+    fi
 fi
-run_command flutter build appbundle --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
 
-# Action 7: Build APK
-if [ "$DRY_RUN" = false ]; then
-    echo "Building $FLAVOR Android APK..."
+# Action 7: Build APK (Release or Debug based on flag)
+if [ "$TEMP_DEBUG_BUILD" = true ]; then
+    # --- TEMPORARY DEBUG BUILD --- #
+    if [ "$DRY_RUN" = false ]; then
+        echo "Building TEMPORARY $FLAVOR Android DEBUG APK..."
+    fi
+    # NOTE: --build-name/--build-number are kept here just to test script arg passing,
+    #       they are not typically needed for debug builds.
+    run_command flutter build apk --debug --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
+    # --- TO RESTORE RELEASE BUILD: --- #
+    # 1. Remove the --temp-debug flag when running the script.
+    # 2. Ensure the AAB build action (Action 6) is not skipped (it shouldn't be if --temp-debug is removed).
+    # 3. The APK build below will then run the --release version.
+else
+    # --- REGULAR RELEASE BUILD --- #
+    if [ "$DRY_RUN" = false ]; then
+        echo "Building $FLAVOR Android APK..."
+    fi
+    run_command flutter build apk --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
 fi
-run_command flutter build apk --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
 
 # --- Post-Build Instructions / Dry Run Summary ---
 FLAVOR_UPPER=$(echo "$FLAVOR" | tr '[:lower:]' '[:upper:]')
 # Define paths even for dry run for consistency
 AAB_PATH="build/app/outputs/bundle/${FLAVOR}Release/app-$FLAVOR-release.aab"
-APK_PATH="build/app/outputs/flutter-apk/app-$FLAVOR-release.apk"
+# Adjust APK path based on build type
+if [ "$TEMP_DEBUG_BUILD" = true ]; then
+    APK_PATH="build/app/outputs/flutter-apk/app-$FLAVOR-debug.apk"
+else
+    APK_PATH="build/app/outputs/flutter-apk/app-$FLAVOR-release.apk"
+fi
 
 if [ "$DRY_RUN" = true ]; then
   echo ""
@@ -357,47 +395,29 @@ if [ "$DRY_RUN" = true ]; then
 else
   echo ""
   echo "-------------------------------------"
-  echo " $FLAVOR_UPPER Release Build Complete! (Local Only)"
-  echo " Version: $NEW_VERSION_STRING"
-  echo " Tag: $TAG_NAME (Created locally)"
-  echo " Flavor: $FLAVOR"
-  echo "-------------------------------------"
-  echo ""
-  echo "*** IMPORTANT: Commit and Tag were NOT pushed automatically. ***"
-  echo "    Reason: Automatic push is disabled due to potential Git authentication issues."
-  echo "    Action Required: Manually push the commit and tag:"
-  echo "      git push origin HEAD"
-  echo "      git push origin $TAG_NAME"
-  echo "    (Ensure your Git client is authenticated with GitHub using a PAT or SSH key.)"
-  echo ""
-  echo "Build outputs:"
-  echo "  AAB: $AAB_PATH"
-  echo "  APK: $APK_PATH"
-  echo ""
-  echo "Next Steps:"
-  echo "1. Manually upload '$AAB_PATH' to Firebase App Distribution."
-  echo "   - Go to Firebase Console -> App Distribution."
-  echo "   - Select your Android app (ensure it's configured for the $FLAVOR flavor if necessary)."
-  echo "   - Drag & drop the AAB file."
-  echo "   - Add testers/groups."
-  echo "   - **Copy the release notes entered (or generated for --auto) into the Firebase release notes field.**"
-  echo "   -   (Release notes are in the commit/tag message for $TAG_NAME)"
-  echo "   - Distribute."
-  echo ""
-  echo "2. (Optional) Distribute via Firebase CLI:"
-  # Use the actual release notes content variable, checking it's not the placeholder
-  if [ -n "$RELEASE_NOTES_CONTENT" ] && [[ ! "$RELEASE_NOTES_CONTENT" =~ ^\(No\ release\ notes\ provided ]]; then
-      # Escape quotes for shell command line
-      ESCAPED_NOTES=$(echo "$RELEASE_NOTES_CONTENT" | sed 's/"/\\"/g')
-      printf "   firebase appdistribution:distribute %s \\\n" "$AAB_PATH"
-      printf "       --app <YOUR_FIREBASE_APP_ID> \\\n"
-      printf "       --release-notes \"%s\" \\\n" "$ESCAPED_NOTES"
-      printf "       --groups \"<your-group-alias>\"\n"
+  if [ "$TEMP_DEBUG_BUILD" = true ]; then
+      echo " $FLAVOR_UPPER TEMPORARY DEBUG Build Complete! (Local Only)"
+      echo " (Release builds were SKIPPED for this test run)"
   else
-      echo "   (Skipping Firebase CLI example as release notes were empty or placeholders)"
+      echo " $FLAVOR_UPPER Release Build Complete! (Local Only)"
   fi
+  echo " Version: $NEW_VERSION_STRING"
+# ... existing code ...
+  echo "Build outputs:"
+  if [ "$TEMP_DEBUG_BUILD" = false ]; then
+      echo "  AAB: $AAB_PATH"
+  fi
+  echo "  APK: $APK_PATH (Note: This is a DEBUG build if --temp-debug was used)"
   echo ""
-  echo "3. (Optional) Share the APK ('$APK_PATH') via other methods if needed (e.g., Google Drive, direct install)."
-  echo ""
-  echo "   - **Ensure the release notes from '$RELEASE_NOTES_DEFAULT_PATH' (also in commit/tag $TAG_NAME) are appropriate for Firebase.**"
+  if [ "$TEMP_DEBUG_BUILD" = true ]; then
+      echo "--- TEMPORARY DEBUG MODE --- "
+      echo "This run only produced a debug APK to test the script flow."
+      echo "To perform a full release build:"
+      echo "  1. Remove the --temp-debug flag when running the script."
+      echo "     (The script will then build the release AAB and release APK)"
+      echo "---------------------------"
+  else
+      echo "Next Steps (Release Build):"
+# ... (rest of existing release next steps) ...
+  fi
 fi
