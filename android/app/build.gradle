@@ -4,11 +4,32 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
         localProperties.load(reader)
+    }
+}
+
+// Function to get the short Git hash
+def getGitHash() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception e) {
+        // Fallback if git command fails (e.g., not a git repo)
+        return "nogit"
     }
 }
 
@@ -21,6 +42,10 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
+
+// Append git hash to the version name
+def gitHash = getGitHash()
+flutterVersionName = "${flutterVersionName}+${gitHash}"
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -103,6 +128,22 @@ android {
         }
         debug {
             signingConfig signingConfigs.debug
+        }
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all { output ->
+                def project = "memverse"
+                def SEP = "_"
+                def buildType = variant.buildType.name
+                def version = variant.versionName
+                // Sanitize version name for filename (replace '+' with '_')
+                def sanitizedVersion = version.replaceAll("\\+", SEP)
+                def newApkName = "${project}${SEP}${sanitizedVersion}${SEP}${buildType}.apk"
+                // Use File constructor correctly
+                outputFileName = new File(output.outputFile.parentFile, newApkName).getName()
+            }
         }
     }
 }
