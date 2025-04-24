@@ -58,3 +58,7 @@ This commit introduces the following changes:
 [2025-04-24 05:27:13 PM] Okay, sounds like a good final check. I'll log your request and then run the `./scripts/android/build_and_install_staging_debug.sh` script one more time.
 [2025-04-24 05:31:49 PM] ok go ahead
 [2025-04-24 05:33:13 PM] Okay, I'll log your request and run the script now.
+[2025-04-24 05:38:15 PM] ok thanks, then run it to make sure it works and looks o
+[2025-04-24 05:38:15 PM] I will log your request and then proceed with modifying and testing the `build_and_install_staging_debug.sh` script.
+[2025-04-24 05:40:20 PM] ok go ahead
+[2025-04-24 05:40:20 PM] Logging your request and running the script now.

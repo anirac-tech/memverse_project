@@ -46,6 +46,11 @@ echo "Attempting to install APK to connected device/emulator..."
 
 adb install -r "$APK_PATH"
 
+# Create a unique tag locally for this specific build
+TAG_NAME="staging-v${VERSION}-${GIT_HASH}"
+echo "Creating local Git tag: ${TAG_NAME}"
+git tag -f "${TAG_NAME}"
+
 echo "Checking installed version..."
 adb shell dumpsys package com.spiritflightapps.memverse | grep versionName
 
@@ -54,9 +59,16 @@ echo "Verify the version in Android Settings -> Apps -> [STG] Memverse."
 echo "The version should be: ${EXPECTED_VERSION_STRING}"
 echo "--------------------------------------------------"
 
-# Open the specific commit in GitHub
-GITHUB_URL="https://github.com/anirac-tech/memverse_project/tree/${GIT_HASH}"
-echo "Opening GitHub commit page for this build: ${GITHUB_URL}"
+# Open the specific tag in GitHub (will 404 until pushed)
+GITHUB_URL="https://github.com/anirac-tech/memverse_project/releases/tag/${TAG_NAME}"
+echo "Opening GitHub tag page for this build: ${GITHUB_URL}"
+echo "NOTE: This URL will show a 404 error until the tag is pushed."
 open -a "Google Chrome" "${GITHUB_URL}"
+
+echo "--------------------------------------------------"
+echo "IMPORTANT: Tag '${TAG_NAME}' was created locally."
+echo "To make the GitHub link work and share the tag, push it manually:"
+echo "git push origin ${TAG_NAME}"
+echo "--------------------------------------------------"
 
 echo "Script finished."
