@@ -185,7 +185,7 @@ fi
 echo "New build number: $NEW_BUILD_NUMBER"
 
 # 6. Construct new version string
-NEW_VERSION_STRING="$NEW_SEMANTIC_VERSION ($COMMIT_HASH)+$NEW_BUILD_NUMBER"
+NEW_VERSION_STRING="$NEW_SEMANTIC_VERSION+$NEW_BUILD_NUMBER.$COMMIT_HASH"
 echo "New version string: $NEW_VERSION_STRING"
 
 # 7. Determine Release Notes
@@ -249,13 +249,23 @@ if [ "$DRY_RUN" = false ]; then
     echo "Committing version update..."
 fi
 run_command git add "$PUBSPEC_FILE"
-# Use -m for short auto/dry-run notes, -F for potentially multi-line interactive notes from file
-if [ "$AUTO_RUN" = true ] || [ "$DRY_RUN" = true ]; then
+# Use -m for short auto/dry-run notes, or -F for potentially multi-line interactive notes from file
+if [ "$AUTO_RUN" = true ] || [ "$DRY_RUN" = true ] || [ ! -s "$RELEASE_NOTES_FILE" ]; then
+    # Use double -m for title and body (body might be placeholder)
     run_command git commit -m "$COMMIT_MSG_TITLE" -m "$RELEASE_NOTES_CONTENT"
-elif [ -s "$RELEASE_NOTES_FILE" ]; then # Check if file exists and is not empty
-    run_command git commit -m "$COMMIT_MSG_TITLE" -F "$RELEASE_NOTES_FILE"
-else # Fallback if file is empty/missing but we are running interactively
-    run_command git commit -m "$COMMIT_MSG_TITLE" -m "$RELEASE_NOTES_CONTENT" # Use the default placeholder
+else
+    # Prepend title to the file for use with -F
+    if [ "$DRY_RUN" = false ]; then
+        TEMP_FILE_WITH_TITLE="/tmp/memverse_commit_msg.$$.txt"
+        echo "$COMMIT_MSG_TITLE" > "$TEMP_FILE_WITH_TITLE"
+        echo "" >> "$TEMP_FILE_WITH_TITLE" # Add a blank line
+        cat "$RELEASE_NOTES_FILE" >> "$TEMP_FILE_WITH_TITLE"
+        run_command git commit -F "$TEMP_FILE_WITH_TITLE"
+        rm -f "$TEMP_FILE_WITH_TITLE" # Clean up intermediate file
+    else
+        # Dry run just indicates it would use -F
+        run_command git commit -F "$RELEASE_NOTES_FILE (with title prepended)"
+    fi
 fi
 
 # Action 3: Create Git tag
@@ -263,13 +273,23 @@ TAG_MSG_TITLE="Release $FLAVOR $NEW_VERSION_STRING"
 if [ "$DRY_RUN" = false ]; then
     echo "Creating annotated Git tag: $TAG_NAME"
 fi
-# Use -m for short auto/dry-run notes, -F for potentially multi-line interactive notes from file
-if [ "$AUTO_RUN" = true ] || [ "$DRY_RUN" = true ]; then
+# Use -m for short auto/dry-run notes, or -F for potentially multi-line interactive notes from file
+if [ "$AUTO_RUN" = true ] || [ "$DRY_RUN" = true ] || [ ! -s "$RELEASE_NOTES_FILE" ]; then
+    # Use double -m for title and body (body might be placeholder)
     run_command git tag -a "$TAG_NAME" -m "$TAG_MSG_TITLE" -m "$RELEASE_NOTES_CONTENT"
-elif [ -s "$RELEASE_NOTES_FILE" ]; then # Check if file exists and is not empty
-    run_command git tag -a "$TAG_NAME" -m "$TAG_MSG_TITLE" -F "$RELEASE_NOTES_FILE"
-else # Fallback if file is empty/missing but we are running interactively
-    run_command git tag -a "$TAG_NAME" -m "$TAG_MSG_TITLE" -m "$RELEASE_NOTES_CONTENT" # Use the default placeholder
+else
+    # Prepend title to the file for use with -F
+    if [ "$DRY_RUN" = false ]; then
+        TEMP_FILE_WITH_TITLE="/tmp/memverse_tag_msg.$$.txt"
+        echo "$TAG_MSG_TITLE" > "$TEMP_FILE_WITH_TITLE"
+        echo "" >> "$TEMP_FILE_WITH_TITLE" # Add a blank line
+        cat "$RELEASE_NOTES_FILE" >> "$TEMP_FILE_WITH_TITLE"
+        run_command git tag -a "$TAG_NAME" -F "$TEMP_FILE_WITH_TITLE"
+        rm -f "$TEMP_FILE_WITH_TITLE" # Clean up intermediate file
+    else
+        # Dry run just indicates it would use -F
+        run_command git tag -a "$TAG_NAME" -F "$RELEASE_NOTES_FILE (with title prepended)"
+    fi
 fi
 
 # Action 4: Push commit and tag
@@ -289,15 +309,13 @@ run_command flutter clean
 if [ "$DRY_RUN" = false ]; then
     echo "Building $FLAVOR Android App Bundle (AAB)..."
 fi
-run_command flutter build appbundle --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION ($COMMIT_HASH)" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
+run_command flutter build appbundle --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
 
 # Action 7: Build APK
 if [ "$DRY_RUN" = false ]; then
     echo "Building $FLAVOR Android APK..."
 fi
-run_command flutter build apk --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION ($COMMIT_HASH)" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
-
-# Cleanup note: Temporary file is removed by the EXIT trap
+run_command flutter build apk --release --flavor "$FLAVOR" --target "lib/main_$FLAVOR.dart" --build-name="$NEW_SEMANTIC_VERSION" --build-number="$NEW_BUILD_NUMBER" --dart-define=CLIENT_ID="${!REQUIRED_ENV_VAR}"
 
 # --- Post-Build Instructions / Dry Run Summary ---
 FLAVOR_UPPER=$(echo "$FLAVOR" | tr '[:lower:]' '[:upper:]')

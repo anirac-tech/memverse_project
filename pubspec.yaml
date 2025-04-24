@@ -1,6 +1,6 @@
 name: memverse
 description: Scripture Memory mobile front end for www.memverse.com
-version: 1.0.0+1
+version: 0.1.0 (a2ef9b1)+11
 publish_to: none
 
 environment:
