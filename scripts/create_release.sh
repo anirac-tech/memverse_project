@@ -235,7 +235,7 @@ echo "--- Planned Actions ---"
 echo "1. Update $PUBSPEC_FILE to version: $NEW_VERSION_STRING"
 echo "2. Commit version update with message: chore: Bump version for $FLAVOR release $NEW_VERSION_STRING"
 echo "3. Create annotated Git tag: $TAG_NAME"
-echo "4. Push commit and tag to origin"
+echo "4. Push commit and tag to origin (DISABLED - manual push required)"
 echo "5. Run flutter clean"
 echo "6. Build $FLAVOR Android App Bundle (AAB)"
 echo "7. Build $FLAVOR Android APK"
@@ -310,12 +310,21 @@ else
     fi
 fi
 
-# Action 4: Push commit and tag
+# Action 4: Push commit and tag (DISABLED BY DEFAULT)
 if [ "$DRY_RUN" = false ]; then
-    echo "Pushing commit and tag to origin..."
+    echo "Pushing commit and tag to origin... (DISABLED)"
 fi
-run_command git push origin HEAD
-run_command git push origin "$TAG_NAME"
+# NOTE: Pushing is disabled by default due to potential Git authentication issues (e.g., HTTPS password auth deprecation).
+#       Configure Git with a Personal Access Token (PAT) or SSH key for authentication.
+#       See: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+#       See: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
+#
+#       To re-enable automatic push, uncomment the following two lines.
+#       Alternatively, push manually after the script completes:
+#       git push origin HEAD
+#       git push origin "$TAG_NAME"
+# run_command git push origin HEAD
+# run_command git push origin "$TAG_NAME"
 
 # Action 5: Clean
 if [ "$DRY_RUN" = false ]; then
@@ -348,11 +357,18 @@ if [ "$DRY_RUN" = true ]; then
 else
   echo ""
   echo "-------------------------------------"
-  echo " $FLAVOR_UPPER Release Build Complete!"
+  echo " $FLAVOR_UPPER Release Build Complete! (Local Only)"
   echo " Version: $NEW_VERSION_STRING"
-  echo " Tag: $TAG_NAME"
+  echo " Tag: $TAG_NAME (Created locally)"
   echo " Flavor: $FLAVOR"
   echo "-------------------------------------"
+  echo ""
+  echo "*** IMPORTANT: Commit and Tag were NOT pushed automatically. ***"
+  echo "    Reason: Automatic push is disabled due to potential Git authentication issues."
+  echo "    Action Required: Manually push the commit and tag:"
+  echo "      git push origin HEAD"
+  echo "      git push origin $TAG_NAME"
+  echo "    (Ensure your Git client is authenticated with GitHub using a PAT or SSH key.)"
   echo ""
   echo "Build outputs:"
   echo "  AAB: $AAB_PATH"
