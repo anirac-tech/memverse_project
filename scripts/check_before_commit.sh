@@ -62,13 +62,13 @@ print_success "Applied dart fixes"
 # Format code after fixes
 print_header "FORMATTING CODE"
 print_info "Running dart format..."
-dart format --line-length 100 lib/src test
+dart format --line-length 100 lib test
 print_success "Code formatted"
 
 # Analyze code
 print_header "ANALYZING CODE"
 print_info "Running flutter analyze..."
-flutter analyze lib test
+flutter analyze
 print_success "No analysis issues found"
 
 # Get dependencies

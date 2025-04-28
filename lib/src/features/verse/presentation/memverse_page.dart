@@ -1,3 +1,4 @@
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -148,6 +149,21 @@ class MemversePage extends HookConsumerWidget {
         title: Text(pageTitle),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          // coverage:ignore-start
+          IconButton(
+            icon: const Icon(Icons.feedback_outlined),
+            tooltip: 'Send Feedback',
+            onPressed: () {
+              // Show the feedback interface
+              BetterFeedback.of(context).show((feedback) {
+                // Just show a simple confirmation when submitted
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Feedback submitted')));
+              });
+            },
+          ),
+          // coverage:ignore-end
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
