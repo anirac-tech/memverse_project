@@ -40,11 +40,11 @@ fi
 
 # --- Widget Tests (Helper Script) ---
 print_header "RUNNING WIDGET TESTS"
-"$(dirname "$0")/run_widget_tests.sh"
+"$(dirname "$0")/widget_tests.sh"
 
 # --- Integration Tests (Helper Script) ---
 print_header "RUNNING INTEGRATION TESTS"
-"$(dirname "$0")/run_integration_tests.sh"
+"$(dirname "$0")/integration_tests.sh"
 
 # --- Final Success ---
 print_header "ALL CHECKS PASSED"

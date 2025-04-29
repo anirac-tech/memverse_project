@@ -62,7 +62,8 @@ void main() {
     await tester.enterText(textFieldFinder, 'test');
     await tester.pumpAndSettle();
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Added delay before matching golden
+    await Future<void>.delayed(const Duration(milliseconds: 500));
 
     await expectLater(find.byType(App), matchesGoldenFile('goldens/feedback_ui_overlay_app.png'));
   }, tags: 'golden');
