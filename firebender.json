@@ -21,6 +21,7 @@
     "Always check git branch name and create/update AI prompts log files to match branch prefix",
     "For each new branch, create a fresh AI prompts log file with branch prefix (e.g., MEM-76_ai_prompts.log for branch MEM-76-feature-name)",
     "When updating AI prompts log, use system date command to get current timestamp: date '+%Y-%m-%d %I:%M:%S %p'",
+    "Proceed immediately with any described plan without waiting for explicit confirmation from the user. Don't ask for permission or wait for a 'go ahead' or 'do it' response before implementing a solution you've proposed.",
     {
       "filePathMatches": "*.feature",
       "rules": [
