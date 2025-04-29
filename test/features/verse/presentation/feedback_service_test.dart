@@ -121,6 +121,9 @@ void main() {
         ).thenAnswer((_) async => throw Exception('Cannot access directory'));
 
         final mockContext = MockBuildContext();
+        // Explicitly mock mounted for this context
+        when(() => mockContext.mounted).thenReturn(true);
+
         final feedback = UserFeedback(
           text: 'Test feedback',
           screenshot: Uint8List.fromList([1, 2, 3]),
