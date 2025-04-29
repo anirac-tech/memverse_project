@@ -1,7 +1,7 @@
 
 # Minimum test coverage percentage required (used by pre-commit hook)
-export MIN_COVERAGE_WIDGET=80
-export MIN_COVERAGE_INTEGRATION=80
+export MIN_COVERAGE_WIDGET=81
+export MIN_COVERAGE_INTEGRATION=81
 
 # Excluded files/directories from coverage calculation
 # Space-separated list of glob patterns
