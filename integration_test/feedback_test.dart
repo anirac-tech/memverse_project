@@ -27,11 +27,17 @@ void main() {
 
     // --- Login ---
     await $('Welcome to Memverse').waitUntilVisible();
-    await $(find.byKey(_usernameFieldKey)).enterText(const String.fromEnvironment('USERNAME'));
-    await $(find.byKey(_passwordFieldKey)).enterText(const String.fromEnvironment('PASSWORD'));
+    const username = String.fromEnvironment('USERNAME');
+    const password = String.fromEnvironment('PASSWORD');
+    assert(
+      username.isNotEmpty && password.isNotEmpty,
+      'USERNAME and PASSWORD must be provided via --dart-define for this test',
+    );
+
+    await $(find.byKey(_usernameFieldKey)).enterText(username);
+    await $(find.byKey(_passwordFieldKey)).enterText(password);
     await $(find.byKey(_loginButtonKey)).tap();
     await $.pumpAndSettle();
-
     // --- Open Feedback ---
     await $(find.byKey(_memversePageScaffoldKey)).waitUntilVisible();
     expect($(find.byKey(_feedbackButtonKey)), findsOneWidget);

@@ -25,16 +25,13 @@ setup instructions.
 3. **Add Jira Email Setup Instructions:**
     * Include a section within the Settings screen or a separate help/documentation area accessible
       from Settings.
-    * Provide clear, step-by-step instructions for users or administrators on how to configure the "
-      Jira Email" integration if it requires specific setup (e.g., setting up an incoming mail
-      handler in Jira).
+    * Provide clear, step-by-step instructions for users or administrators on how to configure the `Jira Email` integration if it requires specific setup (e.g., setting up an incoming mail handler in Jira).
     * *Example Steps (Adapt as needed)*:
         * Go to Jira Project Settings -> Email Requests.
         * Configure a custom email address (e.g., `feedback-memverse@yourdomain.atlassian.net`).
         * Ensure the request type and issue type are set correctly for incoming feedback.
         * Note the generated email address. This address needs to be configured within the app (
           potentially via environment variables or a configuration file).
-
 4. **Patrol Tests:** *(Skipped for now: Addressing untested Patrol tests or writing new ones)*
     * Investigate and resolve issues with *existing* Patrol tests if they are currently failing.
     * Ensure all *existing* integration tests using Patrol pass reliably.
