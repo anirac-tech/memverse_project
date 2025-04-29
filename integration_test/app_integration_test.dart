@@ -69,11 +69,12 @@ void main() {
       final passwordField = $(TextField).at(1);
       final loginButton = $(ElevatedButton).containing(const Text('Login'));
 
-      await $.enterText(usernameField, 'testuser');
+      await $.enterText(
+          usernameField, const String.fromEnvironment('USERNAME', defaultValue: ''));
       await $.pumpAndSettle(); // Explicit settle after text entry
-      await $.enterText(passwordField, 'password');
+      await $.enterText(
+          passwordField, const String.fromEnvironment('PASSWORD', defaultValue: ''));
       await $.pumpAndSettle(); // Explicit settle after text entry
-
       final visibilityToggleOff = $(Icons.visibility_off);
       expect(
         visibilityToggleOff.exists,

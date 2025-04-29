@@ -60,7 +60,6 @@ of using the share dialog.
 
 Replace the existing feedback handler with Jira API integration:
 
-```dart
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -68,6 +67,7 @@ import 'package:http/http.dart' as http;
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
++import 'package:share_plus/share_plus.dart';
 
 /// Jira credentials - store these securely in production
 const String jiraBaseUrl = 'https://your-instance.atlassian.net';
@@ -79,13 +79,15 @@ const String jiraApiToken = 'your-api-token'; // From Step 1
 Future<void> handleFeedbackSubmission(BuildContext context, UserFeedback feedback) async {
   log('Submitting feedback directly to Jira');
 
++  // declare file here so it's in scope for both try and catch
++  File? file;
+
   try {
     // 1. Save screenshot to temporary file
     final dir = await getTemporaryDirectory();
-    final timestamp = DateTime
-        .now()
-        .millisecondsSinceEpoch;
-    final file = File('${dir.path}/memverse_feedback_$timestamp.png');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+-   final file = File('${dir.path}/memverse_feedback_$timestamp.png');
++   file = File('${dir.path}/memverse_feedback_$timestamp.png');
     await file.writeAsBytes(feedback.screenshot);
     log('Screenshot saved to: ${file.path}');
 
@@ -108,7 +110,8 @@ Future<void> handleFeedbackSubmission(BuildContext context, UserFeedback feedbac
     log('Error submitting to Jira: $e', stackTrace: stack);
 
     // Fall back to the share dialog
-    if (File(file.path).existsSync()) {
+-   if (File(file.path).existsSync()) {
++   if (file != null && file.existsSync()) {
       await Share.shareXFiles(
         [XFile(file.path)],
         text: feedback.text,
