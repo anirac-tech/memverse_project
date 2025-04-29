@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -108,7 +109,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     }
 
     debugPrint('Using CLIENT_ID: $clientId');
-    runApp(ProviderScope(child: await builder()));
+    // Wrap the app with BetterFeedback and ProviderScope
+    runApp(ProviderScope(child: BetterFeedback(child: await builder())));
   } catch (e, stackTrace) {
     log('Error during bootstrap: $e', stackTrace: stackTrace);
     runApp(ConfigurationErrorWidget(error: 'Error during app initialization: $e'));

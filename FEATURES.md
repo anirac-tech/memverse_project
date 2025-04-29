@@ -29,6 +29,19 @@ This document lists the main features of the Memverse Flutter app and tracks the
     - [memverse_page_landscape.png](test/src/features/verse/presentation/goldens/memverse_page_landscape.png) (
       Generated on first test run)
 
-## Testing Instructions
+### 3. User Feedback (`feedback`)
 
-### Running Tests Locally
+- **Description:** Allows users to submit feedback directly from the app with screenshots and text.
+  Integrates with device's native share system for email, messaging, and other sharing options.
+- **Widget Tests:**
+    * [memverse_page_test.dart](test/src/features/verse/presentation/memverse_page_test.dart) (tests
+      for button presence)
+- **Related Files:**
+    * [feedback_handler.dart](lib/src/features/verse/presentation/feedback_handler.dart)
+    * [feedback_setup_jira.md](feedback_setup_jira.md) (documentation for Jira integration)
+- **Future Enhancements:**
+    * Bugsee SDK integration for advanced bug reporting (
+      see [todo_bugsee_android.md](todo_bugsee_android.md)
+      and [todo_bugsee_ios.md](todo_bugsee_ios.md))
+
+## Testing Instructions

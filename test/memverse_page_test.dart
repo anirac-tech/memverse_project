@@ -12,6 +12,13 @@ import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
 
+class FakeVerseRepository extends VerseRepository {
+  @override
+  Future<List<Verse>> getVerses() async {
+    return [Verse(reference: 'John 3:16', text: 'For God so loved the world...')];
+  }
+}
+
 class MockVerseRepository extends Mock implements FakeVerseRepository {}
 
 void main() {
@@ -100,9 +107,9 @@ void main() {
       mockL10n = MockAppLocalizations();
 
       // Setup mock repository
-      when(
-        () => mockRepository.getVerses(),
-      ).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
+      when(() => mockRepository.getVerses()).thenAnswer(
+        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
+      );
 
       // Setup localizations
       when(() => mockL10n.referenceTest).thenReturn('Reference Test');
@@ -269,16 +276,45 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Enter invalid reference format
       await tester.enterText(find.byType(TextField), 'invalid');
       await tester.pump();
 
-      // Submit answer
       await tester.tap(find.byType(ElevatedButton));
       await tester.pump();
 
-      // Verify error message was shown
       expect(find.byType(SnackBar), findsOneWidget);
     });
+  });
+
+  group('MemversePage Feedback Button', () {
+    late MockVerseRepository mockVerseRepository;
+
+    setUp(() {
+      mockVerseRepository = MockVerseRepository();
+      when(() => mockVerseRepository.getVerses()).thenAnswer(
+        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
+      );
+    });
+
+    testWidgets('Feedback button is displayed in AppBar', (WidgetTester tester) async {
+      // Override the verse repository provider
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [verseRepositoryProvider.overrideWithValue(mockVerseRepository)],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: MemversePage(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify the feedback button is present
+      expect(find.byIcon(Icons.feedback_outlined), findsOneWidget);
+    });
+
+    // More tests can be added here for feedback functionality
   });
 }

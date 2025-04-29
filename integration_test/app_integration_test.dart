@@ -1,129 +1,203 @@
+// Command to run this test (replace <deviceId> if needed, e.g., emulator-5554):
+// patrol test --target integration_test/app_integration_test.dart --flavor development --dart-define=PATROL_TEST=true -d <deviceId>
+// (Ensure the `--flavor` matches the one you intend to test, e.g., development)
+//
+// Prerequisites:
+// 1. Ensure Patrol CLI is installed (https://patrol.leancode.co/getting-started)
+// 2. Ensure `patrol` (dev_dependencies) is in pubspec.yaml. Run `flutter pub get`.
+// 3. An Android emulator or device is running and connected (`adb devices`). Make sure it's unlocked.
+//
+// What to look for:
+// - The test should launch the Memverse app (development flavor) on the specified device.
+// - If the app starts on a screen with 'Logout' text, it taps 'Logout'.
+// - It navigates to the login screen (verifies 'Memverse Login' text).
+// - Enters 'testuser'/'password' into the text fields.
+// - Toggles the password visibility icon.
+// - Taps the 'Login' button.
+// - Test completes successfully in the console.
+//
+// Note: This test still uses native interaction for potential logout/login.
+
+import 'dart:developer' as dev;
+import 'dart:io'; // Import dart:io for Platform check
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/main_development.dart' as app;
+import 'package:patrol/patrol.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  // Using the standard patrolTest signature: description, callback, {timeout, tags}
+  // nativeAutomation is enabled via the CLI command (`patrol test --target ...`)
+  // Assuming default settle behavior (like andSettle: true) based on patrol version.
 
-  group('App Integration Tests', () {
-    testWidgets('Complete app flow from login to verse memorization', (WidgetTester tester) async {
-      // Launch the app
+  patrolTest(
+    'Complete app flow: Logout (if needed), Login', // Updated description
+    (PatrolIntegrationTester $) async {
       app.main();
+      await $.pumpAndSettle();
 
-      // Wait for the app to load fully
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      // Runtime check to ensure this test only runs on Android
+      if (!Platform.isAndroid) {
+        dev.log('Skipping test: Android only');
+        return; // Skip test if not on Android
+      }
 
-      // Verify the app launches and login screen is shown
-      expect(find.text('Memverse Login'), findsOneWidget);
-      expect(find.text('Welcome to Memverse'), findsOneWidget);
+      // App launched automatically by Patrol.
+      // Initial wait.
 
-      // Test login screen interactions
-      final usernameField = find.byType(TextFormField).first;
-      final passwordField = find.byType(TextFormField).at(1);
-      final loginButton = find.widgetWithText(ElevatedButton, 'Login');
+      // --- Check if already logged in and logout if necessary ---
+      final logoutFinder = $('Logout');
+      if (logoutFinder.exists) {
+        dev.log('Already logged in, attempting to log out...');
+        await $.tap(logoutFinder);
+        // Explicit wait after logout action.
+        await $.pump(const Duration(seconds: 3));
+        await $.pumpAndSettle();
+        dev.log('Logged out.');
+      } else {
+        dev.log('Not logged in or Logout text not found, proceeding...');
+        // Ensure settled state before proceeding.
+        await $.pumpAndSettle();
+      }
 
-      await tester.enterText(usernameField, 'testuser');
-      await tester.enterText(passwordField, 'password');
+      // --- Login Screen ---
+      expect($('Memverse Login'), findsOneWidget, reason: 'Should be on Login screen');
+      expect($('Welcome to Memverse'), findsOneWidget, reason: 'Welcome text should be visible');
 
-      // Check password visibility toggle - initially should show the visibility_off icon
-      // indicating password is currently obscured
-      final visibilityToggleOff = find.byIcon(Icons.visibility_off);
-      expect(visibilityToggleOff, findsOneWidget);
+      final usernameField = $(TextField).at(0);
+      final passwordField = $(TextField).at(1);
+      final loginButton = $(ElevatedButton).containing(const Text('Login'));
 
-      // Tap the visibility toggle
-      await tester.tap(visibilityToggleOff);
-      await tester.pumpAndSettle();
+      await $.enterText(usernameField, const String.fromEnvironment('USERNAME'));
+      await $.pumpAndSettle(); // Explicit settle after text entry
+      await $.enterText(passwordField, const String.fromEnvironment('PASSWORD'));
+      await $.pumpAndSettle(); // Explicit settle after text entry
+      final visibilityToggleOff = $(Icons.visibility_off);
+      expect(
+        visibilityToggleOff.exists,
+        isTrue,
+        reason: 'Password visibility_off icon should exist initially',
+      );
 
-      // Verify the visibility toggle changed to the visibility icon
-      // indicating password is now visible
-      expect(find.byIcon(Icons.visibility), findsOneWidget);
-      expect(find.byIcon(Icons.visibility_off), findsNothing);
+      await $.tap(visibilityToggleOff);
+      await $.pumpAndSettle(); // Explicit settle after tap
 
-      // Tap login with test credentials
-      // This will likely fail authentication but we're testing the UI flow
-      await tester.tap(loginButton);
-      await tester.pumpAndSettle();
+      final visibilityToggleOn = $(Icons.visibility);
+      expect(
+        visibilityToggleOn.exists,
+        isTrue,
+        reason: 'Password visibility icon should exist after tap',
+      );
+      expect(
+        visibilityToggleOff.exists,
+        isFalse,
+        reason: 'Password visibility_off icon should not exist after tap',
+      );
 
-      // After this point, we'd typically have error messages or redirection
-      // But for the purposes of the test, we've successfully covered the login flow
-    }, tags: ['integration']);
+      await $.tap(loginButton);
+      // Explicit longer wait after login for potential network calls/navigation.
+      await $.pump(const Duration(seconds: 5));
+      await $.pumpAndSettle();
 
-    testWidgets('App handles form validation correctly', (WidgetTester tester) async {
-      // Launch the app
+      // --- Post-Login / End of Flow ---
+      // Add checks here to verify successful login if needed.
+      // Example: expect($('Welcome testuser'), findsOneWidget);
+      dev.log('Login flow complete.');
+
+      // --- Screenshot and Share REMOVED ---
+    },
+    // Named arguments AFTER the callback
+    timeout: const Timeout(Duration(minutes: 5)),
+    tags: const ['integration', 'android-only'],
+  );
+
+  patrolTest(
+    'App handles form validation correctly',
+    // Standard signature: description, callback, {timeout, tags}
+    (PatrolIntegrationTester $) async {
       app.main();
+      await $.pumpAndSettle();
 
-      // Wait for the app to load fully
-      await tester.pumpAndSettle();
+      // App launched automatically.
+      // Initial wait.
 
-      // Get localization
-      final context = tester.element(find.byType(MaterialApp));
-      final l10n = context.l10n;
+      const pleaseEnterUsername = 'Please enter your username';
+      const pleaseEnterPassword = 'Please enter your password';
+      const loginText = 'Login';
 
-      // Find the login button
-      final loginButton = find.widgetWithText(ElevatedButton, l10n.login);
+      expect($('Memverse Login'), findsOneWidget);
 
-      // Tap login without entering credentials
-      await tester.tap(loginButton);
-      await tester.pumpAndSettle();
+      final loginButton = $(ElevatedButton).containing(const Text(loginText));
 
-      // Verify validation messages appear
-      expect(find.text(l10n.pleaseEnterYourUsername), findsOneWidget);
-      expect(find.text(l10n.pleaseEnterYourPassword), findsOneWidget);
+      await $.tap(loginButton);
+      await $.pumpAndSettle(); // Explicit settle after tap
 
-      // Enter only username
-      await tester.enterText(find.byType(TextFormField).first, 'testuser');
-      await tester.pumpAndSettle();
+      expect($(pleaseEnterUsername), findsOneWidget, reason: 'Username validation should appear');
+      expect($(pleaseEnterPassword), findsOneWidget, reason: 'Password validation should appear');
 
-      // Tap login again
-      await tester.tap(loginButton);
-      await tester.pumpAndSettle();
+      await $.enterText($(TextField).at(0), 'testuser');
+      await $.pumpAndSettle(); // Explicit settle after enterText
 
-      // Verify username validation passes but password still fails
-      expect(find.text(l10n.pleaseEnterYourUsername), findsNothing);
-      expect(find.text(l10n.pleaseEnterYourPassword), findsOneWidget);
+      await $.tap(loginButton);
+      await $.pumpAndSettle(); // Explicit settle after tap
 
-      // Clear username and enter only password
-      await tester.enterText(find.byType(TextFormField).first, '');
-      await tester.enterText(find.byType(TextFormField).at(1), 'password123');
-      await tester.pumpAndSettle();
+      expect($(pleaseEnterUsername), findsNothing, reason: 'Username validation should disappear');
+      expect($(pleaseEnterPassword), findsOneWidget, reason: 'Password validation should remain');
 
-      // Tap login again
-      await tester.tap(loginButton);
-      await tester.pumpAndSettle();
+      await $.enterText($(TextField).at(0), '');
+      await $.pumpAndSettle(); // Explicit settle after enterText
+      await $.enterText($(TextField).at(1), 'password123');
+      await $.pumpAndSettle(); // Explicit settle after enterText
 
-      // Verify username validation fails but password passes
-      expect(find.text(l10n.pleaseEnterYourUsername), findsOneWidget);
-      expect(find.text(l10n.pleaseEnterYourPassword), findsNothing);
-    }, tags: ['integration']);
+      await $.tap(loginButton);
+      await $.pumpAndSettle(); // Explicit settle after tap
 
-    testWidgets('App UI elements render correctly', (WidgetTester tester) async {
-      // Launch the app
+      expect($(pleaseEnterUsername), findsOneWidget, reason: 'Username validation should reappear');
+      expect($(pleaseEnterPassword), findsNothing, reason: 'Password validation should disappear');
+    },
+    // Named arguments AFTER the callback
+    tags: const ['integration'],
+  );
+
+  patrolTest(
+    'App UI elements render correctly on Login Screen',
+    // Standard signature: description, callback, {timeout, tags}
+    (PatrolIntegrationTester $) async {
       app.main();
+      await $.pumpAndSettle();
 
-      // Wait for the app to load fully
-      await tester.pumpAndSettle();
+      // App launched automatically.
+      // Initial wait.
 
-      // Verify all major UI elements exist
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.byType(Image), findsOneWidget);
-      expect(find.byType(TextFormField), findsNWidgets(2)); // Username and password fields
-      expect(find.byType(IconButton), findsOneWidget); // Password visibility toggle
-      expect(find.byType(ElevatedButton), findsOneWidget); // Login button
+      expect($('Memverse Login'), findsOneWidget);
 
-      // Verify text elements
-      expect(find.text('Memverse Login'), findsOneWidget);
-      expect(find.text('Welcome to Memverse'), findsOneWidget);
-      expect(find.text('Sign in to continue'), findsOneWidget);
+      expect($(AppBar), findsOneWidget);
+      expect($(Image), findsOneWidget);
+      expect($(TextField), findsNWidgets(2), reason: 'Should find 2 TextFields (user/pass)');
+      expect(
+        $(IconButton).containing(const Icon(Icons.visibility_off)),
+        findsOneWidget,
+        reason: 'Should find visibility_off icon button',
+      );
+      expect(
+        $(ElevatedButton).containing(const Text('Login')),
+        findsOneWidget,
+        reason: 'Should find Login button',
+      );
 
-      // Verify image loads or falls back correctly
-      final image = find.byType(Image).evaluate().first.widget as Image;
+      expect($('Welcome to Memverse'), findsOneWidget);
+      expect($('Sign in to continue'), findsOneWidget);
+
+      final image = $.tester.widget<Image>($(Image).first);
       expect(image.image, isA<NetworkImage>());
       expect(
         (image.image as NetworkImage).url,
         'https://www.memverse.com/assets/quill-writing-on-scroll-f758c31d9bfc559f582fcbb707d04b01a3fa11285f1157044cc81bdf50137086.png',
+        reason: 'Image URL should match expected',
       );
-    }, tags: ['integration']);
-  });
+    },
+    // Named arguments AFTER the callback
+    tags: const ['integration'],
+  );
 }
