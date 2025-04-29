@@ -19,7 +19,9 @@ const _memversePageScaffoldKey = ValueKey('memverse_page_scaffold');
 const _feedbackButtonKey = ValueKey('feedback_button');
 
 void main() {
-  patrolTest('Submit feedback with screenshot and text via Gmail', ($) async {
+  // Skipped for MEM-98 by user neiljaywarner - Requires manual interaction/setup
+  patrolTest('Submit feedback with screenshot and text via Gmail', skip: true, ($) async {
+    // Added skip: true to this test as per request
     app.main();
     await $.pumpAndSettle();
 

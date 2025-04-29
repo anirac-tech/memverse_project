@@ -108,13 +108,23 @@ class FeedbackService {
         }
       }
     } finally {
-      // 5. Clean up the temporary file
+      // 5. Clean up the temporary file.
+      // While avoid_slow_async_io lint prefers moving IO off the main isolate,
+      // deleting a single small temporary file here is unlikely to cause
+      // performance issues and simplifies the cleanup logic compared to using compute.
       try {
         if (screenshotPath != null) {
           final tempFile = File(screenshotPath);
+          // ignore: avoid_slow_async_io
           if (await tempFile.exists()) {
+            // ignore: avoid_slow_async_io
             await tempFile.delete();
             log('Deleted temporary screenshot file: $screenshotPath', name: 'FeedbackService');
+          } else {
+            log(
+              'Temporary file did not exist when deletion was attempted: $screenshotPath',
+              name: 'FeedbackService',
+            );
           }
         }
       } catch (e) {
