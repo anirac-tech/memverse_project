@@ -1,9 +1,6 @@
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:feedback/feedback.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,10 +9,13 @@ import 'package:memverse/src/features/auth/presentation/providers/auth_providers
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
-import 'package:memverse/src/features/verse/presentation/feedback_handler.dart';
+import 'package:memverse/src/features/verse/presentation/feedback_service.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
-import 'package:path_provider/path_provider.dart';
+
+// Key constants for Patrol tests
+const memversePageScaffoldKey = ValueKey('memverse_page_scaffold');
+const feedbackButtonKey = ValueKey('feedback_button');
 
 // TODO(neiljaywarner): Riverpod 2 or riverpod 3 and provider not instance
 // This will be addressed in a future update - kept as-is for PR #7
@@ -146,18 +146,21 @@ class MemversePage extends HookConsumerWidget {
     }
 
     return Scaffold(
+      key: memversePageScaffoldKey,
       appBar: AppBar(
         title: Text(pageTitle),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           // coverage:ignore-start
           IconButton(
+            key: feedbackButtonKey,
             icon: const Icon(Icons.feedback_outlined),
             tooltip: 'Send Feedback',
             onPressed: () {
-              log('Feedback button pressed');
+              log('Feedback button pressed', name: 'MemversePage');
+              final feedbackService = ref.read(feedbackServiceProvider);
               BetterFeedback.of(context).show((feedback) async {
-                await handleFeedbackSubmission(context, feedback);
+                await feedbackService.handleFeedbackSubmission(context, feedback);
               });
             },
           ),
@@ -254,21 +257,5 @@ class MemversePage extends HookConsumerWidget {
         ),
       ),
     );
-  }
-}
-
-// Helper function to write screenshot to a temporary file
-Future<String?> _writeScreenshotToFile(Uint8List screenshotData) async {
-  try {
-    final tempDir = await getTemporaryDirectory();
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final filePath = '${tempDir.path}/feedback_screenshot_$timestamp.png';
-    final file = File(filePath);
-    await file.writeAsBytes(screenshotData);
-    log('Successfully wrote screenshot to $filePath');
-    return filePath;
-  } catch (e, stackTrace) {
-    log('Error writing screenshot to file: $e', stackTrace: stackTrace);
-    return null;
   }
 }

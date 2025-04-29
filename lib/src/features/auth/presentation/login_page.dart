@@ -4,8 +4,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 
+// Key constants for Patrol tests
+const loginUsernameFieldKey = ValueKey('login_username_field');
+const loginPasswordFieldKey = ValueKey('login_password_field');
+const loginButtonKey = ValueKey('login_button');
+
 class LoginPage extends HookConsumerWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key = const ValueKey('login_page')});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,6 +76,7 @@ class LoginPage extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
+                  key: loginUsernameFieldKey,
                   controller: usernameController,
                   decoration: InputDecoration(
                     labelText: l10n.username,
@@ -83,6 +89,7 @@ class LoginPage extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  key: loginPasswordFieldKey,
                   controller: passwordController,
                   obscureText: !isPasswordVisible.value,
                   decoration: InputDecoration(
@@ -101,6 +108,7 @@ class LoginPage extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
+                  key: loginButtonKey,
                   onPressed:
                       authState.isLoading
                           ? null
