@@ -31,14 +31,6 @@ class MockAuthNotifier extends AuthNotifier {
   final MockAuthService passedInMockService;
   static const String _mockClientId = 'mock_client_id';
 
-  // Override _init to prevent real logic / use mock if needed
-  @override
-  Future<void> _init() async {
-    // Bypass entirely
-    state = const AuthState();
-    return Future.value();
-  }
-
   // login/logout in AuthNotifier already use _authService (which is passedInMockService)
   // Overrides are only needed if we want to change behavior specifically for the test mock.
 

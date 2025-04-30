@@ -16,7 +16,7 @@ print_success "All dependencies found"
 print_info "Flutter version:"; flutter --version
 
 print_header "APPLYING DARTFIX"; print_info "Running dart fix..."; dart fix --apply; print_success "Applied dart fixes"
-print_header "FORMATTING CODE"; print_info "Running dart format..."; dart format --line-length 100 lib test; print_success "Code formatted"
+print_header "FORMATTING CODE"; print_info "Running dart format..."; dart format . -l 100; print_success "Code formatted"
 print_header "ANALYZING CODE"; print_info "Running flutter analyze..."; flutter analyze; print_success "No analysis issues found"
 print_header "GETTING DEPENDENCIES"; print_info "Running flutter pub get..."; flutter pub get; print_success "Dependencies updated"
 
