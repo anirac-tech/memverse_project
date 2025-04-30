@@ -103,7 +103,7 @@ jobs:
           lcov --summary coverage/lcov.info
 
       - name: Upload coverage to Codecov (Unit/Widget)
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         continue-on-error: true
         with:
           file: coverage/lcov.info
@@ -157,7 +157,7 @@ jobs:
 
       - name: Upload Integration Test Coverage to Codecov (Emulator)
         if: always() # Upload regardless of test outcome due to || true
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         continue-on-error: true # Don't fail pipeline if upload fails
         with:
           file: coverage/lcov.info
