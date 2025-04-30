@@ -17,6 +17,7 @@ class LoginPage extends HookConsumerWidget {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final usernameController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final passwordFocusNode = useFocusNode();
     final authState = ref.watch(authStateProvider);
     final isPasswordVisible = useState(false);
     final l10n = context.l10n;
@@ -86,11 +87,16 @@ class LoginPage extends HookConsumerWidget {
                   validator:
                       (value) =>
                           value == null || value.isEmpty ? l10n.pleaseEnterYourUsername : null,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(passwordFocusNode);
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   key: loginPasswordFieldKey,
                   controller: passwordController,
+                  focusNode: passwordFocusNode,
                   obscureText: !isPasswordVisible.value,
                   decoration: InputDecoration(
                     labelText: l10n.password,
@@ -105,6 +111,14 @@ class LoginPage extends HookConsumerWidget {
                   validator:
                       (value) =>
                           value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) {
+                    if (formKey.currentState!.validate()) {
+                      ref
+                          .read(authStateProvider.notifier)
+                          .login(usernameController.text, passwordController.text);
+                    }
+                  },
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
