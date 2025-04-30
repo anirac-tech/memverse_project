@@ -111,7 +111,7 @@ class LoginPage extends HookConsumerWidget {
                   validator:
                       (value) =>
                           value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
-                  textInputAction: TextInputAction.go,
+                  textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) {
                     if (formKey.currentState!.validate()) {
                       ref

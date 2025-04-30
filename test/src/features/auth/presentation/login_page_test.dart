@@ -114,7 +114,7 @@ void main() {
       );
     });
 
-    testWidgets('Pressing "Go" on password field triggers login when form is valid', (
+    testWidgets('Pressing "Done" on password field triggers login when form is valid', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createLoginPage(mockAuthNotifier));
@@ -130,7 +130,7 @@ void main() {
       await tester.tap(passwordField);
       await tester.pumpAndSettle();
 
-      await tester.testTextInput.receiveAction(TextInputAction.go);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
       // 3. Verify using the exposed service instance
@@ -144,7 +144,7 @@ void main() {
     });
 
     testWidgets(
-      'Pressing "Go" on password field does not trigger login when form is invalid (e.g., empty password)',
+      'Pressing "Done" on password field does not trigger login when form is invalid (e.g., empty password)',
       (WidgetTester tester) async {
         await tester.pumpWidget(createLoginPage(mockAuthNotifier));
         await tester.pumpAndSettle();
@@ -159,7 +159,7 @@ void main() {
         await tester.tap(passwordField);
         await tester.pumpAndSettle();
 
-        await tester.testTextInput.receiveAction(TextInputAction.go);
+        await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
 
         // 4. Verify using the exposed service instance
@@ -172,7 +172,7 @@ void main() {
     );
 
     testWidgets(
-      'Pressing "Go" on password field does not trigger login when form is invalid (e.g., empty username)',
+      'Pressing "Done" on password field does not trigger login when form is invalid (e.g., empty username)',
       (WidgetTester tester) async {
         await tester.pumpWidget(createLoginPage(mockAuthNotifier));
         await tester.pumpAndSettle();
@@ -186,7 +186,7 @@ void main() {
 
         await tester.tap(passwordField);
         await tester.pumpAndSettle();
-        await tester.testTextInput.receiveAction(TextInputAction.go);
+        await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
 
         // 5. Verify using the exposed service instance
