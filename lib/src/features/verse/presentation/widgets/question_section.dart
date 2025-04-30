@@ -55,7 +55,11 @@ class QuestionSection extends HookConsumerWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 50, maxHeight: 150),
           child: versesAsync.when(
-            data: (verses) => VerseCard(verse: verses[currentVerseIndex]),
+            data: (verses) {
+              // Safety check to ensure index is valid
+              final safeIndex = currentVerseIndex < verses.length ? currentVerseIndex : 0;
+              return VerseCard(verse: verses[safeIndex]);
+            },
             loading: () => const Center(child: CircularProgressIndicator.adaptive()),
             error:
                 (error, stackTrace) => Center(
@@ -75,15 +79,18 @@ class QuestionSection extends HookConsumerWidget {
       // Reference form
       versesAsync.maybeWhen(
         data:
-            (verses) => VerseReferenceForm(
-              expectedReference: verses[currentVerseIndex].reference,
-              l10n: l10n,
-              answerController: answerController,
-              answerFocusNode: answerFocusNode,
-              hasSubmittedAnswer: hasSubmittedAnswer,
-              isAnswerCorrect: isAnswerCorrect,
-              onSubmitAnswer: onSubmitAnswer,
-            ),
+            (verses) {
+              final safeIndex = currentVerseIndex < verses.length ? currentVerseIndex : 0;
+              return VerseReferenceForm(
+                expectedReference: verses[safeIndex].reference,
+                l10n: l10n,
+                answerController: answerController,
+                answerFocusNode: answerFocusNode,
+                hasSubmittedAnswer: hasSubmittedAnswer,
+                isAnswerCorrect: isAnswerCorrect,
+                onSubmitAnswer: (answer) => onSubmitAnswer(verses[safeIndex].reference),
+              );
+            },
         orElse: () => const SizedBox.shrink(),
       ),
     ],
