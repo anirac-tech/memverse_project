@@ -1,27 +1,34 @@
 [build]
+# Use Netlify's cache directory for Flutter installation
 command = """
-    FLUTTER_DIR="/opt/flutter"
+    FLUTTER_DIR="$NETLIFY_CACHE_DIR/flutter"
     FLUTTER_VERSION="3.29.3"
+    echo "Checking for Flutter in $FLUTTER_DIR"
     # Check if cached Flutter exists and is the correct version
     if [ -d "$FLUTTER_DIR/bin" ] && [ -f "$FLUTTER_DIR/version" ] && [ "$(cat $FLUTTER_DIR/version)" = "$FLUTTER_VERSION" ]; then
-      echo "Using cached Flutter $FLUTTER_VERSION"
+      echo "Using cached Flutter $FLUTTER_VERSION from $FLUTTER_DIR"
       export PATH="$FLUTTER_DIR/bin:$PATH"
-      # Ensure cached version has necessary artifacts for web/linux
+      echo "Precaching Flutter artifacts (cached)..."
       flutter precache --web --linux
     else
-      echo "Cloning Flutter $FLUTTER_VERSION..."
-      rm -rf $FLUTTER_DIR # Remove old version if exists
+      echo "Cloning Flutter $FLUTTER_VERSION to $FLUTTER_DIR..."
+      rm -rf $FLUTTER_DIR # Remove old/incorrect version if exists
+      mkdir -p $NETLIFY_CACHE_DIR # Ensure the base cache directory exists
       git clone https://github.com/flutter/flutter.git --depth 1 --branch $FLUTTER_VERSION $FLUTTER_DIR
-      echo $FLUTTER_VERSION > $FLUTTER_DIR/version
+      # Store the cloned version in the directory for the next build's check
+      echo $FLUTTER_VERSION > "$FLUTTER_DIR/version"
       export PATH="$FLUTTER_DIR/bin:$PATH"
-      # Precache artifacts after fresh clone
+      echo "Precaching Flutter artifacts (cloned)..."
       flutter precache --web --linux
     fi
     # Verify Flutter installation
+    echo "Verifying Flutter installation..."
     flutter --version
     # Run the build
+    echo "Configuring and building Flutter web..."
     flutter config --enable-web
     flutter build web --release
+    echo "Build finished."
   """
 publish = "build/web"
 
