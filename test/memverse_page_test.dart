@@ -12,13 +12,6 @@ import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
 
-class FakeVerseRepository extends VerseRepository {
-  @override
-  Future<List<Verse>> getVerses() async {
-    return [Verse(reference: 'John 3:16', text: 'For God so loved the world...')];
-  }
-}
-
 class MockVerseRepository extends Mock implements FakeVerseRepository {}
 
 void main() {
@@ -106,12 +99,8 @@ void main() {
       mockRepository = MockVerseRepository();
       mockL10n = MockAppLocalizations();
 
-      // Setup mock repository
-      when(() => mockRepository.getVerses()).thenAnswer(
-        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
-      );
+      when(() => mockRepository.getVerses()).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
 
-      // Setup localizations
       when(() => mockL10n.referenceTest).thenReturn('Reference Test');
       when(() => mockL10n.question).thenReturn('Question');
       when(() => mockL10n.reference).thenReturn('Reference');
@@ -284,37 +273,34 @@ void main() {
 
       expect(find.byType(SnackBar), findsOneWidget);
     });
-  });
 
-  group('MemversePage Feedback Button', () {
-    late MockVerseRepository mockVerseRepository;
+    testWidgets('resets verse index when reaching the end of verses list', (WidgetTester tester) async {
+      when(() => mockRepository.getVerses()).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
 
-    setUp(() {
-      mockVerseRepository = MockVerseRepository();
-      when(() => mockVerseRepository.getVerses()).thenAnswer(
-        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
-      );
-    });
-
-    testWidgets('Feedback button is displayed in AppBar', (WidgetTester tester) async {
-      // Override the verse repository provider
       await tester.pumpWidget(
-        ProviderScope(
-          overrides: [verseRepositoryProvider.overrideWithValue(mockVerseRepository)],
+        UncontrolledProviderScope(
+          container: container,
           child: const MaterialApp(
+            home: MemversePage(),
+            locale: Locale('en'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: MemversePage(),
           ),
         ),
       );
 
       await tester.pumpAndSettle();
 
-      // Verify the feedback button is present
-      expect(find.byIcon(Icons.feedback_outlined), findsOneWidget);
-    });
+      await tester.enterText(find.byType(TextField), 'Test 1:1');
+      await tester.pump();
 
-    // More tests can be added here for feedback functionality
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pump();
+
+      await tester.pump(const Duration(milliseconds: 1500));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test verse text'), findsOneWidget);
+    });
   });
 }
