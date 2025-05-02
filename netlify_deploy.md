@@ -135,13 +135,6 @@ redirect rules for the Netlify platform.
 * **Dependencies:** Netlify automatically runs `npm install` in the `netlify/functions` directory
   during deployment based on `package.json`. Manual local installation is only needed for local
   testing.
-* **Environment Variables:** For sensitive information like API keys needed by the proxy function or
-  your app:
-    * The current setup requires a `MEMVERSE_CLIENT_ID` environment variable to be set in Netlify (
-      Site settings > Build & deploy > Environment).
-    * This variable is passed to the Flutter app via the
-      `--dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID` flag during build.
-    * You can add additional environment variables as needed following the same pattern.
 * **Entry Point:** The build is currently configured to use `lib/main_development.dart` as the entry
   point instead of the default `lib/main.dart`.
     * This is specified via the `--target lib/main_development.dart` flag in the build command.
@@ -163,6 +156,8 @@ To summarize key aspects of the current deployment setup:
 3. **Environment Variables:**
     - `MEMVERSE_CLIENT_ID`: Used for authentication with the Memverse API, passed to the app via
       `--dart-define=CLIENT_ID`.
+    - `SECRETS_SCAN_OMIT_PATHS`: Set to `build/web/main.dart.js` to prevent false positives in
+      Netlify's secrets scanning.
 4. **Entry Point:** Using `lib/main_development.dart` instead of default `lib/main.dart`.
 5. **CORS Proxy:** A serverless function (`netlify/functions/api.js`) handles the CORS proxying,
    making external API calls possible from the web app.
