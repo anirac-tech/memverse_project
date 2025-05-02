@@ -29,19 +29,25 @@ class AuthService {
         'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty}',
       );
 
-      const loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
+      // Change to final from const since kIsWeb is runtime value
+      final loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
+      debugPrint('LOGIN - Using URL: $loginUrl');
 
       try {
+        // For web deployment, we need to be careful with FormData
+        final Map<String, dynamic> requestData = {
+          'grant_type': 'password',
+          'username': username,
+          'password': password,
+          'client_id': clientId,
+        };
+
+        // Use different approach for web vs native for better compatibility
         final response = await _dio.post<Map<String, dynamic>>(
           loginUrl,
-          data: FormData.fromMap({
-            'grant_type': 'password',
-            'username': username,
-            'password': password,
-            'client_id': clientId,
-          }),
+          data: kIsWeb ? requestData : FormData.fromMap(requestData),
           options: Options(
-            contentType: Headers.formUrlEncodedContentType,
+            contentType: kIsWeb ? 'application/json' : Headers.formUrlEncodedContentType,
             headers: {'Accept': 'application/json'},
             validateStatus: (status) => true,
           ),
@@ -65,27 +71,46 @@ class AuthService {
         AppLogger.e('Dio login attempt failed, trying with http package', dioError);
       }
 
-      final request = http.MultipartRequest('POST', Uri.parse(loginUrl));
-      request.fields.addAll({
-        'grant_type': 'password',
-        'username': username,
-        'password': password,
-        'client_id': clientId,
-      });
+      // Fallback to http package with appropriate content type
+      final uri = Uri.parse(loginUrl);
+      http.Response response;
 
-      final response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      if (kIsWeb) {
+        // For web, use regular JSON post
+        response = await http.post(
+          uri,
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+          body: jsonEncode({
+            'grant_type': 'password',
+            'username': username,
+            'password': password,
+            'client_id': clientId,
+          }),
+        );
+      } else {
+        // For native, use MultipartRequest
+        final request = http.MultipartRequest('POST', uri);
+        request.fields.addAll({
+          'grant_type': 'password',
+          'username': username,
+          'password': password,
+          'client_id': clientId,
+        });
+
+        final streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+      }
 
       if (response.statusCode == 200) {
-        final jsonData = jsonDecode(responseData) as Map<String, dynamic>;
+        final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         final authToken = AuthToken.fromJson(jsonData);
         debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}');
         await saveToken(authToken);
         return authToken;
       } else {
         debugPrint('LOGIN - Failed with status code: ${response.statusCode}');
-        AppLogger.e('Login failed with status: ${response.statusCode}, response: $responseData');
-        throw Exception('Login failed: ${response.statusCode} - $responseData');
+        AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
+        throw Exception('Login failed: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       AppLogger.e('Login error', e);
