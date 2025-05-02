@@ -6,7 +6,7 @@ command = """
     export PATH="$PWD/flutter/bin:$PATH"
     flutter config --enable-web
     flutter pub get # Ensure dependencies are fetched
-    flutter build web --release
+    flutter build web --release --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --target lib/main_development.dart
   """
 publish = "build/web"
 
