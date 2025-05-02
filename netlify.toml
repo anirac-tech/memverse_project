@@ -1,0 +1,15 @@
+[build]
+command = """
+    flutter config --enable-web
+    flutter build web --release
+  """
+publish = "build/web"
+
+[functions]
+directory = "netlify/functions"
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/api/:splat"
+status = 200
+force = true

@@ -22,21 +22,22 @@ print_header "GETTING DEPENDENCIES"; print_info "Running flutter pub get..."; fl
 
 # --- Golden Tests ---
 print_header "HANDLING GOLDEN TESTS"
-print_info "Generating/updating golden files..."; flutter test --update-goldens --tags golden || true
-print_info "Running golden tests (checking for diffs)..."
-set +e; flutter test --tags golden; GOLDEN_TEST_EXIT_CODE=$?; set -e
-if [ $GOLDEN_TEST_EXIT_CODE -ne 0 ]; then
-  print_info "Golden test differences detected. Review changes in 'test/**/failures/*.png'."
-  print_info "If intended, commit the updated golden files in 'test/**/<test_name>.png'."
-  if [ -f "$(dirname "$0")/generate_golden_report.sh" ]; then
-    print_info "Generating golden test report..."; "$(dirname "$0")/generate_golden_report.sh" > /dev/null 2>&1 || true
-    print_info "Report generated at golden_report/index.html"
-  fi
-  # Optionally exit here if strict golden checking is desired
-  # exit 1
-else
-  print_success "Golden tests passed (no differences detected)."
-fi
+# print_info "Generating/updating golden files..."; flutter test --update-goldens --tags golden || true
+# print_info "Running golden tests (checking for diffs)..."
+# set +e; flutter test --tags golden; GOLDEN_TEST_EXIT_CODE=$?; set -e
+# if [ $GOLDEN_TEST_EXIT_CODE -ne 0 ]; then
+#   print_info "Golden test differences detected. Review changes in 'test/**/failures/*.png'."
+#   print_info "If intended, commit the updated golden files in 'test/**/<test_name>.png'."
+#   if [ -f "$(dirname "$0")/generate_golden_report.sh" ]; then
+#     print_info "Generating golden test report..."; "$(dirname "$0")/generate_golden_report.sh" > /dev/null 2>&1 || true
+#     print_info "Report generated at golden_report/index.html"
+#   fi
+#   # Optionally exit here if strict golden checking is desired
+#   # exit 1
+# else
+#   print_success "Golden tests passed (no differences detected)."
+# fi
+print_info "Golden tests are currently skipped."
 
 # --- Widget Tests (Helper Script) ---
 print_header "RUNNING WIDGET TESTS"

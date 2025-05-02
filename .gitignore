@@ -104,6 +104,12 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Node.js dependencies specific to Netlify functions
+netlify/functions/node_modules/
+
+# Netlify build artifacts
+.netlify/
+
 # Exceptions to the above rules.
 !**/ios/**/default.mode1v3
 !**/ios/**/default.mode2v3

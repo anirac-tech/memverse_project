@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/constants/api_constants.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/utils/app_logger.dart';
@@ -101,8 +102,8 @@ class LiveVerseRepository implements VerseRepository {
     );
   }
 
-  /// The URL to fetch Bible verses from
-  static const String _apiUrl = 'https://www.memverse.com/1/memverses';
+  // Define path separately
+  static const String _memversesPath = '/1/memverses';
 
   /// Get a list of verses from the remote API
   @override
@@ -117,15 +118,21 @@ class LiveVerseRepository implements VerseRepository {
         throw Exception('No API token provided. Please login to get a valid token');
       }
 
+      // Construct the URL based on the platform
+      const getVersesUrl =
+          kIsWeb
+              ? '$webApiPrefix$_memversesPath' // Use proxy for web
+              : '$apiBaseUrl$_memversesPath'; // Use direct URL otherwise
+
       // Always output token for debugging (not just in debug mode)
       final redactedToken = token.isEmpty ? '' : '${token.substring(0, 4)}...';
       debugPrint('VERSE REPOSITORY - Token: $redactedToken (redacted) (empty: ${token.isEmpty})');
       debugPrint('VERSE REPOSITORY - Bearer token: $bearerToken');
-      debugPrint('VERSE REPOSITORY - Fetching verses from $_apiUrl');
+      debugPrint('VERSE REPOSITORY - Fetching verses from $getVersesUrl'); // Updated log
 
       // Fetch data with authentication header - ensure Bearer prefix has a space
       final response = await _dio.get<dynamic>(
-        _apiUrl,
+        getVersesUrl, // Use constructed URL
         options: Options(
           headers: {
             'Authorization': bearerToken.isNotEmpty ? bearerToken : 'Bearer $token',
