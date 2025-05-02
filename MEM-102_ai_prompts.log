@@ -1,0 +1,57 @@
+# MEM-102 AI Prompts Log
+
+## Session 2025-05-01 (Setting up Netlify CORS Proxy)
+
+### 2025-05-01 11:41:29 PM - Initial Request
+**User Prompt**: Request to implement a CORS proxy using Netlify functions based on the boredcorsweb repo.
+
+**AI Response**: Created the basic structure for a Netlify CORS proxy, including:
+- `netlify.toml` file with redirect rules
+- `netlify/functions/api.js` for the CORS proxy function
+- `lib/src/constants/api_constants.dart` for centralizing API URLs
+- Updated auth_service.dart and verse_repository.dart to use the proxy conditionally for web
+
+### 2025-05-01 11:55:00 PM (approx) - Documentation Request
+**User Prompt**: Request to create a documentation file explaining Netlify, CORS, and TOML.
+
+**AI Response**: Created `netlify_deploy.md` with comprehensive information about:
+- The CORS proxy implementation in the project
+- Explanation of CORS and why it's needed
+- TOML file format and its purpose
+- Netlify basics for developers new to the platform
+
+### 2025-05-02 12:10:00 AM (approx) - Build Command Issues
+**User Prompt**: Report of Netlify build errors due to Flutter not being installed in the build environment.
+
+**AI Response**: Updated `netlify.toml` with a build command that:
+- Downloads and installs Flutter 3.29.3 during the build process
+- Uses curl to fetch the Flutter SDK from Google's servers
+- Sets up the PATH to include Flutter's bin directory
+
+### 2025-05-02 12:25:00 AM (approx) - Entry Point Issues
+**User Prompt**: Report of build errors related to missing main.dart entry point.
+
+**AI Response**: Updated `netlify.toml` build command to:
+- Use the correct entry point (`lib/main_development.dart`)
+- Pass the CLIENT_ID environment variable via --dart-define
+- Match the local development configuration from setup.md
+
+### 2025-05-02 12:45:00 AM (approx) - Documentation Update
+**User Prompt**: Request to update documentation with environment variable and entry point details.
+
+**AI Response**: Updated `netlify_deploy.md` to include:
+- Details about the MEMVERSE_CLIENT_ID environment variable
+- Information about the custom entry point configuration
+- Summary of all key aspects of the deployment setup
+
+## Key Outcomes
+1. Implemented a Netlify functions-based CORS proxy
+2. Made Flutter code conditionally use the proxy for web builds
+3. Configured Netlify build process to install Flutter and build using the correct entry point
+4. Created comprehensive documentation for the deployment setup
+5. Updated Dart code to maintain a clean separation of concerns with constants
+
+## Next Steps
+1. Test the deployed Netlify site to ensure the CORS proxy works correctly
+2. Consider security improvements for the CORS headers in production
+3. Add more robust error handling to the CORS proxy function if needed

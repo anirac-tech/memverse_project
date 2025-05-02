@@ -131,16 +131,40 @@ redirect rules for the Netlify platform.
 ## Next Steps & Considerations
 
 * **Set `API_BASE_URL`:** Ensure the `API_BASE_URL` constant in `netlify/functions/api.js` is
-  correctly set to the base URL of the API you are proxying.
-* **Dependencies:** Run `npm install` inside the `netlify/functions` directory if you haven't
-  already.
-* **Environment Variables:** For sensitive information like API keys needed by the proxy function,
-  *do not* hardcode them in `api.js`. Instead, use Netlify Environment Variables (Site settings >
-  Build & deploy > Environment) and access them in the function via
-  `process.env.YOUR_VARIABLE_NAME`. Modify `api.js` to read the key from the environment.
+  correctly set to the base URL of the API you are proxying (should be `https://www.memverse.com`).
+* **Dependencies:** Netlify automatically runs `npm install` in the `netlify/functions` directory
+  during deployment based on `package.json`. Manual local installation is only needed for local
+  testing.
+* **Environment Variables:** For sensitive information like API keys needed by the proxy function or
+  your app:
+    * The current setup requires a `MEMVERSE_CLIENT_ID` environment variable to be set in Netlify (
+      Site settings > Build & deploy > Environment).
+    * This variable is passed to the Flutter app via the
+      `--dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID` flag during build.
+    * You can add additional environment variables as needed following the same pattern.
+* **Entry Point:** The build is currently configured to use `lib/main_development.dart` as the entry
+  point instead of the default `lib/main.dart`.
+    * This is specified via the `--target lib/main_development.dart` flag in the build command.
+    * If you need to change the entry point (e.g., to use a production configuration), update this
+      flag in `netlify.toml`.
 * **Error Handling:** Review the error handling in `api.js` to ensure it meets your needs.
 * **Security:** For production, consider changing `Access-Control-Allow-Origin: *` in `api.js` to
   your specific Netlify domain (`Access-Control-Allow-Origin: https://your-site-name.netlify.app`)
   for better security.
+
+## Deployment Notes
+
+To summarize key aspects of the current deployment setup:
+
+1. **Flutter Installation:** Flutter version 3.29.3 is downloaded and installed during the build
+   process directly from Google's servers using `curl` and `tar`.
+2. **Web Build:** The app is built for web with `flutter build web --release` along with appropriate
+   `--dart-define` parameters.
+3. **Environment Variables:**
+    - `MEMVERSE_CLIENT_ID`: Used for authentication with the Memverse API, passed to the app via
+      `--dart-define=CLIENT_ID`.
+4. **Entry Point:** Using `lib/main_development.dart` instead of default `lib/main.dart`.
+5. **CORS Proxy:** A serverless function (`netlify/functions/api.js`) handles the CORS proxying,
+   making external API calls possible from the web app.
 
 ---

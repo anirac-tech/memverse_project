@@ -4,6 +4,11 @@ command = """
     curl -fSL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -o flutter.tar.xz
     tar xf flutter.tar.xz
     export PATH="$PWD/flutter/bin:$PATH"
+    # Install dependencies for the Netlify Function
+    cd netlify/functions
+    npm install
+    cd ../..
+    # Continue with the Flutter build
     flutter config --enable-web
     flutter pub get # Ensure dependencies are fetched
     flutter build web --release --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --target lib/main_development.dart

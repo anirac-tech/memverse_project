@@ -1,7 +1,7 @@
 {
   "name": "netlify-functions",
   "version": "1.0.0",
-  "description": "Netlify functions for the project",
+  "description": "Netlify serverless functions for CORS handling",
   "main": "cors-proxy.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-fetch": "^2.6.1"
+    "axios": "^1.6.0"
   }
 }
