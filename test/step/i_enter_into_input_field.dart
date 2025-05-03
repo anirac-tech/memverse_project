@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 /// Usage: I enter "text" into {0} input field
 Future<void> iEnterIntoInputField(WidgetTester tester, String text, int index) async {
@@ -20,7 +21,7 @@ Future<void> iEnterIntoInputField(WidgetTester tester, String text, int index) a
   } catch (e) {
     // If the index is out of range, try with the first TextField
     if (e is RangeError) {
-      debugPrint(
+      AppLogger.d(
         'TextField at index $index not found. Using the first available TextField instead.',
       );
       await tester.enterText(textFields.first, text);
