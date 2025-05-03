@@ -94,7 +94,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (token.accessToken.isNotEmpty) {
         // Only log in debug mode
         if (kDebugMode) {
-          debugPrint('Successfully authenticated');
+          AppLogger.d('Successfully authenticated');
         }
         AppLogger.i('Successfully authenticated');
       }

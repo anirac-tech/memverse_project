@@ -25,17 +25,17 @@ class AuthService {
   Future<AuthToken> login(String username, String password, String clientId) async {
     try {
       AppLogger.i('Attempting login with provided credentials');
-      debugPrint(
+      AppLogger.d(
         'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty}',
       );
 
       // Change to final from const since kIsWeb is runtime value
-      final loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
-      debugPrint('LOGIN - Using URL: $loginUrl');
+      const loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
+      AppLogger.d('LOGIN - Using URL: $loginUrl');
 
       try {
         // For web deployment, we need to be careful with FormData
-        final Map<String, dynamic> requestData = {
+        final requestData = <String, dynamic>{
           'grant_type': 'password',
           'username': username,
           'password': password,
@@ -55,13 +55,12 @@ class AuthService {
 
         if (response.statusCode == 200) {
           final jsonData = response.data!;
-          debugPrint('LOGIN - Received successful response with token');
+          AppLogger.d('LOGIN - Received successful response with token');
           final authToken = AuthToken.fromJson(jsonData);
-          debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}');
+          AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
           await saveToken(authToken);
           return authToken;
         } else {
-          debugPrint('LOGIN - Failed with status code: ${response.statusCode}');
           AppLogger.e(
             'Login failed with status: ${response.statusCode}, response: ${response.data}',
           );
@@ -104,11 +103,10 @@ class AuthService {
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         final authToken = AuthToken.fromJson(jsonData);
-        debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}');
+        AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
         await saveToken(authToken);
         return authToken;
       } else {
-        debugPrint('LOGIN - Failed with status code: ${response.statusCode}');
         AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
         throw Exception('Login failed: ${response.statusCode} - ${response.body}');
       }

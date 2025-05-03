@@ -126,9 +126,9 @@ class LiveVerseRepository implements VerseRepository {
 
       // Always output token for debugging (not just in debug mode)
       final redactedToken = token.isEmpty ? '' : '${token.substring(0, 4)}...';
-      debugPrint('VERSE REPOSITORY - Token: $redactedToken (redacted) (empty: ${token.isEmpty})');
-      debugPrint('VERSE REPOSITORY - Bearer token: $bearerToken');
-      debugPrint('VERSE REPOSITORY - Fetching verses from $getVersesUrl'); // Updated log
+      AppLogger.d('VERSE REPOSITORY - Token: $redactedToken (redacted) (empty: ${token.isEmpty})');
+      AppLogger.d('VERSE REPOSITORY - Bearer token: $bearerToken');
+      AppLogger.d('VERSE REPOSITORY - Fetching verses from $getVersesUrl'); // Updated log
 
       // Fetch data with authentication header - ensure Bearer prefix has a space
       final response = await _dio.get<dynamic>(

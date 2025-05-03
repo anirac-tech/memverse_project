@@ -1,10 +1,10 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -16,7 +16,6 @@ final feedbackServiceProvider = Provider<FeedbackService>((ref) {
 // Top-level function required for compute.
 // Handles deleting the file in a background isolate.
 Future<void> _deleteFileInBackground(String path) async {
-  const logName = 'FeedbackService(BG)'; // Differentiate background logs
   try {
     final tempFile = File(path);
     // Check existence and delete within the background isolate
@@ -24,24 +23,18 @@ Future<void> _deleteFileInBackground(String path) async {
     if (await tempFile.exists()) {
       // ignore: avoid_slow_async_io // Still needed within compute's isolate
       await tempFile.delete();
-      log('Deleted temporary screenshot file in background: $path', name: logName);
+      AppLogger.d('Deleted temporary screenshot file in background: $path');
     } else {
-      log('Temporary file did not exist when background deletion ran: $path', name: logName);
+      AppLogger.d('Temporary file did not exist when background deletion ran: $path');
     }
   } catch (e, stack) {
-    log(
-      'Error deleting temporary screenshot file in background: $e',
-      stackTrace: stack, // Include stack trace for background errors
-      name: logName,
-    );
+    AppLogger.e('Error deleting temporary screenshot file in background: $e', e, stack);
     // Consider if further error handling/reporting is needed from background
   }
 }
 
 /// Service class to handle feedback submission logic.
 class FeedbackService {
-  static const _logName = 'FeedbackService';
-
   /// Truncates text to a maximum length, adding ellipsis if truncated.
   @visibleForTesting
   String truncateText(String text, int maxLength) {
@@ -78,10 +71,10 @@ class FeedbackService {
       // ignore: avoid_slow_async_io
       // Writing a small screenshot file is unlikely to block the main thread significantly.
       await file.writeAsBytes(screenshotBytes);
-      log('Screenshot saved to: $path', name: _logName);
+      AppLogger.d('Screenshot saved to: $path');
       return path;
     } catch (e, stack) {
-      log('Error saving screenshot: $e', stackTrace: stack, name: _logName);
+      AppLogger.e('Error saving screenshot: $e', e, stack);
       return null;
     }
   }
@@ -91,11 +84,11 @@ class FeedbackService {
     try {
       // ignore: deprecated_member_use
       final result = await Share.shareXFiles([XFile(path)], text: text, subject: subject);
-      log('Share XFiles completed with status: ${result.status.name}', name: _logName);
+      AppLogger.d('Share XFiles completed with status: ${result.status.name}');
       return result.status != ShareResultStatus.unavailable;
     } catch (e, stack) {
-      log('Error sharing feedback with screenshot: $e', stackTrace: stack, name: _logName);
-      debugPrint('Error while sharing feedback with screenshot: $e');
+      AppLogger.e('Error sharing feedback with screenshot: $e', e, stack);
+      AppLogger.e('Error while sharing feedback with screenshot: $e', e, stack);
       return false;
     }
   }
@@ -105,11 +98,11 @@ class FeedbackService {
     try {
       // ignore: deprecated_member_use
       final result = await Share.share(text, subject: subject);
-      log('Fallback text share completed with status: ${result.status.name}', name: _logName);
+      AppLogger.d('Fallback text share completed with status: ${result.status.name}');
       return result.status != ShareResultStatus.unavailable;
     } catch (e, stack) {
-      log('Error during fallback text share: $e', stackTrace: stack, name: _logName);
-      debugPrint('Error during fallback text share: $e');
+      AppLogger.e('Error during fallback text share: $e', e, stack);
+      AppLogger.e('Error during fallback text share: $e', e, stack);
       return false;
     }
   }
@@ -122,11 +115,11 @@ class FeedbackService {
     // This avoids the avoid_slow_async_io lint in the main isolate.
     try {
       await compute(_deleteFileInBackground, path);
-      log('Scheduled background deletion for: $path', name: _logName);
+      AppLogger.d('Scheduled background deletion for: $path');
     } catch (e, stack) {
       // Log error if scheduling deletion fails.
       // Actual deletion errors are logged in _deleteFileInBackground.
-      log('Error scheduling background file deletion: $e', stackTrace: stack, name: _logName);
+      AppLogger.e('Error scheduling background file deletion: $e', e, stack);
     }
   }
 
@@ -140,9 +133,8 @@ class FeedbackService {
 
   /// Main method to handle the feedback submission process.
   Future<void> handleFeedbackSubmission(BuildContext context, UserFeedback feedback) async {
-    log(
+    AppLogger.d(
       'Handling feedback. Text length: ${feedback.text.length}, Screenshot bytes: ${feedback.screenshot.length}',
-      name: _logName,
     );
 
     String? screenshotPath;
@@ -161,7 +153,7 @@ class FeedbackService {
         if (sharedWithScreenshot) {
           return; // Success
         } else {
-          log('Sharing with screenshot failed, attempting text-only share.', name: _logName);
+          AppLogger.d('Sharing with screenshot failed, attempting text-only share.');
           if (!context.mounted) return; // Early exit if not mounted
           final sharedTextOnly = await _tryShareTextOnly(feedback.text, subject);
           if (!context.mounted) return; // Exit if context became invalid during await
@@ -172,7 +164,7 @@ class FeedbackService {
           }
         }
       } else {
-        log('Screenshot saving failed, attempting text-only share.', name: _logName);
+        AppLogger.d('Screenshot saving failed, attempting text-only share.');
         final subject = generateSubject(feedback.text);
         if (!context.mounted) return; // Early exit if not mounted
         final sharedTextOnly = await _tryShareTextOnly(feedback.text, subject);
