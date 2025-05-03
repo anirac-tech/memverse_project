@@ -11,13 +11,6 @@
     - Created a CI workflow job to verify logging standards
     - Created comprehensive documentation about logging standards
 
-3. **Custom Lint Rules**
-    - Created memverse_lints package with custom rules:
-        - avoid_debug_print
-        - avoid_log
-    - Implemented quick fixes to automatically convert to AppLogger calls
-    - Added tests for the lint rules
-
 ## Documentation
 
 1. **AppLogger Documentation**
@@ -60,9 +53,10 @@
 
 ## Known Issues and Future Work
 
-1. **Dependency Conflicts**
-    - The custom lint package has version conflicts with the main project
-    - The analyzer and dart_style version requirements conflict
+1. **Custom Lint Implementation**
+    - Custom lint package implementation moved
+      to [MEM-115](https://anirac-tech.atlassian.net/browse/MEM-115)
+    - Removed from this branch due to dependency conflicts
 
 2. **Generated File Formatting**
     - Localization file formatting remains a challenge

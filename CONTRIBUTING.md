@@ -26,9 +26,8 @@ also fail if any are detected.
 For detailed information about logging standards, available methods, and enforcement tools, please
 refer to the [Logging Standards and Tools](logging.md) documentation.
 
-### Custom Lint Rules
+### Pre-commit Hooks
 
-The project includes custom lint rules that will automatically detect prohibited logging methods and
-provide quick fixes:
-
-1. Install the custom lint package:
+All developers are strongly encouraged to set up pre-commit hooks to ensure code quality and
+consistency. Follow the setup instructions in the [Pre-commit Hooks](#pre-commit-hooks-1) section
+below.

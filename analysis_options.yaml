@@ -16,11 +16,3 @@ linter:
 analyzer:
   exclude:
     - lib/l10n/arb/app_localizations.dart
-  plugins:
-    - custom_lint
-
-# Configure custom lint rules
-custom_lint:
-  rules:
-    - avoid_debug_print
-    - avoid_log
