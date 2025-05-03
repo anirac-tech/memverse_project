@@ -54,8 +54,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Fix generated localization files
-        run: ./scripts/fix_generated_localizations.sh
+      - name: Format generated localization files
+        run: dart format lib/l10n/arb/app_localizations*.dart -l 100
 
       - name: Analyze project
         run: flutter analyze
@@ -201,8 +201,8 @@ jobs:
       - name: Check formatting
         run: |
           echo "Running targeted format fixes on app_localizations files first"
-          # Apply the specialized fix script for app_localizations files 
-          ./scripts/fix_generated_localizations.sh
+          # Apply direct formatting to app_localizations files
+          dart format lib/l10n/arb/app_localizations*.dart -l 100
           
           # Verify specifically that app_localizations files are properly formatted
           echo "Verifying app_localizations format"
