@@ -147,7 +147,7 @@ class MemversePage extends HookConsumerWidget {
     return Scaffold(
       key: memversePageScaffoldKey,
       appBar: AppBar(
-        title: Text(pageTitle),
+        title: Text(isSmallScreen ? pageTitle : 'Memverse $pageTitle'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           // coverage:ignore-start
