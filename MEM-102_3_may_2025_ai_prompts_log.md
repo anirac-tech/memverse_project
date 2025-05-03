@@ -306,3 +306,47 @@ apologies for that oversight. I will now perform the complete request again:
 - Added comments to `questions-L1.md` and `questions-L2.md` based on the review.
 - Created the `gemini2.5pro_review.md` file with the review, proposed changes, concerns, and next
   steps.
+
+### 2025-05-03 12:15:12 PM - Enhance Logging Violation Output and Auto-Fix
+
+**User Prompt**: make sure the script and github action both log the line number and line the
+debugPrint() or similar violation occurs in and info on how to fix. If it's the local script then
+perform the fix in the script . nore this log in the ai prompts log file
+**AI Response Summary (Gemini 2.5 Pro)**:
+
+- Modified `scripts/check_before_commit.sh` to use `grep -rn` for line numbers.
+- Added `sed` commands to attempt auto-fixing `debugPrint` and ` log` to `AppLogger.d`.
+- Added logic using `ed` to insert `AppLogger` import if missing.
+- Ensured the script still exits with an error code (1) to force review of auto-fixes.
+- Updated the `check-logging-standards` job in `.github/workflows/main.yaml` to use `grep -rn` and
+  provide clearer error output including file, line number, and offending code.
+
+### 2025-05-03 12:18:03 PM - Create TODO Before Merge File
+
+**User Prompt**: please make a todo before merge me file with a template at the bottom and the
+current ones at the top including "make a jira ticket for things that did not fit the timebox for
+this PR"
+**AI Response Summary (Gemini 2.5 Pro)**:
+
+- Created `TODO_BEFORE_MERGE.md`.
+- Added current outstanding items specific to this branch (lint conflicts, PR feedback, cleanup,
+  follow-up Jira ticket for formatting/lints).
+- Included a reusable template section for future PRs.
+
+### 2025-05-03 12:19:35 PM - Add Lint Quick Fix Status to TODO
+
+**User Prompt**: add to the top of the todo before merge file visual screenshot of quickfix (if it
+works) or jira ticket to get it to work if it does not work
+**AI Response Summary (Gemini 2.5 Pro)**:
+
+- Updated `TODO_BEFORE_MERGE.md` by adding a new item at the top.
+- This item explicitly states the need to create a Jira ticket for the non-functional custom lint
+  quick fixes due to dependency conflicts.
+
+### 2025-05-03 12:19:54 PM - Update AI Prompts Log
+
+**User Prompt**: upate promtps filr for last few protps please
+**AI Response Summary (Gemini 2.5 Pro)**:
+
+- Updated `MEM-102_3_may_2025_ai_prompts_log.md` with the latest interactions, including timestamps
+  and model information for each entry.
