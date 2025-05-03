@@ -1,0 +1,24 @@
+I have two question files (questions-L1.md and questions-L2.md) containing beginner and advanced questions about a Flutter codebase. I'd like you to:
+
+1. First, review and understand both files of questions.
+
+2. Create detailed, comprehensive answers for all questions in both files. For each question:
+   - Repeat the question
+   - Provide a clear, detailed answer tailored to the expertise level (simpler explanations for L1, more technical depth for L2)
+   - Include practical examples, code snippets, or step-by-step instructions where relevant
+   - Explain the "why" behind recommendations, not just the "what"
+   - Format with proper markdown for readability
+
+3. After answering the questions, I also want you to compare your answers with another set of answers from a different AI assistant (Gemini). Create a comparison document that:
+   - Analyzes the overall approach differences between your answers and Gemini's
+   - Identifies key differences in how specific topics were addressed
+   - Evaluates the strengths and unique insights of each approach 
+   - Discusses differences in practical usability, technical depth, and communication style
+   - Makes note of any contradictions or different recommendations between the two sets
+   - Concludes with an objective assessment of when each approach might be most valuable
+
+4. Format your comparison with clear sections, bullet points, and examples to illustrate key points.
+
+5. Begin your comparison document by noting that it was created by Claude.
+
+Please be thorough but concise in your answers, focusing on practical value for developers working with the codebase. Your tone should be helpful and educational rather than critical of either approach.

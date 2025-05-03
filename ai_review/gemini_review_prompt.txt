@@ -1,0 +1,27 @@
+I have two files with questions about a Flutter codebase (questions-L1.md and questions-L2.md). 
+Questions-L1.md contains beginner-friendly questions that junior developers might have, and 
+questions-L2.md contains more advanced questions for senior developers.
+
+Please review these questions and create detailed, comprehensive answers for each one based on 
+best practices in Flutter development, software architecture, and modern mobile application 
+development. For each question:
+
+1. Repeat the question for clarity
+2. Provide a detailed answer that covers:
+   - Direct response to the question
+   - Context and rationale behind the recommendation
+   - Practical examples or code snippets where applicable
+   - References to relevant documentation or best practices
+   - Potential trade-offs or alternative approaches
+
+Format your answers in markdown with proper headings, bullet points, and formatting to make them 
+easy to read. Organize the answers in the same order as the questions appear in the original files, 
+and match the level of technical depth to the audience (more approachable for L1, more advanced for L2).
+
+After creating your answers, please provide a self-assessment of your responses, highlighting:
+- The strengths and weaknesses of your approach
+- Any areas where you had to make assumptions due to missing information
+- Suggestions for how the questions could be improved for clarity
+
+Your goal is to create a helpful, educational resource that would genuinely assist developers 
+working on this codebase, balancing technical accuracy with practical usability.
