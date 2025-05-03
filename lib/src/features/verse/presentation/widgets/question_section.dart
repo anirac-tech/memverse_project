@@ -78,19 +78,18 @@ class QuestionSection extends HookConsumerWidget {
 
       // Reference form
       versesAsync.maybeWhen(
-        data:
-            (verses) {
-              final safeIndex = currentVerseIndex < verses.length ? currentVerseIndex : 0;
-              return VerseReferenceForm(
-                expectedReference: verses[safeIndex].reference,
-                l10n: l10n,
-                answerController: answerController,
-                answerFocusNode: answerFocusNode,
-                hasSubmittedAnswer: hasSubmittedAnswer,
-                isAnswerCorrect: isAnswerCorrect,
-                onSubmitAnswer: (answer) => onSubmitAnswer(verses[safeIndex].reference),
-              );
-            },
+        data: (verses) {
+          final safeIndex = currentVerseIndex < verses.length ? currentVerseIndex : 0;
+          return VerseReferenceForm(
+            expectedReference: verses[safeIndex].reference,
+            l10n: l10n,
+            answerController: answerController,
+            answerFocusNode: answerFocusNode,
+            hasSubmittedAnswer: hasSubmittedAnswer,
+            isAnswerCorrect: isAnswerCorrect,
+            onSubmitAnswer: (answer) => onSubmitAnswer(verses[safeIndex].reference),
+          );
+        },
         orElse: () => const SizedBox.shrink(),
       ),
     ],

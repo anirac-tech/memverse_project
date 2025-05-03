@@ -99,7 +99,9 @@ void main() {
       mockRepository = MockVerseRepository();
       mockL10n = MockAppLocalizations();
 
-      when(() => mockRepository.getVerses()).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
+      when(
+        () => mockRepository.getVerses(),
+      ).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
 
       when(() => mockL10n.referenceTest).thenReturn('Reference Test');
       when(() => mockL10n.question).thenReturn('Question');
@@ -274,8 +276,12 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
     });
 
-    testWidgets('resets verse index when reaching the end of verses list', (WidgetTester tester) async {
-      when(() => mockRepository.getVerses()).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
+    testWidgets('resets verse index when reaching the end of verses list', (
+      WidgetTester tester,
+    ) async {
+      when(
+        () => mockRepository.getVerses(),
+      ).thenAnswer((_) async => [Verse(text: 'Test verse text', reference: 'Test 1:1')]);
 
       await tester.pumpWidget(
         UncontrolledProviderScope(

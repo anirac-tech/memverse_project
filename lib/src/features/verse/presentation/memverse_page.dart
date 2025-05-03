@@ -40,7 +40,7 @@ class MemversePage extends HookConsumerWidget {
     useEffect(() {
       answerFocusNode.requestFocus();
       return null;
-    }, const [],);
+    }, const []);
 
     void loadNextVerse() {
       versesAsync.whenData((verses) {
