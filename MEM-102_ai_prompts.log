@@ -81,6 +81,25 @@
 - Removing testing log statements
 - Adding test cases that also serve as documentation and examples
 
+### 2025-05-03 04:17:34 PM - Optimize CI Pipeline Format Check
+**User Prompt**: Change the formatting task in the pipeline to something that doesn't block other tasks.
+
+**AI Response**: 
+- Created a separate non-blocking format-check job in the GitHub workflow
+- Added continue-on-error: true to ensure formatting issues don't fail the pipeline
+- Format check now runs in parallel with other jobs rather than sequentially
+- Updated the job to use the extracted Flutter version for consistency
+
+### 2025-05-03 04:19:00 PM - Enhance Format Check for App Localizations
+**User Prompt**: Since the app_localizations file keeps being the problem, change the format-check job to format that file only then run exit-if-changed after that.
+
+**AI Response**: 
+- Enhanced the format-check job to focus on app_localizations files first
+- Integrated existing fix_generated_localizations.sh script into the format-check job
+- Added verification step specifically for app_localizations files
+- Included functionality to show format differences for diagnostic purposes
+- Maintained non-blocking behavior for the overall pipeline
+
 ## Key Outcomes
 1. Implemented a Netlify functions-based CORS proxy
 2. Made Flutter code conditionally use the proxy for web builds
@@ -91,9 +110,13 @@
 7. Improved pipeline checks for faster failure detection
 8. Refactored logging standards check to use a shared helper script
 9. Added test coverage for the logging standards check script and updated the check_before_commit script
+10. Optimized CI pipeline format check to run in parallel and not block other tasks
+11. Enhanced format-check job to focus on app_localizations files
 
 ## Next Steps
 1. Test the deployed Netlify site to ensure the CORS proxy works correctly
 2. Consider security improvements for the CORS headers in production
 3. Add more robust error handling to the CORS proxy function if needed
 4. Review and refine the logging standards check script and its test coverage
+5. Verify the non-blocking format check in the CI pipeline
+6. Validate the effectiveness of the enhanced format-check job for app_localizations files
