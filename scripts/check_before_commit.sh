@@ -9,6 +9,21 @@ print_error() { echo -e "${RED}✗ $1${NC}"; }
 print_info() { echo -e "${YELLOW}➤ $1${NC}"; }
 check_command() { if ! command -v $1 &> /dev/null; then print_error "$1 is not installed."; exit 1; fi }
 
+# --- Check for prohibited logging methods ---
+print_header "CHECKING FOR PROHIBITED LOGGING METHODS"
+print_info "Ensuring all logging uses AppLogger instead of debugPrint or log..."
+
+# Find any instances of debugPrint or log( in dart files
+GREP_RESULTS=$(grep -r --include="*.dart" -E "(debugPrint\(| log\()" lib || true)
+
+if [ -n "$GREP_RESULTS" ]; then
+  print_error "Found prohibited logging methods. Please use AppLogger.d() or AppLogger.e() instead:"
+  echo "$GREP_RESULTS"
+  exit 1
+else
+  print_success "No prohibited logging methods found"
+fi
+
 # --- Basic Checks ---
 print_header "CHECKING DEPENDENCIES"
 check_command flutter; check_command dart; check_command lcov; check_command genhtml
