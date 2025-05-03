@@ -60,7 +60,7 @@ void main() {
         find.byType(MockMemversePage),
         matchesGoldenFile('goldens/memverse_page_portrait.png'),
       );
-    }, tags: ['golden'],);
+    }, tags: ['golden']);
 
     testWidgets('Renders correctly in landscape mode', (WidgetTester tester) async {
       // Set landscape screen size
@@ -77,6 +77,6 @@ void main() {
         find.byType(MockMemversePage),
         matchesGoldenFile('goldens/memverse_page_landscape.png'),
       );
-    }, tags: ['golden'],);
+    }, tags: ['golden']);
   });
 }

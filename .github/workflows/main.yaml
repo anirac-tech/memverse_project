@@ -195,16 +195,8 @@ jobs:
 
       - name: Check for prohibited logging methods
         run: |
-          echo "Checking for prohibited logging methods..."
-          GREP_RESULTS=$(grep -r --include="*.dart" -E "(debugPrint\(| log\()" lib || true)
-          
-          if [ -n "$GREP_RESULTS" ]; then
-            echo "::error::Found prohibited logging methods. Please use AppLogger.d() or AppLogger.e() instead:"
-            echo "$GREP_RESULTS"
-            exit 1
-          else
-            echo "No prohibited logging methods found. All code uses AppLogger as required."
-          fi
+          chmod +x ./scripts/check_logging_standards.py
+          python3 ./scripts/check_logging_standards.py --mode ci
 
   spell-check:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1

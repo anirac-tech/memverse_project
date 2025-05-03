@@ -44,12 +44,42 @@
 - Information about the custom entry point configuration
 - Summary of all key aspects of the deployment setup
 
-## Session 2025-05-03 (Remove Custom Lint Package)
+## Session 2025-05-03 (Remove Custom Lint Package, Pipeline Check Improvement, and Logging Standards Refactor)
 
 ### 2025-05-03 03:22:02 PM - Custom Lint Package Removal
 **User Prompt**: Remove custom lint package as out of scope and add Jira ticket reference.
 
 **AI Response**: Removed lint package references, updated documentation with MEM-115 ticket link, added developer log.
+
+### 2025-05-03 03:36:00 PM - Pipeline Check Improvement
+**User Prompt**: Move the log() and debugPrint check to the top of the pipeline for easier testing and faster failure detection.
+
+**AI Response**: Updated check_before_commit.sh to run the prohibited logging check first in the pipeline.
+
+### 2025-05-03 03:40:00 PM - Latest Request Log
+**User Prompt**: Add a new log entry for the latest request.
+
+**AI Response**: Added a new log entry to document the latest request and changes made.
+
+### 2025-05-03 03:40:49 PM - Refactor Logging Standards Check
+**User Prompt**: Utilize code comment for hardening the logging standards check and combine the logic between the pipeline and local script.
+
+**AI Response**: 
+- Created a new helper script `scripts/check_logging_standards.sh` for shared logic
+- Updated both the CI workflow and check_before_commit.sh to use the helper
+- Improved grep pattern with word boundaries and comment filtering
+- Added scanning of both lib/ and test/ directories
+- Made the script compatible with both local and CI environments
+
+### 2025-05-03 03:51:34 PM - Improve Logging Standards Check with Test Coverage
+**User Prompt**: Create test coverage for the check_logging_standards script, potentially converting it to Python. Ensure check_before_commit script autofixes and reports changes while CI pipeline fails instead of autofixing. Log recent prompts and remove dart developer log statements.
+
+**AI Response**: 
+- Converting logging standards check script to Python with test coverage
+- Updating check_before_commit script to autofix and report changes
+- Ensuring CI pipeline fails instead of autofixing
+- Removing testing log statements
+- Adding test cases that also serve as documentation and examples
 
 ## Key Outcomes
 1. Implemented a Netlify functions-based CORS proxy
@@ -58,8 +88,12 @@
 4. Created comprehensive documentation for the deployment setup
 5. Updated Dart code to maintain a clean separation of concerns with constants
 6. Removed custom lint package and updated documentation with Jira ticket reference
+7. Improved pipeline checks for faster failure detection
+8. Refactored logging standards check to use a shared helper script
+9. Added test coverage for the logging standards check script and updated the check_before_commit script
 
 ## Next Steps
 1. Test the deployed Netlify site to ensure the CORS proxy works correctly
 2. Consider security improvements for the CORS headers in production
 3. Add more robust error handling to the CORS proxy function if needed
+4. Review and refine the logging standards check script and its test coverage

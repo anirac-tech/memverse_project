@@ -27,6 +27,6 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: MockLoginPage()));
 
       await expectLater(find.byType(MockLoginPage), matchesGoldenFile('goldens/login_page.png'));
-    }, tags: ['golden'],);
+    }, tags: ['golden']);
   });
 }

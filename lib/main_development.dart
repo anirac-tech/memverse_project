@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:memverse/src/app/app.dart';
 import 'package:memverse/src/bootstrap.dart';
 

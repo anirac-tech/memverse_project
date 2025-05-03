@@ -67,7 +67,7 @@ void main() {
               .text;
 
       expect(textInField, equals(testPassword + testPassword));
-    }, tags: ['integration'],);
+    }, tags: ['integration']);
 
     testWidgets('Password visibility tooltip changes correctly', (WidgetTester tester) async {
       // Launch the app
@@ -109,7 +109,7 @@ void main() {
       expect(updatedButton.icon, isA<Icon>());
       expect((updatedButton.icon as Icon).icon, equals(Icons.visibility));
       expect(updatedButton.tooltip, equals(l10n.hidePassword));
-    }, tags: ['integration'],);
+    }, tags: ['integration']);
 
     testWidgets('Form validation still works with password visibility toggle', (
       WidgetTester tester,
@@ -148,6 +148,6 @@ void main() {
       // Verify password validation error is gone but username error remains
       expect(find.text(l10n.pleaseEnterYourPassword), findsNothing);
       expect(find.text(l10n.pleaseEnterYourUsername), findsOneWidget);
-    }, tags: ['integration'],);
+    }, tags: ['integration']);
   });
 }

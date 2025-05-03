@@ -10,60 +10,10 @@ print_info() { echo -e "${YELLOW}➤ $1${NC}"; }
 check_command() { if ! command -v $1 &> /dev/null; then print_error "$1 is not installed."; exit 1; fi }
 
 # --- Check for prohibited logging methods ---
+# This check runs first to fail fast if prohibited logging is detected
 print_header "CHECKING FOR PROHIBITED LOGGING METHODS"
-print_info "Ensuring all logging uses AppLogger instead of debugPrint or log..."
-
-# Find any instances of debugPrint or log( in dart files within the lib directory
-# -n includes line numbers
-GREP_RESULTS=$(grep -rn --include='*.dart' -E '(debugPrint\(| log\()' lib || true)
-
-FOUND_VIOLATIONS=false
-
-if [ -n "$GREP_RESULTS" ]; then
-  FOUND_VIOLATIONS=true
-  print_error "Found prohibited logging methods. Attempting automatic fixes..."
-  echo "Offending lines:"
-  # Use awk for better formatting: file:line: content
-  echo "$GREP_RESULTS" | awk -F ':' '{print "  " $1 ":" $2 ": " $3}'
-
-  # Loop through each found violation and attempt to fix it
-  echo "$GREP_RESULTS" | while IFS= read -r line; do
-    FILE_PATH=$(echo "$line" | cut -d ':' -f 1)
-    LINE_NUM=$(echo "$line" | cut -d ':' -f 2)
-    LINE_CONTENT=$(echo "$line" | cut -d ':' -f 3-)
-
-    # Attempt to replace debugPrint or log with AppLogger.d
-    # Using sed -i '' for macOS compatibility
-    if [[ "$LINE_CONTENT" == *"debugPrint("* ]]; then
-      sed -i '' "${LINE_NUM}s/debugPrint(/AppLogger.d(/" "$FILE_PATH"
-      FIX_TYPE="debugPrint -> AppLogger.d"
-    elif [[ "$LINE_CONTENT" == *" log("* ]]; then # Note the space before log( to avoid matching other log functions
-      sed -i '' "${LINE_NUM}s/ log(/ AppLogger.d(/" "$FILE_PATH"
-      FIX_TYPE="log -> AppLogger.d"
-    else
-      continue # Should not happen based on grep, but good practice
-    fi
-
-    print_info "Fixed $FIX_TYPE in $FILE_PATH:$LINE_NUM"
-
-    # Check if AppLogger import is present, add if not
-    if ! grep -q "package:memverse/src/utils/app_logger.dart" "$FILE_PATH"; then
-        # Add import at the beginning of the file (simplest cross-platform sed)
-        # Using a temporary variable for the import string to handle escaping
-        IMPORT_LINE="import 'package:memverse/src/utils/app_logger.dart';"
-        # Use printf for safer handling of the import string with sed
-        printf '%s\n' "1i" "$IMPORT_LINE" "." "w" | ed -s "$FILE_PATH"
-        # Alternative sed command for macOS (less reliable with complex strings):
-        # sed -i '' "1i\\$IMPORT_LINE\\" "$FILE_PATH"
-        print_info "Added AppLogger import to $FILE_PATH"
-    fi
-  done
-
-  print_error "Automatic fixes applied. Please review the changes carefully, stage them (`git add .`), and commit again."
-  exit 1 # Fail the commit to force review
-else
-  print_success "No prohibited logging methods found"
-fi
+# Use the Python checker with auto-fix enabled for local development
+python3 "$(dirname "$0")/check_logging_standards.py" --mode local --auto-fix || exit 1
 
 # --- Basic Checks ---
 print_header "CHECKING DEPENDENCIES"
