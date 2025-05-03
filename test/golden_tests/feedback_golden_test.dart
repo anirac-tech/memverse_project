@@ -66,5 +66,5 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 500));
 
     await expectLater(find.byType(App), matchesGoldenFile('goldens/feedback_ui_overlay_app.png'));
-  }, tags: 'golden');
+  }, tags: 'golden',);
 }

@@ -19,10 +19,6 @@ Future<LintRuleResult> lintCode(
     path: filePath,
   );
 
-  if (parseResult is! ParseStringResult) {
-    throw Exception('Failed to parse code');
-  }
-
   // Create a resolver for the rule
   final resolver = TestResolver(parseResult);
 

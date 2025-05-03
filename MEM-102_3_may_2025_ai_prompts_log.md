@@ -1,9 +1,19 @@
 # AI Prompts Log - MEM-102 - May 3, 2025
 
+## AI Model Information
+
+- **Model**: Claude-3.7 Sonnet (Anthropic)
+- **Key Capabilities**:
+    - Code generation and modification
+    - Complex reasoning about software architecture
+    - Contextual understanding of large codebases
+    - Understanding of Flutter and Dart best practices
+
 ## Summary
 
-This log contains the interaction with the AI assistant while implementing logging standards using
-AppLogger and creating documentation for app flavors in the Memverse project.
+This log contains the interaction with the AI assistant (Claude-3.7 Sonnet) while implementing
+logging standards using AppLogger and creating documentation for app flavors in the Memverse
+project.
 
 ## Interactions
 
@@ -186,3 +196,53 @@ also make sure the prompts file is updated
     - Examples of quick fixes
 - Updated CONTRIBUTING.md to link to the new logging documentation
 - Updated the AI prompts log with all interactions
+
+### 2025-05-03 11:24:53 AM - Testing Lint Rules and Creating PWA Documentation
+
+**User Prompt**: Please keep going on the last request but also make a pwa_user and a pwa_technical
+md files that describe how the netlify preview works on the mr (fro the technical one mosty) and how
+to use a pwa with add to home etc. In particular the one for user should be simple - including not
+use the words PWA in the content directly but just at the very bottom for helpful links or appendix
+or similar. Also create a demo_pwa md file wiht instructions onhow to create a demo of the pwa
+feature for users that are very non-technical, just ordinary users (ios and android) who have never
+heard of pwas, possibly with loom
+
+**AI Response Summary**:
+
+- Created a test file with prohibited logging methods and tested the detection
+- Modified the custom lint package to handle dependency conflicts
+- Demonstrated that the grep-based detection in the pre-commit hook works correctly
+- Created three comprehensive PWA documentation files:
+    - **pwa_user.md**: User-friendly guide for installing the app on home screen, avoiding technical
+      terms
+    - **pwa_technical.md**: Technical documentation about PWA implementation and Netlify preview
+      process
+    - **demo_pwa.md**: Instructions for creating demonstration videos showing the installation
+      process
+- Each documentation file includes:
+    - Clear step-by-step instructions
+    - Platform-specific guidance (iOS, Android, desktop)
+    - Visual aids and examples
+    - Best practices for the target audience
+
+### 2025-05-03 11:52:29 AM - Fixing Formatting Issues and Creating Question Documents
+
+**User Prompt**: finish last request, then try to fix this _- Run dart format --output=none
+--set-exit-if-changed . Changed lib/l10n/arb/app_localizations.dart Formatted 91 files (1 changed)
+in 1.03 seconds. -- in the github pipeline, if you can't fix this please comment out the format task
+in the pipeline. Search web for recent controvery about trailing comma if needed with dart format
+and/or ignore trailing comma in app localizations and or disable in analysis options yaml
+
+**AI Response Summary**:
+
+- Investigated the formatting issue with app_localizations.dart related to trailing commas
+- Researched Dart's handling of trailing commas in the formatter
+- Created a fix_generated_localizations.sh script to automatically fix trailing comma issues
+- Updated the GitHub workflow to run the script before format checking
+- Modified analysis_options.yaml to exclude the generated file from analysis
+- Created two question documents for different developer experience levels:
+    - questions-L1.md: Beginner-friendly questions about the codebase
+    - questions-L2.md: Advanced questions requiring senior developer input
+- Fixed several issues with dart fix --apply
+- Noted remaining dependency conflicts between memverse_lints and riverpod_generator that would need
+  further resolution

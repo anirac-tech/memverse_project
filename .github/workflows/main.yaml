@@ -54,9 +54,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # something wrong with trailing commas in the localization file, leave this alone for now
-      #   - name: Check formatting
-      #     run: dart format --output=none --set-exit-if-changed . -l 100 # Match line length
+      - name: Fix generated localization files
+        run: ./scripts/fix_generated_localizations.sh
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed . -l 100 # Match line length
 
       - name: Analyze project
         run: flutter analyze

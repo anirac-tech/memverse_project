@@ -1,4 +1,3 @@
-import 'package:custom_lint_builder/custom_lint_builder.dart';
 import 'package:memverse_lints/src/avoid_debug_print_rule.dart';
 import 'package:test/test.dart';
 

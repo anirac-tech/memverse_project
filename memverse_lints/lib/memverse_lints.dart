@@ -1,7 +1,7 @@
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
-import 'src/avoid_debug_print_rule.dart';
-import 'src/avoid_log_rule.dart';
+import 'package:memverse_lints/src/avoid_debug_print_rule.dart';
+import 'package:memverse_lints/src/avoid_log_rule.dart';
 
 /// This is the entry point for the lint package.
 PluginBase createPlugin() {

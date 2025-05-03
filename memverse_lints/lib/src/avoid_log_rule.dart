@@ -61,7 +61,6 @@ class _ReplaceLogWithAppLogger extends DartFix {
             // Add the import if needed
             builder.importLibrary(
               uri: 'package:memverse/src/utils/app_logger.dart',
-              prefix: null,
               combinators: const [],
             );
           });

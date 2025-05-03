@@ -30,12 +30,15 @@ dependencies:
 dev_dependencies:
   bdd_widget_test: 1.8.1
   build_runner: ^2.4.15
+  custom_lint: ^0.5.6
   flutter_test:
     sdk: flutter
   freezed: ^3.0.6
   integration_test:
     sdk: flutter
   json_serializable: ^6.9.5
+  memverse_lints:
+    path: ./memverse_lints
   mockito: ^5.4.5
   mocktail: 1.0.4
   network_image_mock: ^2.1.1

@@ -60,6 +60,6 @@ void main() {
         findsOneWidget,
         reason: 'The abbreviation "Phil 4:13" should be recognized as correct',
       );
-    }, tags: ['integration']);
+    }, tags: ['integration'],);
   });
 }
