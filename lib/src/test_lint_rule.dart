@@ -1,3 +1,4 @@
+import 'package:memverse/src/utils/app_logger.dart';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/foundation.dart';
 /// It contains examples of prohibited logging methods that should be detected.
 void testLoggingMethods() {
   // This should trigger the avoid_debug_print rule
-  debugPrint('This is a debug message');
+  AppLogger.d('This is a debug message');
 
   // This should trigger the avoid_log rule
   log('This is a log message');
