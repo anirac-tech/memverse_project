@@ -56,7 +56,17 @@ class MemversePage extends HookConsumerWidget {
       isAnswerCorrect.value = false;
 
       questionNumber.value++;
-      currentVerseIndex.value++;
+
+      // Update the current verse index only if we have verses data
+      versesAsync.whenData((verses) {
+        // Check if we've reached the end of available verses
+        if (currentVerseIndex.value + 1 < verses.length) {
+          currentVerseIndex.value++;
+        } else {
+          // Reset to the first verse when we reach the end
+          currentVerseIndex.value = 0;
+        }
+      });
     }
 
     void submitAnswer(String expectedReference) {
@@ -229,7 +239,14 @@ class MemversePage extends HookConsumerWidget {
                           height: MediaQuery.of(context).size.height * 0.8,
                           child: QuestionSection(
                             versesAsync: versesAsync,
-                            currentVerseIndex: currentVerseIndex.value,
+                            currentVerseIndex: versesAsync.maybeWhen(
+                              data:
+                                  (verses) =>
+                                      currentVerseIndex.value < verses.length
+                                          ? currentVerseIndex.value
+                                          : 0,
+                              orElse: () => 0,
+                            ),
                             questionNumber: questionNumber.value,
                             l10n: l10n,
                             answerController: answerController,

@@ -284,6 +284,48 @@ void main() {
 
       expect(find.byType(SnackBar), findsOneWidget);
     });
+
+    testWidgets('handles end of verse list correctly', (WidgetTester tester) async {
+      when(() => mockRepository.getVerses()).thenAnswer(
+        (_) async => [
+          Verse(reference: 'Genesis 1:1', text: 'In the beginning...'),
+          Verse(reference: 'John 3:16', text: 'For God so loved the world...'),
+        ],
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: MemversePage(),
+            locale: Locale('en'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Genesis 1:1');
+      await tester.pump();
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1500));
+
+      await tester.enterText(find.byType(TextField), 'John 3:16');
+      await tester.pump();
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1500));
+
+      expect(find.text('In the beginning...'), findsOneWidget);
+      expect(find.byType(RichText), findsAtLeastNWidgets(1));
+      final questionText = tester.widget<RichText>(find.byType(RichText).first).text as TextSpan;
+      final children = questionText.children;
+      expect(children, isNotNull);
+      expect(children!.length, 2);
+      final numberSpan = children[1] as TextSpan;
+      expect(numberSpan.text, '3');
+    });
   });
 
   group('MemversePage Feedback Button', () {
