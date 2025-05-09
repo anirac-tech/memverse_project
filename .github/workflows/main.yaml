@@ -54,9 +54,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # something wrong with trailing commas in the localization file, leave this alone for now
-      #   - name: Check formatting
-      #     run: dart format --output=none --set-exit-if-changed . -l 100 # Match line length
+      - name: Format generated localization files
+        run: dart format lib/l10n/arb/app_localizations*.dart -l 100
 
       - name: Analyze project
         run: flutter analyze
@@ -184,6 +183,51 @@ jobs:
         with:
           name: integration-test-coverage
           path: coverage/integration_html
+
+  format-check:
+    name: Format Check
+    needs: extract-config
+    runs-on: ubuntu-latest
+    continue-on-error: true  # This ensures the job doesn't block other tasks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.extract-config.outputs.flutter_version }}
+          cache: true
+
+      - name: Check formatting
+        run: |
+          echo "Running targeted format fixes on app_localizations files first"
+          # Apply direct formatting to app_localizations files
+          dart format lib/l10n/arb/app_localizations*.dart -l 100
+          
+          # Verify specifically that app_localizations files are properly formatted
+          echo "Verifying app_localizations format"
+          dart format --output=none --set-exit-if-changed lib/l10n/arb/app_localizations*.dart -l 100
+          
+          # Now run general format check
+          echo "Running general format check (non-blocking)"
+          dart format --output=none --set-exit-if-changed . -l 100 || echo "⚠️ Formatting issues detected, but continuing pipeline"
+          
+          # If there were formatting issues, show the diff
+          if [ $? -ne 0 ]; then
+            echo "Showing format differences (for informational purposes):"
+            dart format --output=show . -l 100 || true
+          fi
+
+  check-logging-standards:
+    name: Check Logging Standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for prohibited logging methods
+        run: |
+          chmod +x ./scripts/check_logging_standards.py
+          python3 ./scripts/check_logging_standards.py --mode ci
 
   spell-check:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml@v1

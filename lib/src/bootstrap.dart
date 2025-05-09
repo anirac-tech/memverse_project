@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 /// Class to hold bootstrap configuration
 class BootstrapConfig {
@@ -85,7 +85,7 @@ final bootstrapProvider = Provider<BootstrapConfig>((ref) {
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   /*
   FlutterError.onError = (details) {
-    log(details.exceptionAsString(), stackTrace: details.stack);
+// do something worthwhile :)
   };
 
    */
@@ -97,7 +97,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       const errorMessage =
           'CLIENT_ID environment variable is not defined. '
           'This is required for authentication with the Memverse API.';
-      debugPrint('ERROR: $errorMessage');
+      AppLogger.e('ERROR: $errorMessage');
 
       // Launch the error UI instead of the regular app
       runApp(
@@ -108,11 +108,10 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       return;
     }
 
-    debugPrint('Using CLIENT_ID: $clientId');
     // Wrap the app with BetterFeedback and ProviderScope
     runApp(ProviderScope(child: BetterFeedback(child: await builder())));
   } catch (e, stackTrace) {
-    log('Error during bootstrap: $e', stackTrace: stackTrace);
+    AppLogger.e('Error during bootstrap: $e', e, stackTrace);
     runApp(ConfigurationErrorWidget(error: 'Error during app initialization: $e'));
   }
 }

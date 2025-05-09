@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -12,6 +10,7 @@ import 'package:memverse/src/features/verse/domain/verse_reference_validator.dar
 import 'package:memverse/src/features/verse/presentation/feedback_service.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 // Key constants for Patrol tests
 const memversePageScaffoldKey = ValueKey('memverse_page_scaffold');
@@ -148,7 +147,7 @@ class MemversePage extends HookConsumerWidget {
     return Scaffold(
       key: memversePageScaffoldKey,
       appBar: AppBar(
-        title: Text(pageTitle),
+        title: Text(isSmallScreen ? pageTitle : 'Memverse $pageTitle'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           // coverage:ignore-start
@@ -157,7 +156,7 @@ class MemversePage extends HookConsumerWidget {
             icon: const Icon(Icons.feedback_outlined),
             tooltip: 'Send Feedback',
             onPressed: () {
-              log('Feedback button pressed', name: 'MemversePage');
+              AppLogger.d('Feedback button pressed');
               final feedbackService = ref.read(feedbackServiceProvider);
               BetterFeedback.of(context).show((feedback) async {
                 await feedbackService.handleFeedbackSubmission(context, feedback);

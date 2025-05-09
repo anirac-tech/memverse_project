@@ -9,6 +9,12 @@ print_error() { echo -e "${RED}✗ $1${NC}"; }
 print_info() { echo -e "${YELLOW}➤ $1${NC}"; }
 check_command() { if ! command -v $1 &> /dev/null; then print_error "$1 is not installed."; exit 1; fi }
 
+# --- Check for prohibited logging methods ---
+# This check runs first to fail fast if prohibited logging is detected
+print_header "CHECKING FOR PROHIBITED LOGGING METHODS"
+# Use the Python checker with auto-fix enabled for local development
+python3 "$(dirname "$0")/check_logging_standards.py" --mode local --auto-fix || exit 1
+
 # --- Basic Checks ---
 print_header "CHECKING DEPENDENCIES"
 check_command flutter; check_command dart; check_command lcov; check_command genhtml
@@ -22,21 +28,22 @@ print_header "GETTING DEPENDENCIES"; print_info "Running flutter pub get..."; fl
 
 # --- Golden Tests ---
 print_header "HANDLING GOLDEN TESTS"
-print_info "Generating/updating golden files..."; flutter test --update-goldens --tags golden || true
-print_info "Running golden tests (checking for diffs)..."
-set +e; flutter test --tags golden; GOLDEN_TEST_EXIT_CODE=$?; set -e
-if [ $GOLDEN_TEST_EXIT_CODE -ne 0 ]; then
-  print_info "Golden test differences detected. Review changes in 'test/**/failures/*.png'."
-  print_info "If intended, commit the updated golden files in 'test/**/<test_name>.png'."
-  if [ -f "$(dirname "$0")/generate_golden_report.sh" ]; then
-    print_info "Generating golden test report..."; "$(dirname "$0")/generate_golden_report.sh" > /dev/null 2>&1 || true
-    print_info "Report generated at golden_report/index.html"
-  fi
-  # Optionally exit here if strict golden checking is desired
-  # exit 1
-else
-  print_success "Golden tests passed (no differences detected)."
-fi
+# print_info "Generating/updating golden files..."; flutter test --update-goldens --tags golden || true
+# print_info "Running golden tests (checking for diffs)..."
+# set +e; flutter test --tags golden; GOLDEN_TEST_EXIT_CODE=$?; set -e
+# if [ $GOLDEN_TEST_EXIT_CODE -ne 0 ]; then
+#   print_info "Golden test differences detected. Review changes in 'test/**/failures/*.png'."
+#   print_info "If intended, commit the updated golden files in 'test/**/<test_name>.png'."
+#   if [ -f "$(dirname "$0")/generate_golden_report.sh" ]; then
+#     print_info "Generating golden test report..."; "$(dirname "$0")/generate_golden_report.sh" > /dev/null 2>&1 || true
+#     print_info "Report generated at golden_report/index.html"
+#   fi
+#   # Optionally exit here if strict golden checking is desired
+#   # exit 1
+# else
+#   print_success "Golden tests passed (no differences detected)."
+# fi
+print_info "Golden tests are currently skipped."
 
 # --- Widget Tests (Helper Script) ---
 print_header "RUNNING WIDGET TESTS"

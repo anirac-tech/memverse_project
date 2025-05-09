@@ -1,0 +1,122 @@
+# MEM-102 AI Prompts Log
+
+## Session 2025-05-01 (Setting up Netlify CORS Proxy)
+
+### 2025-05-01 11:41:29 PM - Initial Request
+**User Prompt**: Request to implement a CORS proxy using Netlify functions based on the boredcorsweb repo.
+
+**AI Response**: Created the basic structure for a Netlify CORS proxy, including:
+- `netlify.toml` file with redirect rules
+- `netlify/functions/api.js` for the CORS proxy function
+- `lib/src/constants/api_constants.dart` for centralizing API URLs
+- Updated auth_service.dart and verse_repository.dart to use the proxy conditionally for web
+
+### 2025-05-01 11:55:00 PM (approx) - Documentation Request
+**User Prompt**: Request to create a documentation file explaining Netlify, CORS, and TOML.
+
+**AI Response**: Created `netlify_deploy.md` with comprehensive information about:
+- The CORS proxy implementation in the project
+- Explanation of CORS and why it's needed
+- TOML file format and its purpose
+- Netlify basics for developers new to the platform
+
+### 2025-05-02 12:10:00 AM (approx) - Build Command Issues
+**User Prompt**: Report of Netlify build errors due to Flutter not being installed in the build environment.
+
+**AI Response**: Updated `netlify.toml` with a build command that:
+- Downloads and installs Flutter 3.29.3 during the build process
+- Uses curl to fetch the Flutter SDK from Google's servers
+- Sets up the PATH to include Flutter's bin directory
+
+### 2025-05-02 12:25:00 AM (approx) - Entry Point Issues
+**User Prompt**: Report of build errors related to missing main.dart entry point.
+
+**AI Response**: Updated `netlify.toml` build command to:
+- Use the correct entry point (`lib/main_development.dart`)
+- Pass the CLIENT_ID environment variable via --dart-define
+- Match the local development configuration from setup.md
+
+### 2025-05-02 12:45:00 AM (approx) - Documentation Update
+**User Prompt**: Request to update documentation with environment variable and entry point details.
+
+**AI Response**: Updated `netlify_deploy.md` to include:
+- Details about the MEMVERSE_CLIENT_ID environment variable
+- Information about the custom entry point configuration
+- Summary of all key aspects of the deployment setup
+
+## Session 2025-05-03 (Remove Custom Lint Package, Pipeline Check Improvement, and Logging Standards Refactor)
+
+### 2025-05-03 03:22:02 PM - Custom Lint Package Removal
+**User Prompt**: Remove custom lint package as out of scope and add Jira ticket reference.
+
+**AI Response**: Removed lint package references, updated documentation with MEM-115 ticket link, added developer log.
+
+### 2025-05-03 03:36:00 PM - Pipeline Check Improvement
+**User Prompt**: Move the log() and debugPrint check to the top of the pipeline for easier testing and faster failure detection.
+
+**AI Response**: Updated check_before_commit.sh to run the prohibited logging check first in the pipeline.
+
+### 2025-05-03 03:40:00 PM - Latest Request Log
+**User Prompt**: Add a new log entry for the latest request.
+
+**AI Response**: Added a new log entry to document the latest request and changes made.
+
+### 2025-05-03 03:40:49 PM - Refactor Logging Standards Check
+**User Prompt**: Utilize code comment for hardening the logging standards check and combine the logic between the pipeline and local script.
+
+**AI Response**: 
+- Created a new helper script `scripts/check_logging_standards.sh` for shared logic
+- Updated both the CI workflow and check_before_commit.sh to use the helper
+- Improved grep pattern with word boundaries and comment filtering
+- Added scanning of both lib/ and test/ directories
+- Made the script compatible with both local and CI environments
+
+### 2025-05-03 03:51:34 PM - Improve Logging Standards Check with Test Coverage
+**User Prompt**: Create test coverage for the check_logging_standards script, potentially converting it to Python. Ensure check_before_commit script autofixes and reports changes while CI pipeline fails instead of autofixing. Log recent prompts and remove dart developer log statements.
+
+**AI Response**: 
+- Converting logging standards check script to Python with test coverage
+- Updating check_before_commit script to autofix and report changes
+- Ensuring CI pipeline fails instead of autofixing
+- Removing testing log statements
+- Adding test cases that also serve as documentation and examples
+
+### 2025-05-03 04:17:34 PM - Optimize CI Pipeline Format Check
+**User Prompt**: Change the formatting task in the pipeline to something that doesn't block other tasks.
+
+**AI Response**: 
+- Created a separate non-blocking format-check job in the GitHub workflow
+- Added continue-on-error: true to ensure formatting issues don't fail the pipeline
+- Format check now runs in parallel with other jobs rather than sequentially
+- Updated the job to use the extracted Flutter version for consistency
+
+### 2025-05-03 04:19:00 PM - Enhance Format Check for App Localizations
+**User Prompt**: Since the app_localizations file keeps being the problem, change the format-check job to format that file only then run exit-if-changed after that.
+
+**AI Response**: 
+- Enhanced the format-check job to focus on app_localizations files first
+- Integrated existing fix_generated_localizations.sh script into the format-check job
+- Added verification step specifically for app_localizations files
+- Included functionality to show format differences for diagnostic purposes
+- Maintained non-blocking behavior for the overall pipeline
+
+## Key Outcomes
+1. Implemented a Netlify functions-based CORS proxy
+2. Made Flutter code conditionally use the proxy for web builds
+3. Configured Netlify build process to install Flutter and build using the correct entry point
+4. Created comprehensive documentation for the deployment setup
+5. Updated Dart code to maintain a clean separation of concerns with constants
+6. Removed custom lint package and updated documentation with Jira ticket reference
+7. Improved pipeline checks for faster failure detection
+8. Refactored logging standards check to use a shared helper script
+9. Added test coverage for the logging standards check script and updated the check_before_commit script
+10. Optimized CI pipeline format check to run in parallel and not block other tasks
+11. Enhanced format-check job to focus on app_localizations files
+
+## Next Steps
+1. Test the deployed Netlify site to ensure the CORS proxy works correctly
+2. Consider security improvements for the CORS headers in production
+3. Add more robust error handling to the CORS proxy function if needed
+4. Review and refine the logging standards check script and its test coverage
+5. Verify the non-blocking format check in the CI pipeline
+6. Validate the effectiveness of the enhanced format-check job for app_localizations files

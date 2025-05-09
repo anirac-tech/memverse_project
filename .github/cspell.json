@@ -41,6 +41,18 @@
     "Podfile",
     "Riverpod",
     "Symbolicated",
-    "yourproject"
+    "yourproject",
+    "AppLogger",
+    "debugPrint",
+    "IndexedDB",
+    "Loom",
+    "Screencastify",
+    "PWA",
+    "LonelyScreen",
+    "netlifie",
+    "webrenderer",
+    "canvaskit",
+    "workbox",
+    "scrcpy"
   ]
 }

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:memverse/src/constants/api_constants.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
@@ -15,114 +16,103 @@ class AuthService {
       _dio = dio ?? Dio();
 
   final FlutterSecureStorage _secureStorage;
-  final Dio _dio; // coverage:ignore-line
+  final Dio _dio;
 
   static const _tokenKey = 'auth_token';
-  static const _apiEndpoint = 'https://www.memverse.com/oauth/token';
+  static const String _tokenPath = '/oauth/token';
 
   /// Attempts to login with the provided credentials
   Future<AuthToken> login(String username, String password, String clientId) async {
-    // coverage:ignore-line
     try {
-      // coverage:ignore-line
-      AppLogger.i('Attempting login with provided credentials'); // coverage:ignore-line
-      debugPrint(
-        // coverage:ignore-line
-        'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty}', // coverage:ignore-line
-      ); // coverage:ignore-line
+      AppLogger.i('Attempting login with provided credentials');
+      AppLogger.d(
+        'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty}',
+      );
 
-      // Try first with Dio for better error handling
+      // Change to final from const since kIsWeb is runtime value
+      const loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
+      AppLogger.d('LOGIN - Using URL: $loginUrl');
+
       try {
-        // coverage:ignore-line
+        // For web deployment, we need to be careful with FormData
+        final requestData = <String, dynamic>{
+          'grant_type': 'password',
+          'username': username,
+          'password': password,
+          'client_id': clientId,
+        };
+
+        // Use different approach for web vs native for better compatibility
         final response = await _dio.post<Map<String, dynamic>>(
-          // coverage:ignore-line
-          _apiEndpoint, // coverage:ignore-line
-          data: FormData.fromMap({
-            // coverage:ignore-line
-            'grant_type': 'password', // coverage:ignore-line
-            'username': username, // coverage:ignore-line
-            'password': password, // coverage:ignore-line
-            'client_id': clientId, // coverage:ignore-line
-          }), // coverage:ignore-line
+          loginUrl,
+          data: kIsWeb ? requestData : FormData.fromMap(requestData),
           options: Options(
-            // coverage:ignore-line
-            contentType: Headers.formUrlEncodedContentType, // coverage:ignore-line
-            headers: {'Accept': 'application/json'}, // coverage:ignore-line
-            validateStatus: (status) => true, // coverage:ignore-line
-          ), // coverage:ignore-line
-        ); // coverage:ignore-line
+            contentType: kIsWeb ? 'application/json' : Headers.formUrlEncodedContentType,
+            headers: {'Accept': 'application/json'},
+            validateStatus: (status) => true,
+          ),
+        );
 
         if (response.statusCode == 200) {
-          // coverage:ignore-line
-          final jsonData = response.data!; // coverage:ignore-line
-          debugPrint('LOGIN - Received successful response with token'); // coverage:ignore-line
-          final authToken = AuthToken.fromJson(jsonData); // coverage:ignore-line
-          // Log the raw token type for debugging
-          debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}'); // coverage:ignore-line
-          await saveToken(authToken); // coverage:ignore-line
-          return authToken; // coverage:ignore-line
+          final jsonData = response.data!;
+          AppLogger.d('LOGIN - Received successful response with token');
+          final authToken = AuthToken.fromJson(jsonData);
+          AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
+          await saveToken(authToken);
+          return authToken;
         } else {
-          // coverage:ignore-line
-          debugPrint(
-            'LOGIN - Failed with status code: ${response.statusCode}',
-          ); // coverage:ignore-line
           AppLogger.e(
-            // coverage:ignore-line
-            'Login failed with status: ${response.statusCode}, response: ${response.data}', // coverage:ignore-line
-          ); // coverage:ignore-line
-          throw Exception(
-            'Login failed: ${response.statusCode} - ${response.data}',
-          ); // coverage:ignore-line
+            'Login failed with status: ${response.statusCode}, response: ${response.data}',
+          );
+          throw Exception('Login failed: ${response.statusCode} - ${response.data}');
         }
       } catch (dioError) {
-        // coverage:ignore-line
-        AppLogger.e(
-          'Dio login attempt failed, trying with http package',
-          dioError,
-        ); // coverage:ignore-line
+        AppLogger.e('Dio login attempt failed, trying with http package', dioError);
       }
 
-      // Fallback to http package
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse(_apiEndpoint),
-      ); // coverage:ignore-line
-      request.fields.addAll({
-        // coverage:ignore-line
-        'grant_type': 'password', // coverage:ignore-line
-        'username': username, // coverage:ignore-line
-        'password': password, // coverage:ignore-line
-        'client_id': clientId, // coverage:ignore-line
-      }); // coverage:ignore-line
+      // Fallback to http package with appropriate content type
+      final uri = Uri.parse(loginUrl);
+      http.Response response;
 
-      final response = await request.send(); // coverage:ignore-line
-      final responseData = await response.stream.bytesToString(); // coverage:ignore-line
+      if (kIsWeb) {
+        // For web, use regular JSON post
+        response = await http.post(
+          uri,
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+          body: jsonEncode({
+            'grant_type': 'password',
+            'username': username,
+            'password': password,
+            'client_id': clientId,
+          }),
+        );
+      } else {
+        // For native, use MultipartRequest
+        final request = http.MultipartRequest('POST', uri);
+        request.fields.addAll({
+          'grant_type': 'password',
+          'username': username,
+          'password': password,
+          'client_id': clientId,
+        });
+
+        final streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+      }
 
       if (response.statusCode == 200) {
-        // coverage:ignore-line
-        final jsonData = jsonDecode(responseData) as Map<String, dynamic>; // coverage:ignore-line
-        final authToken = AuthToken.fromJson(jsonData); // coverage:ignore-line
-        // Log the raw token type for debugging
-        debugPrint('LOGIN - Raw token type: ${jsonData['token_type']}'); // coverage:ignore-line
-        await saveToken(authToken); // coverage:ignore-line
-        return authToken; // coverage:ignore-line
+        final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+        final authToken = AuthToken.fromJson(jsonData);
+        AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
+        await saveToken(authToken);
+        return authToken;
       } else {
-        // coverage:ignore-line
-        debugPrint(
-          'LOGIN - Failed with status code: ${response.statusCode}',
-        ); // coverage:ignore-line
-        AppLogger.e(
-          // coverage:ignore-line
-          'Login failed with status: ${response.statusCode}, response: $responseData', // coverage:ignore-line
-        ); // coverage:ignore-line
-        throw Exception(
-          'Login failed: ${response.statusCode} - $responseData',
-        ); // coverage:ignore-line
+        AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
+        throw Exception('Login failed: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      // coverage:ignore-line
-      AppLogger.e('Login error', e); // coverage:ignore-line
-      rethrow; // coverage:ignore-line
+      AppLogger.e('Login error', e);
+      rethrow;
     }
   }
 
