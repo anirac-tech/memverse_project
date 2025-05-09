@@ -476,6 +476,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  jni:
+    dependency: transitive
+    description:
+      name: jni
+      sha256: "3296e4327bd74d57763ba71fd9efeb6f132634a27ea8754101e4ff3f8bca5faa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
   js:
     dependency: transitive
     description:
@@ -596,6 +604,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  objective_c:
+    dependency: transitive
+    description:
+      name: objective_c
+      sha256: "9f034ba1eeca53ddb339bc8f4813cb07336a849cd735559b60cdc068ecce2dc7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.1.0"
   package_config:
     dependency: transitive
     description:
@@ -664,26 +680,26 @@ packages:
     dependency: "direct dev"
     description:
       name: patrol
-      sha256: "958cf719a4121a4cd85697dc2f6687126e73592f68f72acfe9f92b9a3d1a73e4"
+      sha256: "31fe66f3a34b965c5d835237448ce592eeb16bd461745affcb2acd8343cb6cef"
       url: "https://pub.dev"
     source: hosted
-    version: "3.15.1"
+    version: "3.16.0-dev.1"
   patrol_finders:
     dependency: "direct dev"
     description:
       name: patrol_finders
-      sha256: "8787f9d5c3417b72e8959a55ad51c024cc0594d15e5db85bc179c4d8faa0c493"
+      sha256: "95e4a8592c27c2cf39871f0c5f80d251a4347a3a61d117646089631459ce299b"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.2"
+    version: "2.8.2"
   patrol_log:
     dependency: transitive
     description:
       name: patrol_log
-      sha256: "98b2701400c7a00b11533ab942bdeb44c3c714746e7cdb12e6cb93b6d06361da"
+      sha256: "49c25a41ad5ed7df6ff550c964798ed86cb112cbe2ca4f4d728d85c413b779a8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   platform:
     dependency: transitive
     description:
