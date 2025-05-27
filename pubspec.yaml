@@ -45,7 +45,7 @@ dev_dependencies:
   plugin_platform_interface: ^2.1.8
   riverpod_generator: ^2.6.5
   test_api: any
-  very_good_analysis: 7.0.0
+  very_good_analysis: 8.0.0
 
 scripts:
   test: flutter test
