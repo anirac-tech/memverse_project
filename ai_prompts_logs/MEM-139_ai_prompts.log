@@ -1,0 +1,25 @@
+2025-05-28 11:32:41 PM - Prompt: Please generate a complete suite of maestro tests for this project along an easy way to safely record such as https://github.com/njwandroid/NJWKotlinWebHostFlutterModuleNav/blob/11-real-world-aspect-with-mock-billing-api/maestro/scripts/run_maestro_test.sh and then also create a suite of integration tests with bdd_widget_tests and appropriate gherkin files
+
+Summary: Created comprehensive testing infrastructure including:
+- Maestro test framework with run_maestro_test.sh script for recording and running UI tests
+- Complete Maestro flows for login, navigation, and verse management
+- BDD widget tests using bdd_widget_test package with Gherkin feature files
+- Documentation files (gherkin_tests.md and maestro_tests.md) with instructions and FAQs
+- Test configuration utilities for handling environment variables and live credentials
+- Support for live login credentials via dart defines and environment variables
+
+2025-05-28 11:33:15 PM - Prompt: please make integration tests with bdd_widget_test as well, and get as close to 100% test coverage as possible given that we can login with live user credentials with env variables via dart defines like test_setup.md - ie --dart-define=USERNAME=$MEMVERSE_USERNAME --dart-define=PASSWORD=$MEMVERSE_PASSWORD --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID . also make a gherkin_tests.md and maestro_tests.md with some nice explanations, faq, instructions on running it, links for more information etc
+
+Summary: Extended testing framework with comprehensive documentation and integration test features for achieving high test coverage using live credentials.
+
+2025-05-28 11:34:20 PM - Prompt: for now please remove the entire ui and logic that outputs "5 references due today" (or whatever number of references due) since it is incorrect and not that valuable. Then resume with the last prompt
+
+Summary: Removed the "references due today" UI component and related logic from:
+- StatsAndHistorySection widget (removed overdueReferences parameter and display)
+- MemversePage (removed overdueReferences state and counter logic)
+- Updated all related test files to remove overdueReferences references
+- Fixed linting issues and ensured tests pass
+
+2025-05-28 11:35:30 PM - Prompt: ok,, now delete the mem-97_ai prompts and 100 and make a 139ai prompts with prompts and summaries from this session. Then remove the Question: 1 (or whatever) caption and variable UI at the top and all related logic and code, then resume last prompt. When finished make sure you think the pipeline will pass please
+
+Summary: Managing AI prompts logs, removing question number UI, and continuing with comprehensive BDD integration tests. Focus on ensuring pipeline compatibility and test coverage.

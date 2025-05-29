@@ -1,0 +1,98 @@
+appId: com.example.memverse.development
+name: Verse Management Test Flow
+tags:
+  - verses
+  - memorization
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+  - runFlow:
+      file: login.yaml
+      flow: successful_login
+
+flows:
+  view_verses:
+    # Navigate to verses screen
+    - tap:
+        id: "verses_tab"
+    - assertVisible: "My Verses"
+    - takeScreenshot: "verses_list"
+    
+    # Check for verse components
+    - assertVisible:
+        id: "verse_reference"
+    - assertVisible:
+        id: "verse_text"
+    - takeScreenshot: "verse_details"
+
+  add_verse:
+    # Start adding a verse
+    - tap:
+        id: "add_verse_button"
+    - assertVisible: "Add New Verse"
+    
+    # Enter verse details
+    - inputText:
+        id: "verse_reference_field"
+        text: "John 3:16"
+    - takeScreenshot: "reference_entered"
+    
+    # Select translation
+    - tap:
+        id: "translation_dropdown"
+    - tap:
+        text: "NIV"
+    - takeScreenshot: "translation_selected"
+    
+    # Save the verse
+    - tap:
+        id: "save_verse_button"
+    - assertVisible: "John 3:16"
+    - takeScreenshot: "verse_added"
+
+  review_verse:
+    # Open verse details
+    - tap:
+        id: "verse_item"
+    - assertVisible: "Review Verse"
+    - takeScreenshot: "verse_review_screen"
+    
+    # Check review options
+    - assertVisible:
+        id: "review_options"
+    - takeScreenshot: "review_options_visible"
+    
+    # Mark as reviewed
+    - tap:
+        id: "mark_reviewed_button"
+    - assertVisible: "Reviewed"
+    - takeScreenshot: "verse_reviewed"
+    
+    # Return to list
+    - tap:
+        id: "back_button"
+    - assertVisible: "My Verses"
+
+  delete_verse:
+    # Find and delete a verse
+    - swipe:
+        id: "verse_item"
+        direction: LEFT
+        duration: 300
+    - assertVisible:
+        id: "delete_verse_button"
+    - takeScreenshot: "delete_option_visible"
+    
+    # Confirm deletion
+    - tap:
+        id: "delete_verse_button"
+    - assertVisible: "Delete Verse?"
+    - takeScreenshot: "delete_confirmation"
+    
+    # Confirm and verify
+    - tap:
+        text: "Delete"
+    - assertNotVisible: "John 3:16"
+    - takeScreenshot: "verse_deleted"

@@ -1,0 +1,59 @@
+appId: com.example.memverse.development
+name: Login Test Flow
+tags:
+  - login
+  - auth
+
+env:
+  USERNAME: "test@example.com"
+  PASSWORD: "password123"
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+flows:
+  successful_login:
+    - takeScreenshot: "initial_screen"
+    - inputText:
+        id: "username_field"
+        text: ${USERNAME}
+    - inputText:
+        id: "password_field"
+        text: ${PASSWORD}
+    - takeScreenshot: "filled_credentials"
+    - tap:
+        id: "login_button"
+    - assertVisible: "Home"
+    - takeScreenshot: "logged_in"
+
+  failed_login:
+    - inputText:
+        id: "username_field"
+        text: "wrong@example.com"
+    - inputText:
+        id: "password_field"
+        text: "wrongpassword"
+    - takeScreenshot: "wrong_credentials"
+    - tap:
+        id: "login_button"
+    - assertVisible: "Invalid username or password"
+    - takeScreenshot: "login_error"
+
+  toggle_password:
+    - inputText:
+        id: "password_field"
+        text: "testpassword"
+    - tap:
+        id: "password_visibility_toggle"
+    - assertVisible:
+        id: "password_field"
+        text: "testpassword"
+    - takeScreenshot: "password_visible"
+    - tap:
+        id: "password_visibility_toggle"
+    - assertNotVisible:
+        id: "password_field"
+        text: "testpassword"
+    - takeScreenshot: "password_hidden"

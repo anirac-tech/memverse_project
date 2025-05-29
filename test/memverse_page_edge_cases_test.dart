@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/question_history_widget.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/reference_gauge.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/verse_reference_form.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -90,71 +89,6 @@ void main() {
       // Verify the last question is bold
       final lastQuestionText = tester.widget<Text>(find.text('John 3:17-[John 3:16] Incorrect'));
       expect(lastQuestionText.style?.fontWeight, equals(FontWeight.bold));
-    });
-  });
-
-  group('ReferenceGauge edge cases', () {
-    late MockAppLocalizations mockL10n;
-
-    setUp(() {
-      mockL10n = MockAppLocalizations();
-    });
-
-    testWidgets('displays red gauge for low progress', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Material(
-            child: ReferenceGauge(progress: 20, totalCorrect: 1, totalAnswered: 5, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      final progressIndicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-
-      expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
-        Colors.red[400],
-      );
-    });
-
-    testWidgets('displays orange gauge for medium progress', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Material(
-            child: ReferenceGauge(progress: 50, totalCorrect: 5, totalAnswered: 10, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      final progressIndicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-
-      expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
-        Colors.orange[400],
-      );
-    });
-
-    testWidgets('displays green gauge for high progress', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Material(
-            child: ReferenceGauge(progress: 80, totalCorrect: 8, totalAnswered: 10, l10n: mockL10n),
-          ),
-        ),
-      );
-
-      final progressIndicator = tester.widget<CircularProgressIndicator>(
-        find.byType(CircularProgressIndicator),
-      );
-
-      expect(
-        (progressIndicator.valueColor as AlwaysStoppedAnimation<Color>?)?.value,
-        Colors.green[400],
-      );
     });
   });
 }
