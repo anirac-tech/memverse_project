@@ -9,7 +9,6 @@ class QuestionSection extends HookConsumerWidget {
   const QuestionSection({
     required this.versesAsync,
     required this.currentVerseIndex,
-    required this.questionNumber,
     required this.l10n,
     required this.answerController,
     required this.answerFocusNode,
@@ -21,7 +20,6 @@ class QuestionSection extends HookConsumerWidget {
 
   final AsyncValue<List<Verse>> versesAsync;
   final int currentVerseIndex;
-  final int questionNumber;
   final AppLocalizations l10n;
   final TextEditingController answerController;
   final FocusNode answerFocusNode;
@@ -34,22 +32,6 @@ class QuestionSection extends HookConsumerWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
     children: <Widget>[
-      Container(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: RichText(
-          text: TextSpan(
-            style: const TextStyle(fontSize: 18, color: Colors.black),
-            children: <TextSpan>[
-              TextSpan(text: '${l10n.question}: '),
-              TextSpan(
-                text: '$questionNumber',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
-
       // Verse text container
       Flexible(
         child: ConstrainedBox(
