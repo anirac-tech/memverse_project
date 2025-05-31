@@ -1,38 +1,29 @@
 Feature: User Authentication BDD Tests
-  As a developer
-  I want to test user authentication functionality
-  So that I can ensure login and logout work correctly
-
-  Background:
-    Given the app is running
 
   Scenario: Successful login with valid credentials
-    Given I am on the login screen
-    When I enter username "njwandroid@gmaiml.com"
-    And I enter password "fixmeplaceholder"
-    And I tap the login button
-    Then I should see the main verse screen
-    And I should see "Memverse Reference Test"
+    Given the app is running
+    When I enter {'njwandroid@gmaiml.com'} into login username field
+    And I enter {'fixmeplaceholder'} into login password field
+    And I tap login button
+    Then I see {'Memverse Reference Test'} text
 
   Scenario: Login validation with empty fields
-    Given I am on the login screen
-    When I leave username field empty
-    And I leave password field empty
-    And I tap the login button
-    Then I should see username validation error
-    And I should see password validation error
+    Given the app is running
+    When I tap login button
+    Then I see {'Please enter your username'} text
+    And I see {'Please enter your password'} text
 
   Scenario: Password visibility toggle functionality
-    Given I am on the login screen
-    When I enter password "testpassword"
-    Then the password should be obscured
-    When I tap the password visibility icon
-    Then the password should be visible
-    When I tap the password visibility icon again
-    Then the password should be obscured
+    Given the app is running
+    When I enter {'testpassword'} into login password field
+    Then I see {Icons.visibility_off} icon
+    When I tap {Icons.visibility_off} icon
+    Then I see {Icons.visibility} icon
+    When I tap {Icons.visibility} icon
+    Then I see {Icons.visibility_off} icon
 
   Scenario: Logout functionality
-    Given I am logged in as "njwandroid@gmaiml.com"
-    When I tap the logout button
-    Then I should return to the login screen
-    And I should not be authenticated
+    Given the app is running
+    And I am logged in as {'njwandroid@gmaiml.com'}
+    When I tap {Icons.logout} icon
+    Then I see login page

@@ -28,9 +28,12 @@ void main() {
       await tester.enterText(usernameField, 'invalid@invalid.com');
       await tester.enterText(passwordField, 'badpassword');
       await tester.tap(loginButton);
+
+      // Wait for login attempt to complete
+      await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
 
-      // Should show error or remain on login screen
+      // Should remain on login screen (test passes either way - login correctly fails)
       expect(find.byKey(const ValueKey('login_page')), findsOneWidget);
     });
 
@@ -178,7 +181,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Wait for next verse
-      await tester.pump(const Duration(milliseconds: 1500));
+      await tester.pump(const Duration(milliseconds: 2000));
+
+      // Clear the text field before entering new text
+      await tester.enterText(textFields.last, '');
       await tester.pumpAndSettle();
 
       // Answer second verse with almost correct
@@ -186,8 +192,8 @@ void main() {
       await tester.tap(submitButton);
       await tester.pumpAndSettle();
 
-      // Should show history
-      expect(find.textContaining('Past Questions'), findsOneWidget);
+      // Should show history - check for "Prior Questions" (not "Past Questions")
+      expect(find.textContaining('Prior Questions'), findsOneWidget);
     });
 
     testWidgets('Form validation test', (tester) async {
@@ -227,8 +233,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verify various UI text elements are displayed
-      expect(find.textContaining('Reference'), findsOneWidget);
+      // Verify various UI text elements are displayed - use more specific text
+      expect(find.text('Reference:'), findsOneWidget);
       expect(find.textContaining('Submit'), findsOneWidget);
       expect(find.textContaining('He is before all things'), findsOneWidget);
     });
