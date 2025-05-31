@@ -40,7 +40,8 @@
 
 ### Rule 6: ALWAYS Hot Restart After Semantic Changes
 
-- ✅ `flutter run --hot` or full restart after semantic identifier changes
+- ✅ `flutter run` then press `r` for hot reload or `R` for full restart after semantic identifier
+  changes
 - ✅ Allow app to fully load before testing
 - ❌ NEVER test without applying changes
 
