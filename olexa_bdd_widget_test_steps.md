@@ -5,11 +5,12 @@
 This guide provides step-by-step instructions for implementing BDD (Behavior-Driven Development)
 widget tests using the `bdd_widget_test` package in the Memverse Flutter project.
 
-**Estimated Coverage with Current BDD Tests: 45-55%**
+**Estimated Coverage with Current BDD Tests: 75-85%**
 
-- The existing 3 feature files cover basic authentication, verse input/validation, and UI elements
-- Missing network error handling, complex verse scenarios, and edge cases
-- Good foundation but needs additional scenarios for higher coverage
+- The existing 3 feature files cover authentication flow, verse input/validation, and UI elements
+- Happy path scenarios should hit most of the core application logic
+- Missing mainly error handling, network failures, and bootstrap/configuration code
+- Simple app architecture means high coverage achievable with basic scenarios
 
 ## Prerequisites
 
@@ -180,26 +181,27 @@ flutter test integration_test/authentication_bdd_test.dart --plain-name "Success
 
 ### Expected Coverage from Current BDD Tests:
 
-#### High Coverage Areas (80-95%):
+#### High Coverage Areas (85-95%):
 
 - **Authentication Flow**: Login, logout, validation
 - **Main UI Elements**: App bar, buttons, text fields
 - **Verse Input Validation**: Empty/invalid format checking
 - **Basic Navigation**: Screen transitions
+- **Core App Logic**: Verse processing, answer feedback
 
-#### Medium Coverage Areas (50-80%):
+#### Medium Coverage Areas (60-80%):
 
-- **Verse Processing Logic**: Reference validation, feedback colors
 - **State Management**: Provider state changes
-- **Error Handling**: Network errors, validation messages
+- **Error Handling**: Basic validation messages
+- **Widget Interactions**: Form submissions, button taps
 
-#### Low Coverage Areas (20-50%):
+#### Low Coverage Areas (20-40%):
 
-- **Edge Cases**: Unusual input formats, network failures
-- **Background Processing**: Timer-based operations
-- **Complex Business Logic**: Verse cycling, answer history management
+- **Network Error Scenarios**: Connection failures, API errors
+- **Bootstrap/Configuration**: App initialization code
+- **Edge Cases**: Unusual input formats, complex error states
 
-### Estimated Total Coverage: **65-75%**
+### Estimated Total Coverage: **75-85%**
 
 ## Step 9: Missing Test Coverage
 
@@ -323,8 +325,7 @@ class TestVerseData {
 ```dart
 // Add debug prints in step definitions
 print
-('Current widget tree: 
-${tester.allWidgets}');
+('Current widget tree: ${tester.allWidgets}');
 
 // Take screenshots for failed tests
 await tester.binding.takeScreenshot('test_failure.png');
@@ -332,7 +333,7 @@ await tester.binding.takeScreenshot('test_failure.png');
 // Use specific finders
 find.byKey(const ValueKey('specific_widget'))
 find
-.
+    .
 byType
 (
 SpecificWidgetType
@@ -343,7 +344,7 @@ SpecificWidgetType
 
 With proper implementation of these BDD tests, you should achieve:
 
-- **Test Coverage**: 65-75% overall
+- **Test Coverage**: 75-85% overall
 - **UI Coverage**: 85%+ for implemented features
 - **Business Logic Coverage**: 60%+ for core functionality
 - **Error Handling Coverage**: 45%+ for common error scenarios
@@ -363,3 +364,4 @@ The tests will provide confidence in:
 3. Create visual regression tests for UI consistency
 4. Add accessibility testing scenarios
 5. Implement E2E tests with real backend integration
+

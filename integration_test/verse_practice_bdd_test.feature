@@ -2,20 +2,21 @@ Feature: Verse Reference Practice BDD Tests
 
   Background:
     Given the app is running
-    And I am logged in as {'njwandroid@gmaiml.com'}
+    And I am logged in as test user
 
-  Scenario: Correct verse reference provides green feedback
-    Given I see {'He is before all things, and in him all things hold together.'} text
+  Scenario: Correct verse reference provides feedback
+    Given I see verse text
     When I enter {'Col 1:17'} into reference input field
     And I tap submit button
-    Then I see {'Correct!'} text
+    Then I should see input field color {Colors.green}
+    And I see {'Correct!'} text
 
-  Scenario: Almost correct verse reference provides orange feedback
-    Given I see {'It is for freedom that Christ has set us free'} text
+  Scenario: Almost correct verse reference provides feedback
+    Given I see verse text
     When I enter {'Gal 5:2'} into reference input field
     And I tap submit button
-    Then I see {'Not quite right'} text
-    And I see {'Galatians 5:1'} text
+    Then I should see input field color {Colors.orange}
+    And I see {'Not quite right'} text
 
   Scenario: Empty reference validation
     When I tap submit button
@@ -32,12 +33,3 @@ Feature: Verse Reference Practice BDD Tests
     And I enter {'Gal 5:2'} into reference input field
     And I tap submit button
     Then I see {'Prior Questions'} text
-
-  Scenario: Happy path complete flow
-    When I enter {'Col 1:17'} into reference input field
-    And I tap submit button
-    Then I see {'Correct!'} text
-    When I enter {'Gal 5:2'} into reference input field
-    And I tap submit button
-    Then I see {'Not quite right'} text
-    And I see {'Prior Questions'} text

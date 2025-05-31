@@ -2,8 +2,7 @@ Feature: User Authentication BDD Tests
 
   Scenario: Successful login with valid credentials
     Given the app is running
-    When I enter {'njwandroid@gmaiml.com'} into login username field
-    And I enter {'fixmeplaceholder'} into login password field
+    When I enter test credentials into login fields
     And I tap login button
     Then I see {'Memverse Reference Test'} text
 
@@ -24,6 +23,6 @@ Feature: User Authentication BDD Tests
 
   Scenario: Logout functionality
     Given the app is running
-    And I am logged in as {'njwandroid@gmaiml.com'}
+    And I am logged in as test user
     When I tap {Icons.logout} icon
     Then I see login page

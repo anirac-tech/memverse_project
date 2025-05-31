@@ -1,0 +1,199 @@
+# Next LLM Session Prompt - BDD Widget Test Implementation
+
+## Context
+You are continuing work on implementing BDD widget tests for the Memverse Flutter app. The feature files have been created and updated to use generic "test user" references and parameterized steps.
+
+## Current Status
+- ✅ Created 4 BDD feature files in `integration_test/` directory:
+  - `hello_world_bdd_test.feature` (basic concept test)
+  - `authentication_bdd_test.feature`
+  - `verse_practice_bdd_test.feature` 
+  - `app_ui_bdd_test.feature`
+- ✅ Updated all files to use parameterized steps like `I should see input field color {Colors.green}`
+- ✅ Removed hardcoded credentials in favor of environment variables
+- ✅ Fixed malformed `test/app.feature` file (deleted)
+
+## Next Steps to Take
+
+### 1. Clean Build Environment
+```bash
+# Clean any cached build files
+dart run build_runner clean
+rm -rf .dart_tool/build
+```
+
+### 2. Run Build Runner
+```bash
+# Generate test files from feature files
+dart run build_runner build --delete-conflicting-outputs
+
+# Or watch mode for continuous generation
+dart run build_runner watch --delete-conflicting-outputs
+```
+
+### 3. Start with Hello World Test
+The simplest test to prove the concept:
+
+```bash
+# First test the hello world feature
+flutter test integration_test/hello_world_bdd_test.dart --reporter expanded
+```
+
+### 4. Implement Key Step Definitions
+
+#### A. Basic App Steps
+File: `integration_test/step/the_app_is_running.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:memverse/src/app/app.dart';
+
+Future<void> theAppIsRunning(WidgetTester tester) async {
+  await tester.pumpWidget(const App());
+  await tester.pumpAndSettle();
+}
+```
+
+#### B. Authentication with Environment Variables
+File: `integration_test/step/i_am_logged_in_as_test_user.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Future<void> iAmLoggedInAsTestUser(WidgetTester tester) async {
+  // Check if already logged in and logout if necessary
+  if (find.byIcon(Icons.logout).evaluate().isNotEmpty) {
+    await tester.tap(find.byIcon(Icons.logout));
+    await tester.pumpAndSettle();
+  }
+  
+  // Get credentials from environment variables
+  const username = String.fromEnvironment('MEMVERSE_USERNAME', defaultValue: 'test@example.com');
+  const password = String.fromEnvironment('MEMVERSE_PASSWORD', defaultValue: 'testpass');
+  
+  // Perform login
+  await tester.enterText(find.byKey(const ValueKey('login_username_field')), username);
+  await tester.enterText(find.byKey(const ValueKey('login_password_field')), password);
+  await tester.tap(find.byKey(const ValueKey('login_button')));
+  await tester.pumpAndSettle();
+  
+  // Wait for login to complete
+  await tester.pump(const Duration(seconds: 2));
+  await tester.pumpAndSettle();
+}
+```
+
+#### C. Parameterized Color Validation
+File: `integration_test/step/i_should_see_input_field_color.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Future<void> iShouldSeeInputFieldColor(WidgetTester tester, Color expectedColor) async {
+  final textField = find.byType(TextField).last;
+  final widget = tester.widget<TextField>(textField);
+  final decoration = widget.decoration as InputDecoration;
+  
+  // Check border color or focus color
+  expect(decoration.focusedBorder?.borderSide.color, expectedColor);
+}
+```
+
+#### D. Generic Text and UI Steps
+File: `integration_test/step/i_see_verse_text.dart`
+```dart
+import 'package:flutter_test/flutter_test.dart';
+
+Future<void> iSeeVerseText(WidgetTester tester) async {
+  // Look for any verse text - can be made more specific
+  expect(find.textContaining('He is before all things'), findsOneWidget);
+}
+```
+
+#### E. Reference Input Field
+File: `integration_test/step/i_enter_into_reference_input_field.dart`
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+Future<void> iEnterIntoReferenceInputField(WidgetTester tester, String text) async {
+  final textFields = find.byType(TextField);
+  if (textFields.evaluate().isNotEmpty) {
+    await tester.enterText(textFields.last, text);
+  } else {
+    throw Exception('No TextField found for reference input');
+  }
+}
+```
+
+### 5. Build.yaml Configuration
+Ensure you have proper build configuration:
+
+```yaml
+targets:
+  $default:
+    builders:
+      bdd_widget_test|featureBuilder:
+        options:
+          stepDirectoryName: step
+          externalSteps:
+            - package:bdd_widget_test/step/i_see_text.dart
+            - package:bdd_widget_test/step/i_dont_see_text.dart
+            - package:bdd_widget_test/step/i_tap_text.dart
+            - package:bdd_widget_test/step/i_see_icon.dart
+            - package:bdd_widget_test/step/i_tap_icon.dart
+            - package:bdd_widget_test/step/the_app_is_running.dart
+```
+
+### 6. Progressive Testing Approach
+Test each feature incrementally:
+
+```bash
+# 1. Hello World first
+flutter test integration_test/hello_world_bdd_test.dart --reporter expanded
+
+# 2. Authentication
+export MEMVERSE_USERNAME="your_username"
+export MEMVERSE_PASSWORD="your_password"
+flutter test integration_test/authentication_bdd_test.dart --reporter expanded
+
+# 3. Verse practice
+flutter test integration_test/verse_practice_bdd_test.dart --reporter expanded
+
+# 4. UI elements
+flutter test integration_test/app_ui_bdd_test.dart --reporter expanded
+
+# 5. All together
+flutter test integration_test/ --reporter expanded
+```
+
+### 7. Coverage Analysis
+```bash
+# Generate coverage report
+flutter test --coverage integration_test/
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+
+# Check summary
+lcov --summary coverage/lcov.info
+```
+
+## Key Improvements Made
+
+1. **Parameterized Steps**: Instead of hardcoded colors, use `I should see input field color {Colors.green}`
+2. **Generic Steps**: `I see verse text` instead of hardcoded verse content
+3. **Hello World Test**: Simple proof of concept before complex authentication
+4. **Environment Variables**: Proper handling with defaults for testing
+5. **Progressive Testing**: Start simple, build complexity
+
+## Files to Monitor
+- `integration_test/*.feature` - Feature definitions
+- `integration_test/step/*.dart` - Generated step definitions  
+- `build.yaml` - Build configuration
+- Coverage reports after successful test runs
+
+## Success Criteria
+- ✅ Build runner completes without errors
+- ✅ Hello world test passes (proves concept)
+- ✅ Authentication scenarios work with env vars
+- ✅ Color validation works for input fields
+- ✅ Coverage report shows 75-85% coverage

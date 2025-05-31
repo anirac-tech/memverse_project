@@ -15,7 +15,7 @@ flutter test integration_test/high_coverage_integration_test.dart --reporter exp
 # Generate BDD test files from feature files
 dart run build_runner build --delete-conflicting-outputs
 
-# Run BDD widget tests (estimated 45-55% coverage)
+# Run BDD widget tests (estimated 75-85% coverage)
 flutter test integration_test/ --reporter expanded
 
 # Run with coverage

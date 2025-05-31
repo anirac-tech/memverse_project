@@ -2,7 +2,7 @@ Feature: App UI and Navigation BDD Tests
 
   Background:
     Given the app is running
-    And I am logged in as {'njwandroid@gmaiml.com'}
+    And I am logged in as test user
 
   Scenario: Main app bar elements are present
     Then I see {'Memverse Reference Test'} text
