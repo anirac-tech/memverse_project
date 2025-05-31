@@ -1,5 +1,10 @@
+# To launch with different flavors:
+# Development: maestro test --app-id com.spiritflightapps.memverse maestro/flows/happy_path.yaml
+# Staging: maestro test --app-id com.spiritflightapps.memverse maestro/flows/happy_path.yaml  
+# Production: maestro test --app-id com.spiritflightapps.memverse maestro/flows/happy_path.yaml
+
 ---
-appId: com.example.memverse.development
+appId: com.spiritflightapps.memverse
 name: Happy Path Test Flow - Complete User Journey
 tags:
   - happy-path
@@ -23,13 +28,13 @@ onFlowStart:
 # Verify login screen is visible
 - assertVisible: "Welcome to Memverse"
 - assertVisible:
-    id: "login_username_field"
+    id: "Username"
 - assertVisible:
     id: "login_password_field"
 
 # Enter login credentials from environment variables
 - inputText:
-    id: "login_username_field"
+    id: "Username"
     text: ${USERNAME}
 - takeScreenshot: "02_username_entered"
 
@@ -57,7 +62,7 @@ onFlowStart:
 - takeScreenshot: "07_first_answer_entered"
 
 # Submit the answer
-- tap:
+- tapOn:
     key: "submit-ref"
 - takeScreenshot: "08_first_answer_submitted"
 
@@ -79,7 +84,7 @@ onFlowStart:
 - takeScreenshot: "12_second_answer_entered"
 
 # Submit the answer
-- tap:
+- tapOn:
     key: "submit-ref"
 - takeScreenshot: "13_second_answer_submitted"
 

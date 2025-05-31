@@ -76,47 +76,59 @@ class LoginPage extends HookConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                TextFormField(
-                  key: loginUsernameFieldKey,
-                  controller: usernameController,
-                  decoration: InputDecoration(
-                    labelText: l10n.username,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.person),
+                Semantics(
+                  identifier: 'textUsername',
+                  label: 'Username field',
+                  textField: true,
+                  child: TextFormField(
+                    key: loginUsernameFieldKey,
+                    controller: usernameController,
+                    decoration: InputDecoration(
+                      labelText: l10n.username,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.person),
+                    ),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? l10n.pleaseEnterYourUsername : null,
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(passwordFocusNode);
+                    },
                   ),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? l10n.pleaseEnterYourUsername : null,
-                  textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(passwordFocusNode);
-                  },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  key: loginPasswordFieldKey,
-                  controller: passwordController,
-                  focusNode: passwordFocusNode,
-                  obscureText: !isPasswordVisible.value,
-                  decoration: InputDecoration(
-                    labelText: l10n.password,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(isPasswordVisible.value ? Icons.visibility : Icons.visibility_off),
-                      onPressed: () => isPasswordVisible.value = !isPasswordVisible.value,
-                      tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
+                Semantics(
+                  identifier: 'textPassword',
+                  label: 'Password field',
+                  textField: true,
+                  child: TextFormField(
+                    key: loginPasswordFieldKey,
+                    controller: passwordController,
+                    focusNode: passwordFocusNode,
+                    obscureText: !isPasswordVisible.value,
+                    decoration: InputDecoration(
+                      labelText: l10n.password,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () => isPasswordVisible.value = !isPasswordVisible.value,
+                        tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
+                      ),
                     ),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) {
+                      if (formKey.currentState!.validate()) {
+                        ref
+                            .read(authStateProvider.notifier)
+                            .login(usernameController.text, passwordController.text);
+                      }
+                    },
                   ),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) {
-                    if (formKey.currentState!.validate()) {
-                      ref
-                          .read(authStateProvider.notifier)
-                          .login(usernameController.text, passwordController.text);
-                    }
-                  },
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(

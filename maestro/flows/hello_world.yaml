@@ -1,0 +1,11 @@
+# To launch with different flavors:
+# Development: maestro test --app-id com.example.memverse.development maestro/flows/hello_world.yaml
+# Staging: maestro test --app-id com.example.memverse.staging maestro/flows/hello_world.yaml  
+# Production: maestro test --app-id com.example.memverse maestro/flows/hello_world.yaml
+
+appId: com.spiritflightapps.memverse
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- assertVisible: "Welcome to MemVerse"

@@ -1,4 +1,9 @@
-appId: com.example.memverse.development
+# To launch with different flavors:
+# Development: maestro test --app-id com.spiritflightapps.memverse maestro/flows/navigation.yaml
+# Staging: maestro test --app-id com.spiritflightapps.memverse maestro/flows/navigation.yaml  
+# Production: maestro test --app-id com.spiritflightapps.memverse maestro/flows/navigation.yaml
+
+appId: com.spiritflightapps.memverse
 name: Navigation Test Flow
 tags:
   - navigation
@@ -7,60 +12,57 @@ onFlowStart:
   - launchApp:
       clearState: true
       clearKeychain: true
-  - runFlow:
-      file: login.yaml
-      flow: successful_login
 
 flows:
   basic_navigation:
     - takeScreenshot: "home_screen"
     
     # Navigate to Profile
-    - tap:
+    - tapOn:
         id: "profile_tab"
     - assertVisible: "Profile"
     - takeScreenshot: "profile_screen"
     
     # Navigate to Verses
-    - tap:
+    - tapOn:
         id: "verses_tab"
     - assertVisible: "My Verses"
     - takeScreenshot: "verses_screen"
     
     # Navigate to Settings
-    - tap:
+    - tapOn:
         id: "settings_tab"
     - assertVisible: "Settings"
     - takeScreenshot: "settings_screen"
     
     # Navigate back home
-    - tap:
+    - tapOn:
         id: "home_tab"
     - assertVisible: "Home"
     - takeScreenshot: "back_home"
 
   menu_navigation:
-    - tap:
+    - tapOn:
         id: "menu_button"
     - assertVisible: "Menu"
     - takeScreenshot: "menu_open"
     
     # Navigate through menu items
-    - tap:
+    - tapOn:
         text: "About"
     - assertVisible: "About Memverse"
     - takeScreenshot: "about_screen"
 
-    - tap:
+    - tapOn:
         id: "back_button"
-    - tap:
+    - tapOn:
         id: "menu_button"
 
-    - tap:
+    - tapOn:
         text: "Help"
     - assertVisible: "Help & Support"
     - takeScreenshot: "help_screen"
 
-    - tap:
+    - tapOn:
         id: "back_button"
     - assertVisible: "Home"

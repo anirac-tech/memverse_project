@@ -1,4 +1,9 @@
-appId: com.example.memverse.development
+# To launch with different flavors:
+# Development: maestro test --app-id com.spiritflightapps.memverse maestro/flows/verses.yaml
+# Staging: maestro test --app-id com.spiritflightapps.memverse maestro/flows/verses.yaml  
+# Production: maestro test --app-id com.spiritflightapps.memverse maestro/flows/verses.yaml
+
+appId: com.spiritflightapps.memverse
 name: Verse Management Test Flow
 tags:
   - verses
@@ -11,12 +16,11 @@ onFlowStart:
       clearKeychain: true
   - runFlow:
       file: login.yaml
-      flow: successful_login
 
 flows:
   view_verses:
     # Navigate to verses screen
-    - tap:
+    - tapOn:
         id: "verses_tab"
     - assertVisible: "My Verses"
     - takeScreenshot: "verses_list"
@@ -30,7 +34,7 @@ flows:
 
   add_verse:
     # Start adding a verse
-    - tap:
+    - tapOn:
         id: "add_verse_button"
     - assertVisible: "Add New Verse"
     
@@ -41,21 +45,21 @@ flows:
     - takeScreenshot: "reference_entered"
     
     # Select translation
-    - tap:
+    - tapOn:
         id: "translation_dropdown"
-    - tap:
+    - tapOn:
         text: "NIV"
     - takeScreenshot: "translation_selected"
     
     # Save the verse
-    - tap:
+    - tapOn:
         id: "save_verse_button"
     - assertVisible: "John 3:16"
     - takeScreenshot: "verse_added"
 
   review_verse:
     # Open verse details
-    - tap:
+    - tapOn:
         id: "verse_item"
     - assertVisible: "Review Verse"
     - takeScreenshot: "verse_review_screen"
@@ -66,13 +70,13 @@ flows:
     - takeScreenshot: "review_options_visible"
     
     # Mark as reviewed
-    - tap:
+    - tapOn:
         id: "mark_reviewed_button"
     - assertVisible: "Reviewed"
     - takeScreenshot: "verse_reviewed"
     
     # Return to list
-    - tap:
+    - tapOn:
         id: "back_button"
     - assertVisible: "My Verses"
 
@@ -87,13 +91,13 @@ flows:
     - takeScreenshot: "delete_option_visible"
     
     # Confirm deletion
-    - tap:
+    - tapOn:
         id: "delete_verse_button"
     - assertVisible: "Delete Verse?"
     - takeScreenshot: "delete_confirmation"
     
     # Confirm and verify
-    - tap:
+    - tapOn:
         text: "Delete"
     - assertNotVisible: "John 3:16"
     - takeScreenshot: "verse_deleted"

@@ -1,0 +1,38 @@
+# To launch with different flavors:
+# Development: maestro test --app-id com.spiritflightapps.memverse maestro/flows/incorrect_login.yaml
+# Staging: maestro test --app-id com.spiritflightapps.memverse maestro/flows/incorrect_login.yaml  
+# Production: maestro test --app-id com.spiritflightapps.memverse maestro/flows/incorrect_login.yaml
+
+appId: com.spiritflightapps.memverse
+name: Incorrect Login Test Flow
+tags:
+  - login
+  - auth
+  - negative-test
+
+env:
+  WRONG_USERNAME: incorrectlogin@gmail.com
+  WRONG_PASSWORD: wrongpassword
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+---
+# Test incorrect login credentials and verify error message
+- takeScreenshot: "initial_screen"
+- inputText:
+    text: ${WRONG_USERNAME}
+    id: "textUsername"
+- takeScreenshot: "username_filled"
+- inputText:
+    text: ${WRONG_PASSWORD}
+    id: "textPassword"
+- takeScreenshot: "wrong_credentials_filled"
+- tapOn:
+    text: "Login"
+- waitForAnimationToEnd
+- takeScreenshot: "after_login_attempt"
+- assertVisible: "Invalid username or password"
+- takeScreenshot: "error_message_visible"

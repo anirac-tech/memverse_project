@@ -1,0 +1,52 @@
+# Alternative approaches to text input testing
+# This will help us find what works for semantic identifiers
+
+appId: com.spiritflightapps.memverse
+name: Alternative Text Input Test
+tags:
+  - debug
+  - text-input
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+---
+# Try multiple approaches to text input
+- takeScreenshot: "alt_initial_screen"
+
+# Approach 1: Semantic identifier
+- inputText:
+    text: "test1@example.com"
+    id: "textUsername"
+- takeScreenshot: "alt_approach1_username"
+
+# Approach 2: Try finding by label text  
+- tapOn:
+    text: "Username"
+- inputText: "test2@example.com"
+- takeScreenshot: "alt_approach2_username"
+
+# Approach 3: Try finding by hint text
+- tapOn:
+    text: "Enter username"
+- inputText: "test3@example.com"
+- takeScreenshot: "alt_approach3_username"
+
+# Approach 4: Try password field by ID
+- inputText:
+    text: "testpass"
+    id: "textPassword"
+- takeScreenshot: "alt_approach4_password"
+
+# Approach 5: Try password field by label
+- tapOn:
+    text: "Password"
+- inputText: "testpass2"
+- takeScreenshot: "alt_approach5_password"
+
+# Final attempt at login
+- tapOn:
+    text: "Login"
+- takeScreenshot: "alt_final_attempt"
