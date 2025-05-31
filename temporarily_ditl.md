@@ -1,5 +1,146 @@
 # DITL Progress Tracker - Memverse Happy Path Testing
 
+## 🚨 COPY/PASTE COMMANDS FOR IMMEDIATE TESTING
+
+### 0. High Coverage Integration Test (FIRST RUN THIS!)
+
+```bash
+# Run the high coverage integration test (90%+ coverage target)
+flutter test integration_test/high_coverage_integration_test.dart --reporter expanded
+```
+
+### 1. App Installation with Environment Variables
+
+```bash
+# iOS Simulator Installation
+flutter run -d C3163AE7-B276-4AE0-8EC1-B80250D824FD --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=USERNAME=$MEMVERSE_USERNAME --dart-define=PASSWORD=$MEMVERSE_PASSWORD --flavor development --target lib/main_development.dart
+
+# Android Device Installation  
+flutter run -d 48050DLAQ0091E --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=USERNAME=$MEMVERSE_USERNAME --dart-define=PASSWORD=$MEMVERSE_PASSWORD --flavor development --target lib/main_development.dart
+
+# Chrome/Web Installation
+flutter run -d chrome --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=USERNAME=$MEMVERSE_USERNAME --dart-define=PASSWORD=$MEMVERSE_PASSWORD --flavor development --target lib/main_development.dart
+```
+
+### 2. Maestro Test Execution
+
+⚠️ **NOTE**: Maestro has known issues with iOS simulators. Use Android physical device for reliable
+testing.
+
+```bash
+# Android Device Maestro Test (RECOMMENDED - WORKING)
+maestro test maestro/flows/simple_login_test.yaml
+
+# Alternative: Using run script (if available)
+./maestro/scripts/run_maestro_test.sh --play happy_path
+
+# iOS Simulator Maestro Test (KNOWN ISSUES - NOT RELIABLE)
+# maestro test maestro/flows/simple_login_test.yaml --device "C3163AE7-B276-4AE0-8EC1-B80250D824FD"
+```
+
+### 3. Integration Test Execution
+
+```bash
+# High coverage integration tests
+flutter test test/high_coverage_integration_test.dart --reporter expanded
+
+# Full integration test suite
+./scripts/integration_tests.sh
+
+# BDD widget tests
+./scripts/run_bdd_tests.sh
+```
+
+### 4. Current Issues to Monitor
+
+⚠️ **Integration Test Failures**: Error handling tests failing - need to verify error message text
+⚠️ **Maestro Script Permissions**: Script may need executable permissions (use chmod +x)
+⚠️ **App Installation**: Background app processes running - may need to be stopped first
+
+---
+
+## ✅ COMPLETED: Device Selection & App Installation
+
+**Status**: Successfully installed app on both iOS simulator and Android device with proper
+environment variables
+
+- **iOS Simulator**: C3163AE7-B276-4AE0-8EC1-B80250D824FD (iPhone 16 Pro)
+- **Android Device**: 48050DLAQ0091E (Pixel 9)
+- **Environment Variables**: Using MEMVERSE_CLIENT_ID, MEMVERSE_USERNAME, MEMVERSE_PASSWORD
+- **Target**: lib/main_development.dart with development flavor
+
+## ✅ FIXED: Device Selection Issue
+
+**Status**: Fixed device parsing logic in `scripts/device_utils.sh`
+
+- **Problem**: Device selection was failing due to incorrect parsing of `flutter devices` output
+- **Solution**: Updated parsing logic to properly extract device IDs using `awk -F'•'`
+- **Test**: `source scripts/device_utils.sh && select_device` now works correctly
+- **Current Selection**: Chrome device (`chrome`) - perfect for integration tests
+
+---
+
+## 🚨 MONITORING PRIORITY - Commands to Check Status
+
+**Most Likely Issues to Monitor:**
+
+### Option 1: Using run script (recommended)
+
+```bash
+# iOS Simulator
+./maestro/scripts/run_maestro_test.sh --play happy_path --device "iPhone 15 Simulator"
+
+# Android Emulator  
+./maestro/scripts/run_maestro_test.sh --play happy_path --device "emulator-5554"
+
+# Chrome/Web
+./maestro/scripts/run_maestro_test.sh --play happy_path --device "chrome"
+```
+
+### Option 2: Vanilla Maestro commands (direct from maestro docs)
+
+```bash
+# First check available devices
+flutter devices
+
+# iOS Simulator
+maestro test maestro/flows/happy_path.yaml --device "iPhone 15 Pro Simulator"
+
+# Android Emulator
+maestro test maestro/flows/happy_path.yaml --device "emulator-5554"
+
+# Chrome/Web (requires app running first)
+flutter run -d chrome --flavor development --target lib/main_development.dart &
+maestro test maestro/flows/happy_path.yaml --device "chrome"
+```
+
+### Additional Monitoring Commands
+
+```bash
+# 1. Check available devices for Maestro
+flutter devices
+adb devices  # For Android specifically
+
+# 2. Check test coverage status
+flutter test --coverage && echo "Current coverage:" && grep -o 'LH:[0-9]*' coverage/lcov.info | awk -F: '{sum+=$2} END {print sum " lines hit"}'
+
+# 3. Test integration tests pass
+flutter test test/high_coverage_integration_test.dart --reporter expanded
+
+# 4. Check if environment variables are set
+echo "Username: $MEMVERSE_USERNAME" 
+echo "Password set: $([ -n "$MEMVERSE_PASSWORD" ] && echo "YES" || echo "NO")"
+
+# 5. Verify app builds correctly
+flutter build apk --flavor development --target lib/main_development.dart
+
+# 6. Test individual Maestro flows
+./maestro/scripts/run_maestro_test.sh --play login
+./maestro/scripts/run_maestro_test.sh --play verses
+```
+
+---
+
 ## Task Overview
 
 Create comprehensive Maestro tests and BDD widget integration tests to cover entire happy path with:
@@ -28,7 +169,7 @@ Create comprehensive Maestro tests and BDD widget integration tests to cover ent
 - ✅ Plan BDD scenarios with Gherkin features
 - ✅ Design test data structure for specific verse references
 
-### Phase 3: Maestro Test Implementation ✅
+### Phase 3: Maestro Test Implementation ⏳ FIXING BUGS
 
 - ✅ Create comprehensive happy path Maestro flow
 - ✅ Update login.yaml with specific credentials
@@ -36,6 +177,8 @@ Create comprehensive Maestro tests and BDD widget integration tests to cover ent
 - ✅ Add screenshot capture at key points
 - ✅ Test color feedback validation (green/orange) - **CORRECTED: Now uses Gal 5:2 for orange
   feedback**
+- ✅ **FIXED**: Device parsing bug in Maestro script
+- ⏳ **CURRENT**: Final testing of fixed script
 
 ### Phase 4: BDD Widget Test Implementation ✅
 
@@ -45,6 +188,7 @@ Create comprehensive Maestro tests and BDD widget integration tests to cover ent
 - ✅ Create test repository with specific verse data
 - ✅ Integration with live credentials support - **CORRECTED: Fixed orange feedback scenario**
 - ✅ **COMPLETED**: Run coverage analysis
+- ✅ **COMPLETED**: Added high coverage integration tests for 90%+ target
 
 ### Phase 5: Security & Recording ✅
 
@@ -52,89 +196,43 @@ Create comprehensive Maestro tests and BDD widget integration tests to cover ent
 - ✅ **COMPLETED**: Create recording script from GitHub repo reference
 - ✅ Validation & Documentation
 
-### Phase 6: Final Validation & Documentation ✅
+### Phase 6: Final Validation & Documentation ⏳ IN PROGRESS
 
-- ✅ Run all tests to ensure they pass
+- ⏳ **CURRENT**: Final testing of Maestro script
 - ✅ Update documentation with new test coverage
 - ✅ Create comprehensive usage instructions
 - ✅ **COMPLETED**: Create maestro_recording.md with emulator setup
 - ✅ **COMPLETED**: Create coverage_next_steps.md with detailed analysis
-- ✅ **COMPLETED**: Updated Maestro script with --continuous flag
+- ✅ **COMPLETED**: Create maestro_quickstart.md with platform commands
+- ✅ **FIXED**: Maestro script device argument parsing
 
-## Current Status: ALL PHASES COMPLETE ✅
+## Current Status: Phase 6 - Final Validation ⏳
 
-### Final Deliverables Summary:
+### Issues Found & Being Fixed:
 
-✅ **Test Infrastructure Created**:
+✅ **Maestro Script Device Parsing Bug**:
 
-1. `maestro/flows/happy_path.yaml` - Complete user journey with environment variable security
-2. `test/features/happy_path.feature` - Comprehensive Gherkin scenarios
-3. `test/step/the_app_is_running_with_specific_test_verses.dart` - BDD test setup
-4. `test/step/user_interactions.dart` - User action step definitions
-5. `test/step/feedback_validation.dart` - Color/feedback validation steps
-6. `test/happy_path_widget_test.dart` - Full BDD widget test implementation
-7. `maestro/scripts/run_maestro_test.sh` - **UPDATED** with --continuous flag
+- Command: `./maestro/scripts/run_maestro_test.sh --play happy_path --device emulator-5554`
+- **Status**: ✅ Fixed
+- **Fix Details**: Updated parsing logic in `scripts/device_utils.sh` to correctly extract device
+  IDs using `awk -F'•'`
 
-✅ **Documentation Created**:
+### Next Immediate Actions:
 
-8. `maestro_recording.md` - Complete emulator setup and recording guide
-9. `coverage_next_steps.md` - Detailed coverage analysis and improvement strategies
+1. ✅ **FIXED**: Maestro script argument parsing
+2. ⏳ Test Maestro flows work correctly
+3. ⏳ Verify high coverage integration tests
+4. ⏳ Final end-to-end testing
 
-✅ **Key Achievements**:
+### Recent Completions:
 
-- **Widget Test Coverage: 74.3%** (excellent baseline)
-- **Security**: Environment variable credential handling
-- **Efficiency**: --continuous flag for faster development cycles
-- **Comprehensive Scenarios**: Both correct (green) and almost-correct (orange) feedback paths
-- **Pipeline Ready**: All checks should pass
-
-### Maestro Script Enhancements ✅:
-
-- **--continuous flag**: For efficient development testing with app state reuse
-- **Automatic retry**: Built into continuous mode
-- **Real-time feedback**: Immediate test results during development
-- **Video recording**: Compatible with development workflow
-- **Environment security**: Secure credential handling
-
-### Usage Examples:
-
-```bash
-# Efficient development testing (RECOMMENDED)
-./maestro/scripts/run_maestro_test.sh --continuous happy_path
-
-# Video recording for documentation
-./maestro/scripts/run_maestro_test.sh --video login
-
-# Quick test run
-./maestro/scripts/run_maestro_test.sh --play happy_path
-
-# Run all flows
-./maestro/scripts/run_maestro_test.sh --play all
-```
-
-### Pipeline Expectations ✅:
-
-- **Linting**: ✅ All code properly formatted
-- **Analysis**: ✅ No static analysis issues
-- **Test Coverage**: ✅ 74.3% meets requirements
-- **Documentation**: ✅ Comprehensive guides created
-- **Security**: ✅ No hardcoded credentials
-- **Functionality**: ✅ All test scenarios implemented
-
-### Coverage Improvement Roadmap:
-
-- **Target**: 90-92% achievable with integration tests
-- **Strategy**: Focus on live API calls and user journeys
-- **Next Steps**: Implement negative test scenarios
-- **Expected Gains**: +15-18% coverage with proposed improvements
-
-## 🎉 PROJECT COMPLETE - READY FOR PIPELINE ✅
-
-All requested deliverables have been implemented and documented. The testing infrastructure provides
-comprehensive coverage of the happy path scenario with both Maestro UI tests and BDD widget
-integration tests. The project includes security best practices, development efficiency features,
-and clear documentation for ongoing maintenance.
+- ✅ Fixed integration_tests.sh duplicate device selection
+- ✅ Added high_coverage_integration_test.dart for 90%+ coverage
+- ✅ Created maestro_quickstart.md with platform-specific commands
+- ✅ Converted AI log to markdown format
+- ✅ Fixed device parsing bug in Maestro script
 
 ---
-**Final Status**: All phases complete - Pipeline should pass ✅  
-**Last Updated**: 2025-05-30 10:35:00 PM
+**Current Status**: Final testing of Maestro script ⏳  
+**Last Updated**: 2025-05-30 10:50:00 PM
+
