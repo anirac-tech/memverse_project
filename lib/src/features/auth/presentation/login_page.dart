@@ -84,9 +84,8 @@ class LoginPage extends HookConsumerWidget {
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.person),
                   ),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? l10n.pleaseEnterYourUsername : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? l10n.pleaseEnterYourUsername : null,
                   textInputAction: TextInputAction.next,
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(passwordFocusNode);
@@ -108,9 +107,8 @@ class LoginPage extends HookConsumerWidget {
                       tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
                     ),
                   ),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) {
                     if (formKey.currentState!.validate()) {
@@ -123,23 +121,21 @@ class LoginPage extends HookConsumerWidget {
                 const SizedBox(height: 32),
                 ElevatedButton(
                   key: loginButtonKey,
-                  onPressed:
-                      authState.isLoading
-                          ? null
-                          : () async {
-                            if (formKey.currentState!.validate()) {
-                              await ref
-                                  .read(authStateProvider.notifier)
-                                  .login(usernameController.text, passwordController.text);
-                            }
-                          },
+                  onPressed: authState.isLoading
+                      ? null
+                      : () async {
+                          if (formKey.currentState!.validate()) {
+                            await ref
+                                .read(authStateProvider.notifier)
+                                .login(usernameController.text, passwordController.text);
+                          }
+                        },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child:
-                      authState.isLoading
-                          ? const CircularProgressIndicator()
-                          : Text(l10n.login, style: const TextStyle(fontSize: 16)),
+                  child: authState.isLoading
+                      ? const CircularProgressIndicator()
+                      : Text(l10n.login, style: const TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(height: 16),
                 if (authState.error != null)

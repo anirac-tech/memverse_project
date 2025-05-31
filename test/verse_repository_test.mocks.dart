@@ -29,28 +29,34 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: subtype_of_sealed_class
 
 class _FakeBaseOptions_0 extends _i1.SmartFake implements _i2.BaseOptions {
-  _FakeBaseOptions_0(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeBaseOptions_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakeHttpClientAdapter_1 extends _i1.SmartFake implements _i3.HttpClientAdapter {
+class _FakeHttpClientAdapter_1 extends _i1.SmartFake
+    implements _i3.HttpClientAdapter {
   _FakeHttpClientAdapter_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 class _FakeTransformer_2 extends _i1.SmartFake implements _i4.Transformer {
-  _FakeTransformer_2(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeTransformer_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeInterceptors_3 extends _i1.SmartFake implements _i5.Interceptors {
-  _FakeInterceptors_3(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeInterceptors_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeResponse_4<T1> extends _i1.SmartFake implements _i6.Response<T1> {
-  _FakeResponse_4(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeResponse_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeDio_5 extends _i1.SmartFake implements _i7.Dio {
-  _FakeDio_5(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeDio_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [Dio].
@@ -70,28 +76,37 @@ class MockDio extends _i1.Mock implements _i7.Dio {
           as _i2.BaseOptions);
 
   @override
-  set options(_i2.BaseOptions? _options) =>
-      super.noSuchMethod(Invocation.setter(#options, _options), returnValueForMissingStub: null);
+  set options(_i2.BaseOptions? _options) => super.noSuchMethod(
+    Invocation.setter(#options, _options),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i3.HttpClientAdapter get httpClientAdapter =>
       (super.noSuchMethod(
             Invocation.getter(#httpClientAdapter),
-            returnValue: _FakeHttpClientAdapter_1(this, Invocation.getter(#httpClientAdapter)),
+            returnValue: _FakeHttpClientAdapter_1(
+              this,
+              Invocation.getter(#httpClientAdapter),
+            ),
           )
           as _i3.HttpClientAdapter);
 
   @override
-  set httpClientAdapter(_i3.HttpClientAdapter? _httpClientAdapter) => super.noSuchMethod(
-    Invocation.setter(#httpClientAdapter, _httpClientAdapter),
-    returnValueForMissingStub: null,
-  );
+  set httpClientAdapter(_i3.HttpClientAdapter? _httpClientAdapter) =>
+      super.noSuchMethod(
+        Invocation.setter(#httpClientAdapter, _httpClientAdapter),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i4.Transformer get transformer =>
       (super.noSuchMethod(
             Invocation.getter(#transformer),
-            returnValue: _FakeTransformer_2(this, Invocation.getter(#transformer)),
+            returnValue: _FakeTransformer_2(
+              this,
+              Invocation.getter(#transformer),
+            ),
           )
           as _i4.Transformer);
 
@@ -105,7 +120,10 @@ class MockDio extends _i1.Mock implements _i7.Dio {
   _i5.Interceptors get interceptors =>
       (super.noSuchMethod(
             Invocation.getter(#interceptors),
-            returnValue: _FakeInterceptors_3(this, Invocation.getter(#interceptors)),
+            returnValue: _FakeInterceptors_3(
+              this,
+              Invocation.getter(#interceptors),
+            ),
           )
           as _i5.Interceptors);
 
@@ -752,7 +770,10 @@ class MockDio extends _i1.Mock implements _i7.Dio {
       (super.noSuchMethod(
             Invocation.method(#fetch, [requestOptions]),
             returnValue: _i8.Future<_i6.Response<T>>.value(
-              _FakeResponse_4<T>(this, Invocation.method(#fetch, [requestOptions])),
+              _FakeResponse_4<T>(
+                this,
+                Invocation.method(#fetch, [requestOptions]),
+              ),
             ),
           )
           as _i8.Future<_i6.Response<T>>);

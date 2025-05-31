@@ -1,0 +1,6 @@
+appId: com.spiritflightapps.memverse
+---
+- launchApp
+- assertVisible: "Email or Username"
+- assertVisible: "Password"
+- assertVisible: "Login"

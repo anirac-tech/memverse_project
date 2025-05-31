@@ -25,7 +25,9 @@ void main() {
       // Act
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n)),
+          home: Scaffold(
+            body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n),
+          ),
         ),
       );
 
@@ -46,7 +48,9 @@ void main() {
       // Act
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n)),
+          home: Scaffold(
+            body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n),
+          ),
         ),
       );
 
@@ -65,7 +69,9 @@ void main() {
       // Act
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n)),
+          home: Scaffold(
+            body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n),
+          ),
         ),
       );
 
@@ -81,7 +87,9 @@ void main() {
       // Act
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n)),
+          home: Scaffold(
+            body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n),
+          ),
         ),
       );
 
@@ -101,7 +109,9 @@ void main() {
       // Act
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n)),
+          home: Scaffold(
+            body: QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: mockL10n),
+          ),
         ),
       );
 

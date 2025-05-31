@@ -23,9 +23,8 @@ class AuthWrapper extends HookConsumerWidget {
         return authState.isAuthenticated ? const MemversePage() : const LoginPage();
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error:
-          (_, __) =>
-              const Scaffold(body: Center(child: Text('Error checking authentication status'))),
+      error: (_, __) =>
+          const Scaffold(body: Center(child: Text('Error checking authentication status'))),
     );
   }
 }

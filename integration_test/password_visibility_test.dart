@@ -58,13 +58,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Enter it again to see what's in the field through UI
-      final textInField =
-          tester
-              .widget<EditableText>(
-                find.descendant(of: passwordField, matching: find.byType(EditableText)),
-              )
-              .controller
-              .text;
+      final textInField = tester
+          .widget<EditableText>(
+            find.descendant(of: passwordField, matching: find.byType(EditableText)),
+          )
+          .controller
+          .text;
 
       expect(textInField, equals(testPassword + testPassword));
     }, tags: ['integration']);

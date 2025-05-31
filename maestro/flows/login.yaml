@@ -1,0 +1,74 @@
+appId: com.example.memverse.development
+name: Login Test Flow
+tags:
+  - login
+  - auth
+
+env:
+  USERNAME: ${MEMVERSE_USERNAME}
+  PASSWORD: ${MEMVERSE_PASSWORD}
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+flows:
+  successful_login:
+    - takeScreenshot: "initial_screen"
+    - inputText:
+        id: "login_username_field"
+        text: ${USERNAME}
+    - inputText:
+        id: "login_password_field"
+        text: ${PASSWORD}
+    - takeScreenshot: "filled_credentials"
+    - tap:
+        id: "login_button"
+    - assertVisible: "Memverse Reference Test"
+    - takeScreenshot: "logged_in"
+
+  live_credentials_login:
+    # Test with the specific happy path credentials
+    - takeScreenshot: "live_login_start"
+    - inputText:
+        id: "login_username_field"
+        text: "njwandroid@gmaiml.com"
+    - inputText:
+        id: "login_password_field"
+        text: "fixmeplaceholder"
+    - takeScreenshot: "live_credentials_entered"
+    - tap:
+        id: "login_button"
+    - assertVisible: "Memverse Reference Test"
+    - takeScreenshot: "live_login_success"
+
+  failed_login:
+    - inputText:
+        id: "login_username_field"
+        text: "wrong@example.com"
+    - inputText:
+        id: "login_password_field"
+        text: "wrongpassword"
+    - takeScreenshot: "wrong_credentials"
+    - tap:
+        id: "login_button"
+    - assertVisible: "Invalid username or password"
+    - takeScreenshot: "login_error"
+
+  toggle_password:
+    - inputText:
+        id: "login_password_field"
+        text: "testpassword"
+    - tap:
+        id: "password_visibility_toggle"
+    - assertVisible:
+        id: "login_password_field"
+        text: "testpassword"
+    - takeScreenshot: "password_visible"
+    - tap:
+        id: "password_visibility_toggle"
+    - assertNotVisible:
+        id: "login_password_field"
+        text: "testpassword"
+    - takeScreenshot: "password_hidden"

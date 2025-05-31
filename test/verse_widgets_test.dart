@@ -17,7 +17,11 @@ void main() {
 
       final verse = Verse(text: verseText, reference: verseReference);
 
-      await tester.pumpWidget(MaterialApp(home: Material(child: VerseCard(verse: verse))));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(child: VerseCard(verse: verse)),
+        ),
+      );
 
       expect(find.text(verseText), findsOneWidget);
       expect(find.text(verseTranslation), findsOneWidget);
@@ -37,7 +41,9 @@ void main() {
     testWidgets('should show no questions message when empty', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Material(child: QuestionHistoryWidget(pastQuestions: const [], l10n: mockL10n)),
+          home: Material(
+            child: QuestionHistoryWidget(pastQuestions: const [], l10n: mockL10n),
+          ),
         ),
       );
 

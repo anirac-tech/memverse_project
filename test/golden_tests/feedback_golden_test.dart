@@ -29,7 +29,6 @@ void main() {
 
     // Mock verse repository to return empty list immediately
     when(() => mockVerseRepository.getVerses()).thenAnswer((_) async => []);
-    // Removed mock for currentVerse as it's not part of the interface
   });
 
   testWidgets('Golden test for Feedback UI overlay via MemversePage', (WidgetTester tester) async {
