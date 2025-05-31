@@ -9,6 +9,24 @@
 flutter test integration_test/high_coverage_integration_test.dart --reporter expanded
 ```
 
+### 0.1. BDD Widget Tests (NEW - EXPERIMENTAL)
+
+```bash
+# Generate BDD test files from feature files
+dart run build_runner build --delete-conflicting-outputs
+
+# Run BDD widget tests (estimated 45-55% coverage)
+flutter test integration_test/ --reporter expanded
+
+# Run with coverage
+flutter test --coverage integration_test/
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+```
+
+**Note**: BDD widget tests require proper step definitions. See `olexa_bdd_widget_test_steps.md` for
+complete setup instructions.
+
 ### 1. App Installation with Environment Variables
 
 ```bash
@@ -235,4 +253,3 @@ Create comprehensive Maestro tests and BDD widget integration tests to cover ent
 ---
 **Current Status**: Final testing of Maestro script ⏳  
 **Last Updated**: 2025-05-30 10:50:00 PM
-

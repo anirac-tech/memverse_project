@@ -5,6 +5,12 @@
 This guide provides step-by-step instructions for implementing BDD (Behavior-Driven Development)
 widget tests using the `bdd_widget_test` package in the Memverse Flutter project.
 
+**Estimated Coverage with Current BDD Tests: 45-55%**
+
+- The existing 3 feature files cover basic authentication, verse input/validation, and UI elements
+- Missing network error handling, complex verse scenarios, and edge cases
+- Good foundation but needs additional scenarios for higher coverage
+
 ## Prerequisites
 
 - Flutter SDK installed
@@ -191,7 +197,7 @@ flutter test integration_test/authentication_bdd_test.dart --plain-name "Success
 
 - **Edge Cases**: Unusual input formats, network failures
 - **Background Processing**: Timer-based operations
-- **Complex Business Logic**: Scoring, progress tracking
+- **Complex Business Logic**: Verse cycling, answer history management
 
 ### Estimated Total Coverage: **65-75%**
 
@@ -245,15 +251,23 @@ Create domain-specific steps for your app:
 ```dart
 // step/custom/i_am_logged_in_as.dart
 Future<void> iAmLoggedInAs(WidgetTester tester, String username) async {
-  // Custom login logic
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        authStateProvider.overrideWith((ref) => TestAuthNotifier()),
-      ],
-      child: const App(),
-    ),
-  );
+  // Check if already logged in and logout if necessary
+  if (find
+      .byIcon(Icons.logout)
+      .evaluate()
+      .isNotEmpty) {
+    await tester.tap(find.byIcon(Icons.logout));
+    await tester.pumpAndSettle();
+  }
+
+  // Now perform login
+  await tester.enterText(find.byKey(const ValueKey('login_username_field')), username);
+  await tester.enterText(find.byKey(const ValueKey('login_password_field')), 'fixmeplaceholder');
+  await tester.tap(find.byKey(const ValueKey('login_button')));
+  await tester.pumpAndSettle();
+
+  // Wait for login to complete
+  await tester.pump(const Duration(seconds: 2));
   await tester.pumpAndSettle();
 }
 ```
