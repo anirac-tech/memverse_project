@@ -22,7 +22,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: StatsAndHistorySection(l10n: mockL10n, pastQuestions: const [])),
+          home: Scaffold(
+            body: StatsAndHistorySection(l10n: mockL10n, pastQuestions: const []),
+          ),
         ),
       );
 

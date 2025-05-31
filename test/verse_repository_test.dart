@@ -147,9 +147,12 @@ void main() {
     });
 
     test('getVerses should throw when network error occurs', () async {
-      when(
-        mockDio.get<dynamic>(any, options: anyNamed('options')),
-      ).thenThrow(DioException(requestOptions: RequestOptions(path: '/'), error: 'Network error'));
+      when(mockDio.get<dynamic>(any, options: anyNamed('options'))).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/'),
+          error: 'Network error',
+        ),
+      );
 
       expect(() => repository.getVerses(), throwsA(isA<DioException>()));
     });

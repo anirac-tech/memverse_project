@@ -5,8 +5,8 @@ tags:
   - auth
 
 env:
-  USERNAME: "test@example.com"
-  PASSWORD: "password123"
+  USERNAME: ${MEMVERSE_USERNAME}
+  PASSWORD: ${MEMVERSE_PASSWORD}
 
 onFlowStart:
   - launchApp:
@@ -17,23 +17,38 @@ flows:
   successful_login:
     - takeScreenshot: "initial_screen"
     - inputText:
-        id: "username_field"
+        id: "login_username_field"
         text: ${USERNAME}
     - inputText:
-        id: "password_field"
+        id: "login_password_field"
         text: ${PASSWORD}
     - takeScreenshot: "filled_credentials"
     - tap:
         id: "login_button"
-    - assertVisible: "Home"
+    - assertVisible: "Memverse Reference Test"
     - takeScreenshot: "logged_in"
+
+  live_credentials_login:
+    # Test with the specific happy path credentials
+    - takeScreenshot: "live_login_start"
+    - inputText:
+        id: "login_username_field"
+        text: "njwandroid@gmaiml.com"
+    - inputText:
+        id: "login_password_field"
+        text: "fixmeplaceholder"
+    - takeScreenshot: "live_credentials_entered"
+    - tap:
+        id: "login_button"
+    - assertVisible: "Memverse Reference Test"
+    - takeScreenshot: "live_login_success"
 
   failed_login:
     - inputText:
-        id: "username_field"
+        id: "login_username_field"
         text: "wrong@example.com"
     - inputText:
-        id: "password_field"
+        id: "login_password_field"
         text: "wrongpassword"
     - takeScreenshot: "wrong_credentials"
     - tap:
@@ -43,17 +58,17 @@ flows:
 
   toggle_password:
     - inputText:
-        id: "password_field"
+        id: "login_password_field"
         text: "testpassword"
     - tap:
         id: "password_visibility_toggle"
     - assertVisible:
-        id: "password_field"
+        id: "login_password_field"
         text: "testpassword"
     - takeScreenshot: "password_visible"
     - tap:
         id: "password_visibility_toggle"
     - assertNotVisible:
-        id: "password_field"
+        id: "login_password_field"
         text: "testpassword"
     - takeScreenshot: "password_hidden"

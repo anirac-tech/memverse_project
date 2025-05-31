@@ -1,0 +1,122 @@
+appId: com.example.memverse.development
+name: Happy Path Test Flow - Complete User Journey
+tags:
+  - happy-path
+  - integration
+  - complete-flow
+
+env:
+  USERNAME: ${MEMVERSE_USERNAME}
+  PASSWORD: ${MEMVERSE_PASSWORD}
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+flows:
+  complete_happy_path:
+    # Step 1: Initial app launch and login
+    - takeScreenshot: "01_app_launch"
+    
+    # Verify login screen is visible
+    - assertVisible: "Welcome to Memverse"
+    - assertVisible:
+        id: "login_username_field"
+    - assertVisible:
+        id: "login_password_field"
+    
+    # Enter login credentials from environment variables
+    - inputText:
+        id: "login_username_field"
+        text: ${USERNAME}
+    - takeScreenshot: "02_username_entered"
+
+    - inputText:
+        id: "login_password_field"
+        text: ${PASSWORD}
+    - takeScreenshot: "03_credentials_filled"
+    
+    # Login
+    - tap:
+        id: "login_button"
+    - takeScreenshot: "04_login_submitted"
+    
+    # Wait for login to complete and main screen to load
+    - assertVisible: "Memverse Reference Test"
+    - takeScreenshot: "05_main_screen_loaded"
+    
+    # Step 2: First verse - "Col 1:17" (should be correct/green)
+    - assertVisible: "He is before all things, and in him all things hold together."
+    - takeScreenshot: "06_first_verse_displayed"
+    
+    # Enter the correct answer
+    - inputText:
+        text: "Col 1:17"
+    - takeScreenshot: "07_first_answer_entered"
+    
+    # Submit the answer
+    - tap:
+        key: "submit-ref"
+    - takeScreenshot: "08_first_answer_submitted"
+    
+    # Verify correct feedback (green)
+    - assertVisible: "Correct!"
+    - takeScreenshot: "09_first_answer_correct_feedback"
+    
+    # Wait for next verse to load
+    - wait: 2000
+    - takeScreenshot: "10_waiting_for_next_verse"
+    
+    # Step 3: Second verse - "Gal 5:2" (should be almost correct/orange)
+    - assertVisible: "It is for freedom that Christ has set us free"
+    - takeScreenshot: "11_second_verse_displayed"
+    
+    # Enter the almost correct answer
+    - inputText:
+        text: "Gal 5:2"
+    - takeScreenshot: "12_second_answer_entered"
+    
+    # Submit the answer
+    - tap:
+        key: "submit-ref"
+    - takeScreenshot: "13_second_answer_submitted"
+    
+    # Verify almost correct feedback (orange/not quite right)
+    - assertVisible: "Not quite right"
+    - takeScreenshot: "14_second_answer_almost_correct_feedback"
+    
+    # Final verification - check that we can see the history
+    - assertVisible: "Past Questions"
+    - takeScreenshot: "15_final_state_with_history"
+
+  # Alternative flow for testing individual components
+  login_only:
+    - takeScreenshot: "login_start"
+    - inputText:
+        id: "login_username_field"
+        text: ${USERNAME}
+    - inputText:
+        id: "login_password_field"
+        text: ${PASSWORD}
+    - tap:
+        id: "login_button"
+    - assertVisible: "Memverse Reference Test"
+    - takeScreenshot: "login_success"
+
+  verse_interaction_only:
+    # Assumes already logged in
+    - assertVisible: "He is before all things"
+    - inputText:
+        text: "Col 1:17"
+    - tap:
+        key: "submit-ref"
+    - assertVisible: "Correct!"
+    - wait: 2000
+    - assertVisible: "It is for freedom"
+    - inputText:
+        text: "Gal 5:2"
+    - tap:
+        key: "submit-ref"
+    - assertVisible: "Not quite right"
+    - takeScreenshot: "verse_interactions_complete"

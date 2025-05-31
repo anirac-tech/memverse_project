@@ -66,66 +66,59 @@ class VerseReferenceForm extends HookWidget {
     return InputDecoration(
       border: OutlineInputBorder(
         borderSide: BorderSide(
-          color:
-              showSuccessStyle
-                  ? Colors.green
-                  : showErrorStyle
-                  ? Colors.orange
-                  : Colors.grey[300]!,
+          color: showSuccessStyle
+              ? Colors.green
+              : showErrorStyle
+              ? Colors.orange
+              : Colors.grey[300]!,
           width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color:
-              showSuccessStyle
-                  ? Colors.green
-                  : showErrorStyle
-                  ? Colors.orange
-                  : Colors.grey[300]!,
+          color: showSuccessStyle
+              ? Colors.green
+              : showErrorStyle
+              ? Colors.orange
+              : Colors.grey[300]!,
           width: (showSuccessStyle || showErrorStyle) ? 2.0 : 1.0,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(
-          color:
-              showSuccessStyle
-                  ? Colors.green
-                  : showErrorStyle
-                  ? Colors.orange
-                  : Colors.blue,
+          color: showSuccessStyle
+              ? Colors.green
+              : showErrorStyle
+              ? Colors.orange
+              : Colors.blue,
           width: 2,
         ),
       ),
       hintText: l10n.enterReferenceHint,
-      helperText:
-          showSuccessStyle
-              ? l10n.correct
-              : showErrorStyle
-              ? l10n.notQuiteRight(expectedReference)
-              : l10n.referenceFormat,
+      helperText: showSuccessStyle
+          ? l10n.correct
+          : showErrorStyle
+          ? l10n.notQuiteRight(expectedReference)
+          : l10n.referenceFormat,
       helperStyle: TextStyle(
-        color:
-            showSuccessStyle
-                ? Colors.green
-                : showErrorStyle
-                ? Colors.orange
-                : Colors.grey[600],
+        color: showSuccessStyle
+            ? Colors.green
+            : showErrorStyle
+            ? Colors.orange
+            : Colors.grey[600],
         fontWeight: (showSuccessStyle || showErrorStyle) ? FontWeight.bold : FontWeight.normal,
       ),
-      suffixIcon:
-          showSuccessStyle
-              ? const Icon(Icons.check_circle, color: Colors.green)
-              : showErrorStyle
-              ? const Icon(Icons.cancel, color: Colors.orange)
-              : null,
+      suffixIcon: showSuccessStyle
+          ? const Icon(Icons.check_circle, color: Colors.green)
+          : showErrorStyle
+          ? const Icon(Icons.cancel, color: Colors.orange)
+          : null,
       filled: showSuccessStyle || showErrorStyle,
-      fillColor:
-          showSuccessStyle
-              ? Colors.green.withAlpha(25)
-              : showErrorStyle
-              ? Colors.orange.withAlpha(25)
-              : null,
+      fillColor: showSuccessStyle
+          ? Colors.green.withAlpha(25)
+          : showErrorStyle
+          ? Colors.orange.withAlpha(25)
+          : null,
     );
   }
 }

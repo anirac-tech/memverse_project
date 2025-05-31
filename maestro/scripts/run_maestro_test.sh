@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Maestro Test Runner Script
+# Based on patterns from NJWKotlinWebHostFlutterModuleNav
+# Usage: ./run_maestro_test.sh [options] <test-name>
+
+set -e
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -12,14 +18,22 @@ show_usage() {
     echo "  $0 [options] <test-name>"
     echo ""
     echo -e "${YELLOW}Options:${NC}"
-    echo "  -r, --record    Record a new test flow"
+    echo "  -v, --video     Record video of test execution"
     echo "  -p, --play      Play/run an existing test flow"
+    echo "  -c, --continuous Run in continuous mode (efficient for development)"
     echo "  -h, --help      Show this help message"
     echo ""
     echo -e "${YELLOW}Examples:${NC}"
-    echo "  $0 --record login          # Record a new login test flow"
     echo "  $0 --play login            # Run the login test flow"
-    echo "  $0 --play all             # Run all test flows"
+    echo "  $0 --video login           # Run login test and record video"
+    echo "  $0 --continuous happy_path # Run happy path in continuous mode"
+    echo "  $0 --play all              # Run all test flows"
+    echo ""
+    echo -e "${YELLOW}Continuous Mode Benefits:${NC}"
+    echo "  • Faster test execution by reusing app state"
+    echo "  • Automatic retry on failures"
+    echo "  • Real-time feedback during development"
+    echo "  • Ideal for iterative test development"
 }
 
 # Check if Maestro is installed
@@ -31,7 +45,7 @@ check_maestro() {
     fi
 }
 
-# Ensure the Flutter app is running for recording/playing tests
+# Ensure the Flutter app is running for testing
 ensure_app_running() {
     # Check if Flutter app is running
     if ! pgrep -f "flutter run" > /dev/null; then
@@ -41,37 +55,18 @@ ensure_app_running() {
     fi
 }
 
-# Record a new test flow
-record_test() {
-    local test_name=$1
-    local flow_path="maestro/flows/${test_name}.yaml"
-    
-    if [ -f "$flow_path" ]; then
-        echo -e "${YELLOW}Warning: Test flow '$test_name' already exists${NC}"
-        read -p "Do you want to overwrite it? (y/N) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo -e "${RED}Recording cancelled${NC}"
-            exit 1
-        fi
-    fi
-    
-    echo -e "${GREEN}Recording test flow: $test_name${NC}"
-    echo -e "${YELLOW}Please interact with your app now. Press Ctrl+C when done.${NC}"
-    
-    maestro record -f "$flow_path"
-}
-
-# Run a test flow
+# Run a test flow with optional video recording and continuous mode
 run_test() {
     local test_name=$1
+    local record_video=$2
+    local continuous_mode=$3
     local flow_path="maestro/flows/${test_name}.yaml"
     
     if [ "$test_name" = "all" ]; then
         echo -e "${GREEN}Running all test flows...${NC}"
         for flow in maestro/flows/*.yaml; do
             echo -e "${YELLOW}Running flow: $(basename "$flow")${NC}"
-            maestro test "$flow"
+            run_single_flow "$flow" "$record_video" "$continuous_mode"
         done
     else
         if [ ! -f "$flow_path" ]; then
@@ -79,7 +74,57 @@ run_test() {
             exit 1
         fi
         echo -e "${GREEN}Running test flow: $test_name${NC}"
-        maestro test "$flow_path"
+        run_single_flow "$flow_path" "$record_video" "$continuous_mode"
+    fi
+}
+
+# Run a single flow with specified options
+run_single_flow() {
+    local flow_path=$1
+    local record_video=$2
+    local continuous_mode=$3
+    
+    # Build maestro command
+    local maestro_cmd="maestro test"
+    
+    # Add continuous flag for efficient development testing
+    if [ "$continuous_mode" = "true" ]; then
+        maestro_cmd="$maestro_cmd --continuous"
+        echo -e "${YELLOW}Running in continuous mode for efficient development...${NC}"
+    fi
+    
+    # Add video recording if requested
+    if [ "$record_video" = "true" ]; then
+        local timestamp=$(date +%Y%m%d_%H%M%S)
+        local flow_name=$(basename "$flow_path" .yaml)
+        local video_file="maestro/videos/${flow_name}_${timestamp}.mp4"
+        
+        # Ensure videos directory exists
+        mkdir -p maestro/videos
+        
+        echo -e "${YELLOW}Recording video to: $video_file${NC}"
+        maestro_cmd="maestro test --record $video_file"
+        
+        # Note: continuous mode and video recording may not be compatible
+        if [ "$continuous_mode" = "true" ]; then
+            echo -e "${YELLOW}Note: Continuous mode disabled for video recording${NC}"
+        fi
+    fi
+    
+    # Add the flow path
+    maestro_cmd="$maestro_cmd $flow_path"
+    
+    echo -e "${YELLOW}Executing: $maestro_cmd${NC}"
+    
+    # Run the command
+    if eval "$maestro_cmd"; then
+        echo -e "${GREEN}✅ Flow completed successfully: $(basename "$flow_path")${NC}"
+    else
+        echo -e "${RED}❌ Flow failed: $(basename "$flow_path")${NC}"
+        if [ "$continuous_mode" = "true" ]; then
+            echo -e "${YELLOW}Continuous mode will retry automatically...${NC}"
+        fi
+        return 1
     fi
 }
 
@@ -87,15 +132,27 @@ run_test() {
 main() {
     check_maestro
     
+    local record_video="false"
+    local continuous_mode="false"
+    local test_name=""
+    local mode=""
+    
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -r|--record)
-                MODE="record"
+            -v|--video)
+                record_video="true"
+                mode="play"
                 shift
                 ;;
             -p|--play)
-                MODE="play"
+                mode="play"
+                shift
+                ;;
+            -c|--continuous)
+                continuous_mode="true"
+                mode="play"
+                echo -e "${GREEN}Continuous mode enabled for efficient development${NC}"
                 shift
                 ;;
             -h|--help)
@@ -103,30 +160,36 @@ main() {
                 exit 0
                 ;;
             *)
-                TEST_NAME="$1"
+                test_name="$1"
                 shift
                 ;;
         esac
     done
     
     # Validate arguments
-    if [ -z "$MODE" ] || [ -z "$TEST_NAME" ]; then
+    if [ -z "$mode" ] || [ -z "$test_name" ]; then
         show_usage
         exit 1
+    fi
+    
+    # Set environment variables for secure credential handling
+    if [ -z "$MEMVERSE_USERNAME" ] || [ -z "$MEMVERSE_PASSWORD" ]; then
+        echo -e "${YELLOW}Warning: MEMVERSE_USERNAME and MEMVERSE_PASSWORD not set${NC}"
+        echo "Set environment variables for login flows:"
+        echo "  export MEMVERSE_USERNAME=your_username@example.com"
+        echo "  export MEMVERSE_PASSWORD=your_password"
     fi
     
     # Ensure the Flutter app is running
     ensure_app_running
     
     # Execute requested mode
-    case $MODE in
-        record)
-            record_test "$TEST_NAME"
-            ;;
+    case $mode in
         play)
-            run_test "$TEST_NAME"
+            run_test "$test_name" "$record_video" "$continuous_mode"
             ;;
     esac
 }
 
+# Run main function
 main "$@"

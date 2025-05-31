@@ -3,7 +3,8 @@ name: Verse Management Test Flow
 tags:
   - verses
   - memorization
-
+# Manual note: I wonder how it came up with this stuff
+# when there's no add or delete in my app!
 onFlowStart:
   - launchApp:
       clearState: true

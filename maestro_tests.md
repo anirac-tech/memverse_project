@@ -40,11 +40,11 @@ maestro/
 ### Using the Test Runner Script
 
 ```bash
-# Record a new test
-./maestro/scripts/run_maestro_test.sh --record login
-
 # Run a specific test
 ./maestro/scripts/run_maestro_test.sh --play login
+
+# Run a test and record video
+./maestro/scripts/run_maestro_test.sh --video login
 
 # Run all tests
 ./maestro/scripts/run_maestro_test.sh --play all
@@ -82,7 +82,7 @@ onFlowStart:
 flows:
   main_flow:
     - assertVisible: "Text to find"
-    - tap:
+    - tapOn:
         id: "button_id"
     - takeScreenshot: "screenshot_name"
 ```
@@ -98,7 +98,7 @@ flows:
 
 2. **Actions**
    ```yaml
-   - tap:
+   - tapOn:
        id: "button_id"
    - inputText:
        id: "input_field"
@@ -121,7 +121,7 @@ flows:
    - repeat:
        times: 3
        commands:
-         - tap: "Button"
+         - tapOn: "Button"
    ```
 
 ## Best Practices

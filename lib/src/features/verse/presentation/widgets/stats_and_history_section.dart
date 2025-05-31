@@ -9,6 +9,7 @@ class StatsAndHistorySection extends StatelessWidget {
   final List<String> pastQuestions;
 
   @override
-  Widget build(BuildContext context) =>
-      Column(children: <Widget>[QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: l10n)]);
+  Widget build(BuildContext context) => Column(
+    children: <Widget>[QuestionHistoryWidget(pastQuestions: pastQuestions, l10n: l10n)],
+  );
 }
