@@ -1,0 +1,18 @@
+# Simple empty login test - just launches app and taps Login button
+appId: com.spiritflightapps.memverse
+name: Empty Login Test Flow
+tags:
+  - login
+  - empty-test
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+---
+# Test empty login - just launch and tap Login button
+- takeScreenshot: "initial_screen"
+- tapOn: "Login"
+- waitForAnimationToEnd
+- takeScreenshot: "after_empty_login_attempt"

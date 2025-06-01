@@ -26,7 +26,7 @@ class LoginPage extends HookConsumerWidget {
       appBar: AppBar(title: const Text('Memverse Login')),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16), // Changed from 16.0 to 16
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: formKey,
             child: Column(
@@ -120,7 +120,7 @@ class LoginPage extends HookConsumerWidget {
                     ),
                     validator: (value) =>
                         value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
-                    textInputAction: TextInputAction.done,
+                    textInputAction: TextInputAction.go,
                     onFieldSubmitted: (_) {
                       if (formKey.currentState!.validate()) {
                         ref
@@ -131,23 +131,27 @@ class LoginPage extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                ElevatedButton(
-                  key: loginButtonKey,
-                  onPressed: authState.isLoading
-                      ? null
-                      : () async {
-                          if (formKey.currentState!.validate()) {
-                            await ref
-                                .read(authStateProvider.notifier)
-                                .login(usernameController.text, passwordController.text);
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                Semantics(
+                  identifier: 'login_button',
+                  button: true,
+                  child: ElevatedButton(
+                    key: loginButtonKey,
+                    onPressed: authState.isLoading
+                        ? null
+                        : () async {
+                            if (formKey.currentState!.validate()) {
+                              await ref
+                                  .read(authStateProvider.notifier)
+                                  .login(usernameController.text, passwordController.text);
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: authState.isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(l10n.login, style: const TextStyle(fontSize: 16)),
                   ),
-                  child: authState.isLoading
-                      ? const CircularProgressIndicator()
-                      : Text(l10n.login, style: const TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(height: 16),
                 if (authState.error != null)

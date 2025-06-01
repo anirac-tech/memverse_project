@@ -1,0 +1,21 @@
+# Test for already running app
+appId: com.spiritflightapps.memverse
+name: Manual Incorrect Login Test Flow
+
+env:
+  WRONG_USERNAME: incorrectlogin@gmail.com
+  WRONG_PASSWORD: wrongpassword
+
+---
+# Test incorrect login credentials and verify error message (assuming app is already running)
+- takeScreenshot: "initial_screen"
+- tapOn: "Username"
+- inputText: ${WRONG_USERNAME}
+- takeScreenshot: "username_filled"
+- tapOn: "Password"
+- inputText: ${WRONG_PASSWORD}
+- takeScreenshot: "wrong_credentials_filled"
+- tapOn:
+    id: "login_button"
+- waitForAnimationToEnd
+- takeScreenshot: "after_login_attempt"

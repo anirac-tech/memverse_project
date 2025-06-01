@@ -2,6 +2,18 @@
 
 ## 🔥 FIREBENDER RULES - NEVER BREAK THESE
 
+### Rule 0: FLAVORED FLUTTER APP REQUIREMENTS
+
+- ✅ This is a FLAVORED Flutter app - ALWAYS use `main_development.dart`
+- ✅ Build:
+  `flutter build apk --debug --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID`
+- ✅ Install:
+  `flutter install --debug --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID`
+- ✅ Run: `flutter run --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID`
+- ✅ CLIENT_ID environment variable is REQUIRED for build and runtime
+- ❌ NEVER use default `lib/main.dart` - it doesn't exist
+- ❌ NEVER build without CLIENT_ID - app will fail to function
+
 ### Rule 1: ALWAYS Use Semantic Identifiers for Text Fields, Text for Buttons
 
 - ✅ Text Fields: `Semantics(identifier: 'textUsername', child: TextFormField())`

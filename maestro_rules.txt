@@ -1,0 +1,35 @@
+# Maestro E2E Testing Rules & Best Practices
+
+## App Launch Configuration
+- Use `launchApp` without clearState/clearKeychain for most tests to avoid connection issues
+- Only use clearState when specifically testing fresh app state
+- App must be installed on device before running tests
+
+## Flutter App Specifics
+- This is a flavored Flutter app that requires `main_development.dart` as the entry point
+- CLIENT_ID environment variable is required for builds and app functionality
+- Build with: `flutter build apk --debug --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID`
+- Install with: `flutter install --debug --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID`
+
+## Login Validation Testing
+- Empty field validation messages:
+  - Username: "Please enter your username" 
+  - Password: "Please enter your password"
+- Form validation happens on Login button tap
+- Use `assertVisible` with exact text match for validation messages
+
+## Common Issues & Solutions
+- "Unable to launch app" error: App not installed on device
+- Connection timeouts: Avoid clearState/clearKeychain unless necessary
+- Text assertions failing: Check exact text match including case and punctuation
+
+## Test Structure Best Practices
+- Take screenshots before and after critical actions
+- Use `waitForAnimationToEnd` after user interactions
+- Group related tests with appropriate tags
+- Use descriptive screenshot names for debugging
+
+## Device Requirements
+- Android device connected via ADB
+- App package: com.spiritflightapps.memverse
+- Ensure device has sufficient permissions for app installation

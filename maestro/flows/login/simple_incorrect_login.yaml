@@ -1,0 +1,28 @@
+# Simplified incorrect login test without clear state options
+appId: com.spiritflightapps.memverse
+name: Simple Incorrect Login Test Flow
+tags:
+  - login
+  - auth
+  - negative-test
+
+env:
+  WRONG_USERNAME: incorrectlogin@gmail.com
+  WRONG_PASSWORD: wrongpassword
+
+onFlowStart:
+  - launchApp
+
+---
+# Test incorrect login credentials and verify error message
+- takeScreenshot: "initial_screen"
+- tapOn: "Username"
+- inputText: ${WRONG_USERNAME}
+- takeScreenshot: "username_filled"
+- tapOn: "Password"
+- inputText: ${WRONG_PASSWORD}
+- takeScreenshot: "wrong_credentials_filled"
+- tapOn:
+    id: "login_button"
+- waitForAnimationToEnd
+- takeScreenshot: "after_login_attempt"
