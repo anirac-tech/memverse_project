@@ -1,0 +1,46 @@
+# Test incorrect login with keyboard action and back button scenarios
+appId: com.spiritflightapps.memverse
+name: Incorrect Login Dual Scenarios Test Flow
+tags:
+  - login
+  - auth
+  - negative-test
+  - keyboard
+
+env:
+  WRONG_USERNAME: incorrectlogin@gmail.com
+  WRONG_PASSWORD: wrongpassword
+
+---
+# Scenario 1: Use keyboard "Go" action to submit login
+- takeScreenshot: "initial_screen"
+- tapOn:
+    text: "Username field"
+- inputText: ${WRONG_USERNAME}
+- takeScreenshot: "username_filled"
+- tapOn:
+    text: "Password field"
+- inputText: ${WRONG_PASSWORD}
+- takeScreenshot: "password_filled_keyboard_visible"
+# Try to use keyboard "Go" action (Enter key)
+- pressKey: Enter
+- waitForAnimationToEnd
+- takeScreenshot: "after_keyboard_go_attempt"
+
+---
+# Scenario 2: Use back button to dismiss keyboard, then tap Login button
+- takeScreenshot: "second_scenario_start"
+- tapOn:
+    text: "Username field"
+- inputText: ${WRONG_USERNAME}
+- tapOn:
+    text: "Password field"
+- inputText: ${WRONG_PASSWORD}
+- takeScreenshot: "before_back_button"
+# Use back button to dismiss keyboard
+- back
+- takeScreenshot: "keyboard_dismissed"
+# Now tap the Login button that should be visible
+- tapOn: "Login"
+- waitForAnimationToEnd
+- takeScreenshot: "after_button_login_attempt"

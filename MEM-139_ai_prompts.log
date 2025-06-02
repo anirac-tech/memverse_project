@@ -1,0 +1,8 @@
+STATUS: ✅ COMPLETED - Loom recording infrastructure ready for video creation!
+
+2025-05-31 11:53:13 AM
+USER: ok, is there any possible lessons learned you could document in ai_lessons_learned_31_may_am.md file about firebender rules, flavors, maestro launching with or without the app present and textfields with maestro including 1) tapping via the hint 2)   semantics label and 3)  semantics id (bartek pacia's PR recently to flutter)
+
+RESPONSE SUMMARY: Creating comprehensive lessons learned document covering Firebender rules, Flutter flavors, Maestro app launching strategies, and text field interaction approaches.
+
+STATUS: IN PROGRESS

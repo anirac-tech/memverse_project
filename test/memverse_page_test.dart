@@ -6,7 +6,6 @@ import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/reference_gauge.dart';
 import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -53,7 +52,6 @@ void main() {
             child: QuestionSection(
               versesAsync: asyncValue,
               currentVerseIndex: 0,
-              questionNumber: 1,
               l10n: mockL10n,
               answerController: answerController,
               answerFocusNode: answerFocusNode,
@@ -65,8 +63,6 @@ void main() {
         ),
       );
 
-      // Looking for the RichText that contains Question: 1
-      expect(find.byType(RichText), findsAtLeastNWidgets(1));
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
@@ -79,7 +75,6 @@ void main() {
             child: QuestionSection(
               versesAsync: asyncValue,
               currentVerseIndex: 0,
-              questionNumber: 1,
               l10n: mockL10n,
               answerController: answerController,
               answerFocusNode: answerFocusNode,
@@ -91,8 +86,6 @@ void main() {
         ),
       );
 
-      // Looking for the RichText that contains Question: 1
-      expect(find.byType(RichText), findsAtLeastNWidgets(1));
       expect(find.text('Error loading verses: Failed to load verses'), findsOneWidget);
     });
   });
@@ -156,10 +149,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // After loading
-      expect(find.byType(RichText), findsAtLeastNWidgets(1)); // At least one RichText widget
       expect(find.byType(ElevatedButton), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.byType(ReferenceGauge), findsOneWidget);
     });
 
     testWidgets('shows snackbar for empty reference submission', (WidgetTester tester) async {
@@ -255,10 +246,6 @@ void main() {
 
       // Wait for snackbar to disappear
       await tester.pump(const Duration(seconds: 3));
-
-      // Verify progress is updated
-      final referenceFinder = find.byType(ReferenceGauge);
-      expect(referenceFinder, findsOneWidget);
     });
 
     testWidgets('handles invalid reference format correctly', (WidgetTester tester) async {
@@ -318,13 +305,6 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 
       expect(find.text('In the beginning...'), findsOneWidget);
-      expect(find.byType(RichText), findsAtLeastNWidgets(1));
-      final questionText = tester.widget<RichText>(find.byType(RichText).first).text as TextSpan;
-      final children = questionText.children;
-      expect(children, isNotNull);
-      expect(children!.length, 2);
-      final numberSpan = children[1] as TextSpan;
-      expect(numberSpan.text, '3');
     });
   });
 

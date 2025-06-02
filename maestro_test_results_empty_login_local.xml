@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="48050DLAQ0091E" tests="1" failures="1" time="9">
+    <testcase id="Empty Login Validation Test Flow" name="Empty Login Validation Test Flow" classname="Empty Login Validation Test Flow" time="9" status="ERROR">
+      <failure>Unable to launch app com.spiritflightapps.memverse: null</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

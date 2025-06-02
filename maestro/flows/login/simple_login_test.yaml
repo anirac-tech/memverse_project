@@ -1,0 +1,12 @@
+# To launch with different flavors:
+# Development: maestro test --app-id com.example.memverse.development maestro/flows/simple_login_test.yaml
+# Staging: maestro test --app-id com.example.memverse.staging maestro/flows/simple_login_test.yaml  
+# Production: maestro test --app-id com.example.memverse maestro/flows/simple_login_test.yaml
+
+appId: com.spiritflightapps.memverse
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- assertVisible: "Password"
+- assertVisible: "Login"

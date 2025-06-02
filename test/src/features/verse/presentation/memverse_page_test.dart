@@ -29,7 +29,9 @@ class _MockMemversePageState extends State<MockMemversePage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Card(child: Padding(padding: const EdgeInsets.all(16), child: Text(displayedVerse))),
+              Card(
+                child: Padding(padding: const EdgeInsets.all(16), child: Text(displayedVerse)),
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: textController,

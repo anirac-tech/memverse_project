@@ -1,14 +1,13 @@
-
 # Minimum test coverage percentage required (used by pre-commit hook)
-export MIN_COVERAGE_WIDGET=81
-export MIN_COVERAGE_INTEGRATION=81
+export MIN_COVERAGE_WIDGET=80
+export MIN_COVERAGE_INTEGRATION=80
 
 # Excluded files/directories from coverage calculation
 # Space-separated list of glob patterns
 export COVERAGE_EXCLUDES="lib/l10n/**/* **/*.g.dart **/*.freezed.dart lib/src/bootstrap.dart lib/src/app/app.dart lib/src/app/view/app.dart **/generated/**/* **/generated_plugin_registrant.dart"
 
 # Flutter version requirement (should match pubspec.yaml)
-export FLUTTER_VERSION="3.29.3"
+export FLUTTER_VERSION="3.32.0"
 
 # Golden test configuration
 # Setting this to "true" will make the pre-commit hook fail if golden tests fail

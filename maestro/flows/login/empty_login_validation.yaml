@@ -1,0 +1,23 @@
+# Empty login validation test - user taps Login without entering credentials
+# This is a real-world scenario where users forget to fill in username/password
+appId: com.spiritflightapps.memverse
+name: Empty Login Validation Test Flow
+tags:
+  - login
+  - validation
+  - empty-fields
+  - user-error
+
+---
+# Real-world scenario: User taps Login button without entering any credentials (app already running)
+- takeScreenshot: "login_screen_empty"
+- tapOn: "Login"
+- waitForAnimationToEnd
+- takeScreenshot: "empty_login_validation_error"
+
+# The app should show validation error messages
+- assertVisible:
+    text: "Please enter your username"
+- assertVisible:
+    text: "Please enter your password"
+- takeScreenshot: "validation_messages_visible"

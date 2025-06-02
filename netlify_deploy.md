@@ -149,7 +149,7 @@ redirect rules for the Netlify platform.
 
 To summarize key aspects of the current deployment setup:
 
-1. **Flutter Installation:** Flutter version 3.29.3 is downloaded and installed during the build
+1. **Flutter Installation:** Flutter version 3.32.0 is downloaded and installed during the build
    process directly from Google's servers using `curl` and `tar`.
 2. **Web Build:** The app is built for web with `flutter build web --release` along with appropriate
    `--dart-define` parameters.
@@ -161,5 +161,3 @@ To summarize key aspects of the current deployment setup:
 4. **Entry Point:** Using `lib/main_development.dart` instead of default `lib/main.dart`.
 5. **CORS Proxy:** A serverless function (`netlify/functions/api.js`) handles the CORS proxying,
    making external API calls possible from the web app.
-
----

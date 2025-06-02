@@ -26,32 +26,30 @@ class QuestionHistoryWidget extends StatelessWidget {
           key: const Key('past-questions'),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children:
-                pastQuestions.isEmpty
-                    ? [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(l10n.noPreviousQuestions),
-                      ),
-                    ]
-                    : pastQuestions
-                        .map(
-                          (feedback) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              feedback,
-                              style: TextStyle(
-                                color:
-                                    feedback.contains(' Correct!') ? Colors.green : Colors.orange,
-                                fontWeight:
-                                    pastQuestions.indexOf(feedback) == pastQuestions.length - 1
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                              ),
+            children: pastQuestions.isEmpty
+                ? [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(l10n.noPreviousQuestions),
+                    ),
+                  ]
+                : pastQuestions
+                      .map(
+                        (feedback) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            feedback,
+                            style: TextStyle(
+                              color: feedback.contains(' Correct!') ? Colors.green : Colors.orange,
+                              fontWeight:
+                                  pastQuestions.indexOf(feedback) == pastQuestions.length - 1
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
-                        )
-                        .toList(),
+                        ),
+                      )
+                      .toList(),
           ),
         ),
       ],

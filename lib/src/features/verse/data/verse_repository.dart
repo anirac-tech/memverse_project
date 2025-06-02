@@ -119,10 +119,9 @@ class LiveVerseRepository implements VerseRepository {
       }
 
       // Construct the URL based on the platform
-      const getVersesUrl =
-          kIsWeb
-              ? '$webApiPrefix$_memversesPath' // Use proxy for web
-              : '$apiBaseUrl$_memversesPath'; // Use direct URL otherwise
+      const getVersesUrl = kIsWeb
+          ? '$webApiPrefix$_memversesPath' // Use proxy for web
+          : '$apiBaseUrl$_memversesPath'; // Use direct URL otherwise
 
       // Always output token for debugging (not just in debug mode)
       final redactedToken = token.isEmpty ? '' : '${token.substring(0, 4)}...';
@@ -284,6 +283,18 @@ class FakeVerseRepository implements VerseRepository {
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     return [
+      // First verse for testing "Col 1:17" (correct answer)
+      Verse(
+        text: 'He is before all things, and in him all things hold together.',
+        reference: 'Colossians 1:17',
+      ),
+      // Second verse for testing "Gal 5:1" (almost correct answer)
+      Verse(
+        text:
+            'It is for freedom that Christ has set us free. Stand firm, then, and do not let yourselves be burdened again by a yoke of slavery.',
+        reference: 'Galatians 5:1',
+      ),
+      // Additional verses for variety
       Verse(
         text: 'In the beginning God created the heavens and the earth.',
         reference: 'Genesis 1:1',
@@ -300,17 +311,6 @@ class FakeVerseRepository implements VerseRepository {
             'Trust in the LORD with all your heart; do not depend on your own '
             'understanding.',
         reference: 'Proverbs 3:5',
-      ),
-      Verse(
-        text: 'I can do everything through Christ, who gives me strength.',
-        reference: 'Philippians 4:13',
-      ),
-      Verse(
-        text:
-            'And we know that God causes everything to work together for the'
-            ' good of those who love God and are called according to '
-            'his purpose for them.',
-        reference: 'Romans 8:28',
       ),
     ];
   }

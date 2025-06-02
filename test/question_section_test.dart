@@ -44,47 +44,6 @@ void main() {
       ),
     ];
 
-    testWidgets('renders question number correctly', (WidgetTester tester) async {
-      // Arrange
-      const questionNumber = 5;
-      final versesAsync = AsyncValue.data(testVerses);
-
-      // Act
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: QuestionSection(
-                versesAsync: versesAsync,
-                currentVerseIndex: 0,
-                questionNumber: questionNumber,
-                l10n: mockL10n,
-                answerController: answerController,
-                answerFocusNode: answerFocusNode,
-                hasSubmittedAnswer: false,
-                isAnswerCorrect: false,
-                onSubmitAnswer: (_) {},
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // Assert
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is RichText && widget.text.toPlainText().contains('Question: '),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is RichText && widget.text.toPlainText().contains('$questionNumber'),
-        ),
-        findsOneWidget,
-      );
-    });
-
     testWidgets('displays correct verse based on index', (WidgetTester tester) async {
       // Arrange
       final versesAsync = AsyncValue.data(testVerses);
@@ -97,7 +56,6 @@ void main() {
               body: QuestionSection(
                 versesAsync: versesAsync,
                 currentVerseIndex: 0,
-                questionNumber: 1,
                 l10n: mockL10n,
                 answerController: answerController,
                 answerFocusNode: answerFocusNode,
@@ -125,7 +83,6 @@ void main() {
               body: QuestionSection(
                 versesAsync: versesAsync,
                 currentVerseIndex: 1,
-                questionNumber: 2,
                 l10n: mockL10n,
                 answerController: answerController,
                 answerFocusNode: answerFocusNode,
@@ -160,7 +117,6 @@ void main() {
               body: QuestionSection(
                 versesAsync: versesAsync,
                 currentVerseIndex: 0,
-                questionNumber: 1,
                 l10n: mockL10n,
                 answerController: answerController,
                 answerFocusNode: answerFocusNode,
@@ -192,7 +148,6 @@ void main() {
               body: QuestionSection(
                 versesAsync: versesAsync,
                 currentVerseIndex: 0,
-                questionNumber: 1,
                 l10n: mockL10n,
                 answerController: answerController,
                 answerFocusNode: answerFocusNode,
@@ -227,7 +182,6 @@ void main() {
               body: QuestionSection(
                 versesAsync: versesAsync,
                 currentVerseIndex: 0,
-                questionNumber: 1,
                 l10n: mockL10n,
                 answerController: answerController,
                 answerFocusNode: answerFocusNode,

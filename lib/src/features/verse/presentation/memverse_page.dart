@@ -29,15 +29,10 @@ class MemversePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentVerseIndex = useState(0);
-    final questionNumber = useState(1);
     final answerController = useTextEditingController();
     final answerFocusNode = useFocusNode();
     final hasSubmittedAnswer = useState(false);
     final isAnswerCorrect = useState(false);
-    final progress = useState<double>(0);
-    final totalCorrect = useState<int>(0);
-    final totalAnswered = useState<int>(0);
-    final overdueReferences = useState(5);
     final pastQuestions = useState<List<String>>([]);
 
     final l10n = AppLocalizations.of(context);
@@ -54,8 +49,6 @@ class MemversePage extends HookConsumerWidget {
       answerController.clear();
       hasSubmittedAnswer.value = false;
       isAnswerCorrect.value = false;
-
-      questionNumber.value++;
 
       // Update the current verse index only if we have verses data
       versesAsync.whenData((verses) {
@@ -119,28 +112,15 @@ class MemversePage extends HookConsumerWidget {
         hasSubmittedAnswer.value = true;
         isAnswerCorrect.value = isCorrect;
 
-        if (isCorrect) {
-          totalCorrect.value++;
-          if (overdueReferences.value > 0) {
-            overdueReferences.value--;
-          }
-        }
-
-        totalAnswered.value++;
-        progress.value =
-            totalAnswered.value > 0 ? (totalCorrect.value * 100 / totalAnswered.value) : 0;
-
-        final feedback =
-            isCorrect
-                ? '$userAnswer-[$expectedReference] Correct!'
-                : '$userAnswer-[$expectedReference] Incorrect';
+        final feedback = isCorrect
+            ? '$userAnswer-[$expectedReference] Correct!'
+            : '$userAnswer-[$expectedReference] Incorrect';
 
         pastQuestions.value = [...pastQuestions.value, feedback];
 
-        final detailedFeedback =
-            isCorrect
-                ? l10n.correctReferenceIdentification(expectedReference)
-                : l10n.notQuiteRight(expectedReference);
+        final detailedFeedback = isCorrect
+            ? l10n.correctReferenceIdentification(expectedReference)
+            : l10n.notQuiteRight(expectedReference);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -199,19 +179,43 @@ class MemversePage extends HookConsumerWidget {
             ],
           ),
           margin: const EdgeInsets.all(16),
-          child:
-              isSmallScreen
-                  ? Column(
-                    children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.5,
-                          minHeight: 250,
-                        ),
+          child: isSmallScreen
+              ? Column(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.5,
+                        minHeight: 250,
+                      ),
+                      child: QuestionSection(
+                        versesAsync: versesAsync,
+                        currentVerseIndex: currentVerseIndex.value,
+                        l10n: l10n,
+                        answerController: answerController,
+                        answerFocusNode: answerFocusNode,
+                        hasSubmittedAnswer: hasSubmittedAnswer.value,
+                        isAnswerCorrect: isAnswerCorrect.value,
+                        onSubmitAnswer: submitAnswer,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    StatsAndHistorySection(l10n: l10n, pastQuestions: pastQuestions.value),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.8,
                         child: QuestionSection(
                           versesAsync: versesAsync,
-                          currentVerseIndex: currentVerseIndex.value,
-                          questionNumber: questionNumber.value,
+                          currentVerseIndex: versesAsync.maybeWhen(
+                            data: (verses) => currentVerseIndex.value < verses.length
+                                ? currentVerseIndex.value
+                                : 0,
+                            orElse: () => 0,
+                          ),
                           l10n: l10n,
                           answerController: answerController,
                           answerFocusNode: answerFocusNode,
@@ -220,56 +224,13 @@ class MemversePage extends HookConsumerWidget {
                           onSubmitAnswer: submitAnswer,
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      StatsAndHistorySection(
-                        progress: progress.value,
-                        totalCorrect: totalCorrect.value,
-                        totalAnswered: totalAnswered.value,
-                        l10n: l10n,
-                        overdueReferences: overdueReferences.value,
-                        pastQuestions: pastQuestions.value,
-                      ),
-                    ],
-                  )
-                  : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: QuestionSection(
-                            versesAsync: versesAsync,
-                            currentVerseIndex: versesAsync.maybeWhen(
-                              data:
-                                  (verses) =>
-                                      currentVerseIndex.value < verses.length
-                                          ? currentVerseIndex.value
-                                          : 0,
-                              orElse: () => 0,
-                            ),
-                            questionNumber: questionNumber.value,
-                            l10n: l10n,
-                            answerController: answerController,
-                            answerFocusNode: answerFocusNode,
-                            hasSubmittedAnswer: hasSubmittedAnswer.value,
-                            isAnswerCorrect: isAnswerCorrect.value,
-                            onSubmitAnswer: submitAnswer,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: StatsAndHistorySection(
-                          progress: progress.value,
-                          totalCorrect: totalCorrect.value,
-                          totalAnswered: totalAnswered.value,
-                          l10n: l10n,
-                          overdueReferences: overdueReferences.value,
-                          pastQuestions: pastQuestions.value,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: StatsAndHistorySection(l10n: l10n, pastQuestions: pastQuestions.value),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

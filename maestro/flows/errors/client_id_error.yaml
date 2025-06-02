@@ -1,0 +1,25 @@
+# Client ID error test - app launched without proper client ID configuration
+appId: com.spiritflightapps.memverse
+name: Client ID Error Test Flow
+tags:
+  - error
+  - client-id
+  - configuration
+
+# This test simulates the app being launched without proper CLIENT_ID environment variable
+# In normal setup, CLIENT_ID should be set in environment variables during app installation
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+---
+# Test what happens when CLIENT_ID is missing or invalid
+- takeScreenshot: "initial_screen_no_client_id"
+- waitForAnimationToEnd: 5000
+- takeScreenshot: "client_id_error_state"
+# The app should show an error message about missing client configuration
+- assertVisible:
+    text: "Configuration Error"
+- takeScreenshot: "configuration_error_visible"

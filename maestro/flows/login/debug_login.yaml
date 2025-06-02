@@ -1,0 +1,40 @@
+# Debug test to verify semantic identifiers are working
+# This will help us troubleshoot text input issues
+
+appId: com.spiritflightapps.memverse
+name: Debug Login Test Flow
+tags:
+  - debug
+  - login
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+---
+# Debug approach - try multiple ways to input text
+- takeScreenshot: "debug_initial_screen"
+
+# Try approach 1: semantic identifier
+- inputText:
+    text: "debuguser@test.com"
+    id: "textUsername"
+- takeScreenshot: "debug_after_username_id"
+
+# Try approach 2: clear and use text-based finding
+- eraseText
+- inputText:
+    text: "debuguser@test.com"
+- takeScreenshot: "debug_after_username_text"
+
+# Try password field
+- inputText:
+    text: "debugpass"
+    id: "textPassword"
+- takeScreenshot: "debug_after_password_id"
+
+# Try login button
+- tapOn:
+    text: "Login"
+- takeScreenshot: "debug_after_login_tap"
