@@ -8,10 +8,7 @@ import 'package:memverse/src/features/verse/data/verse_repository.dart';
 // Create a test auth notifier class
 class TestAuthNotifier extends AuthNotifier {
   TestAuthNotifier(super.authService, super.clientId, super.analyticsService) {
-    state = AuthState(
-      isAuthenticated: false, // Start logged out for login tests
-      token: null,
-    );
+    state = const AuthState();
   }
 }
 

@@ -235,14 +235,14 @@ class LoggingAnalyticsService extends AnalyticsService {
   @override
   Future<void> init({String? apiKey}) async {
     if (kDebugMode) {
-      debugPrint('📊 Analytics: Logging service initialized');
+      AppLogger.d('📊 Analytics: Logging service initialized');
     }
   }
 
   @override
   Future<void> track(String eventName, {Map<String, dynamic>? properties}) async {
     if (kDebugMode) {
-      debugPrint('📊 Analytics: $eventName${properties != null ? ' - $properties' : ''}');
+      AppLogger.d('📊 Analytics: $eventName${properties != null ? ' - $properties' : ''}');
     }
   }
 }

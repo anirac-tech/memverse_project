@@ -36,7 +36,7 @@ class LoginPage extends HookConsumerWidget {
 
     // Function to validate form and track validation failures
     Future<bool> validateFormWithAnalytics() async {
-      bool isValid = true;
+      var isValid = true;
 
       // Check username
       if (usernameController.text.isEmpty) {
