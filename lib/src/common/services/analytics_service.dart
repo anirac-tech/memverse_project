@@ -77,6 +77,20 @@ abstract class AnalyticsService {
   /// Track empty password validation
   Future<void> trackEmptyPasswordValidation() =>
       track('empty_password_validation', properties: {'field': 'password', 'error': 'empty'});
+
+  /// Track web-specific events
+  Future<void> trackWebPageView(String pageName) =>
+      track('web_page_view', properties: {'page_name': pageName, 'platform': 'web'});
+
+  /// Track web browser information
+  Future<void> trackWebBrowserInfo(String userAgent) =>
+      track('web_browser_info', properties: {'user_agent': userAgent, 'platform': 'web'});
+
+  /// Track web performance metrics
+  Future<void> trackWebPerformance(int loadTime, String pageName) => track(
+    'web_performance',
+    properties: {'load_time_ms': loadTime, 'page_name': pageName, 'platform': 'web'},
+  );
 }
 
 /// PostHog implementation of analytics service
