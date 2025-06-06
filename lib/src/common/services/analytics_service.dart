@@ -61,6 +61,22 @@ abstract class AnalyticsService {
       'accuracy': correctAnswers / versesAnswered,
     },
   );
+
+  /// Track password visibility toggle
+  Future<void> trackPasswordVisibilityToggle(bool isVisible) =>
+      track('password_visibility_toggle', properties: {'is_visible': isVisible});
+
+  /// Track form validation failures
+  Future<void> trackValidationFailure(String field, String error) =>
+      track('validation_failure', properties: {'field': field, 'error': error});
+
+  /// Track empty username validation
+  Future<void> trackEmptyUsernameValidation() =>
+      track('empty_username_validation', properties: {'field': 'username', 'error': 'empty'});
+
+  /// Track empty password validation
+  Future<void> trackEmptyPasswordValidation() =>
+      track('empty_password_validation', properties: {'field': 'password', 'error': 'empty'});
 }
 
 /// PostHog implementation of analytics service

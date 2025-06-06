@@ -1,0 +1,36 @@
+appId: com.spiritflightapps.memverse
+---
+- launchApp:
+    appId: com.spiritflightapps.memverse
+    clearState: true
+- takeScreenshot: "01_login_screen_empty"
+
+# Test empty username validation
+- assertVisible: "Login"
+- tapOn:
+    id: "login_button"
+- takeScreenshot: "02_empty_username_validation"
+- assertVisible: "Please enter your username"
+
+# Test empty password validation (with username filled)
+- tapOn:
+    id: "login_username_field"
+- inputText: "testuser"
+- tapOn:
+    id: "login_button"
+- takeScreenshot: "03_empty_password_validation"
+- assertVisible: "Please enter your password"
+
+# Test both fields empty after clearing
+- tapOn:
+    id: "login_username_field"
+- inputText: ""
+- tapOn:
+    id: "login_button"
+- takeScreenshot: "04_both_fields_empty_validation"
+- assertVisible: "Please enter your username"
+- assertVisible: "Please enter your password"
+
+# Verify form doesn't submit with invalid data
+- assertVisible: "Login"
+- takeScreenshot: "05_form_still_on_login_screen"

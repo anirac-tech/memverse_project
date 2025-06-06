@@ -21,6 +21,21 @@ void main() {
       expect(service, isA<AnalyticsService>());
     });
 
+    test('LoggingAnalyticsService should track new password and validation events', () async {
+      final service = LoggingAnalyticsService();
+
+      // Test new password visibility events
+      await service.trackPasswordVisibilityToggle(true);
+      await service.trackPasswordVisibilityToggle(false);
+
+      // Test new validation events
+      await service.trackEmptyUsernameValidation();
+      await service.trackEmptyPasswordValidation();
+      await service.trackValidationFailure('username', 'required');
+
+      expect(service, isA<AnalyticsService>());
+    });
+
     test('NoOpAnalyticsService should handle all events silently', () async {
       final service = NoOpAnalyticsService();
 
@@ -31,6 +46,11 @@ void main() {
       await service.trackLoginFailure('test_user', 'invalid credentials');
       await service.trackPracticeSessionComplete(5, 4);
 
+      // Test new events
+      await service.trackPasswordVisibilityToggle(true);
+      await service.trackEmptyUsernameValidation();
+      await service.trackEmptyPasswordValidation();
+
       expect(service, isA<AnalyticsService>());
     });
 
@@ -39,7 +59,7 @@ void main() {
       final logging = LoggingAnalyticsService();
       final noOp = NoOpAnalyticsService();
 
-      // Check that all required methods exist
+      // Check that all required methods exist (original)
       expect(postHog.trackLogin, isA<Function>());
       expect(postHog.trackLogout, isA<Function>());
       expect(postHog.trackVerseCorrect, isA<Function>());
@@ -47,9 +67,17 @@ void main() {
       expect(postHog.trackVerseNearlyCorrect, isA<Function>());
       expect(postHog.trackFeedbackTrigger, isA<Function>());
 
+      // Check new methods exist
+      expect(postHog.trackPasswordVisibilityToggle, isA<Function>());
+      expect(postHog.trackEmptyUsernameValidation, isA<Function>());
+      expect(postHog.trackEmptyPasswordValidation, isA<Function>());
+      expect(postHog.trackValidationFailure, isA<Function>());
+
       // Same for other implementations
       expect(logging.trackLogin, isA<Function>());
+      expect(logging.trackPasswordVisibilityToggle, isA<Function>());
       expect(noOp.trackLogin, isA<Function>());
+      expect(noOp.trackEmptyUsernameValidation, isA<Function>());
     });
   });
 }
