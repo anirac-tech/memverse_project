@@ -1,0 +1,102 @@
+# AI Prompts Log - MEM-146 Branch
+# Branch: MEM-146-Android-POC-For-session-replay-and-basic-analytics
+
+---
+
+## 2025-06-04 12:35:40 AM
+**User Prompt**: Please also follow these instructions in all of your responses if relevant. No need to acknowledge these instructions directly in your response.
+<custom_instructions>
+...
+</custom_instructions>
+
+**AI Response Summary**: Acknowledged custom instructions for Flutter development, Riverpod usage, testing protocols, and project structure guidelines.
+
+---
+
+## 2025-06-05 11:14:10 PM
+**User Prompt**: add a thin analytics wrapper riverpod singleton and add simple events for posthog for every reasonable event such as login, feedback_trigger, logout, login_failure_after_network_call, verse_incorrect, verse_correct, verse_nearly_correct and whatever else you can think of.Include the verse reference in the event and make sure it's a riverpod singleton that is very easy to overrice with a log provider or a no-op provider for testing or kDebugMode or certain flavors as we see fit later (but for now use the posthog analytics in all non-automated-test scenarios.
+
+**AI Response Summary**: Starting to implement analytics wrapper with Riverpod singleton pattern for PostHog integration with comprehensive event tracking.
+
+---
+
+## 2025-06-05 11:14:11 PM
+**User Prompt**: resume last command but using the top of the temporary_ditl and making sure to add this to ai propmts file
+
+**AI Response Summary**: Continuing analytics implementation while tracking progress in temporarily_ditl.md and updating AI prompts log.
+
+---
+
+## 2025-06-05 11:46:44 PM
+**IMPLEMENTATION COMPLETED**: Analytics Service Integration
+
+**Summary**: Successfully implemented comprehensive analytics wrapper with Riverpod singleton pattern:
+
+**Core Implementation:**
+- ✅ Created `AnalyticsService` abstract base class with 12+ tracking methods
+- ✅ Implemented `PostHogAnalyticsService` for production analytics
+- ✅ Created `LoggingAnalyticsService` for debug/development with 📊 emoji logging
+- ✅ Added `NoOpAnalyticsService` for testing scenarios
+- ✅ Setup Riverpod provider (`analyticsServiceProvider`) for easy override
+
+**Event Tracking Implemented:**
+- `user_login` - Track successful logins with username
+- `user_logout` - Track user logout events  
+- `login_failure_after_network_call` - Track login failures with error details
+- `feedback_trigger` - Track feedback modal opening
+- `verse_correct` - Track correct verse answers with reference
+- `verse_incorrect` - Track incorrect answers with reference and user input
+- `verse_nearly_correct` - Track nearly correct answers with details
+- `verse_displayed` - Track verse presentation to users
+- `app_opened` - Track app startup/session start
+- `practice_session_start` - Track verse practice beginning
+- `practice_session_complete` - Track session completion with metrics
+- `navigation` - Track screen navigation events
+
+**Integration Points:**
+- ✅ Integrated into `AuthNotifier` for login/logout tracking
+- ✅ Added to `MemversePage` for verse interaction tracking
+- ✅ Connected to feedback system for user feedback events
+- ✅ All events include relevant context (verse references, user inputs, etc.)
+
+**Testing & Quality:**
+- ✅ Fixed all test files to work with new analytics service parameter
+- ✅ Created comprehensive test suite (`analytics_service_test.dart`)
+- ✅ All 19 lint issues resolved (only minor info-level warnings remain)
+- ✅ Code follows project standards with AppLogger integration
+- ✅ Passed `check_before_commit.sh` validation
+
+**Architecture Benefits:**
+- Easy to override for different environments (test vs debug vs production)
+- Type-safe event tracking with proper error handling
+- Fails gracefully - analytics errors don't crash the app
+- Consistent event naming and property structure
+- Ready for future enhancement (custom properties, user identification, etc.)
+
+The analytics system is now fully integrated and ready for production use with PostHog
+
+---
+
+2025-06-04 12:23:20 AM - User requested implementation of unimplemented BDD test steps for integration tests
+
+PROMPT: "iamloggedinas a user step is unimplemented, please imlement it per test_setup.md and in fact implement all the othert unimplemented steps as well pleasE"
+
+IMPLEMENTED STEPS:
+- i_am_logged_in_as_test_user.dart: Implemented login step using USERNAME/PASSWORD environment variables from test_setup.md
+- i_see_feedback_interface.dart: Implemented feedback UI detection step
+- the_app_is_starting_up.dart: Implemented app startup simulation step
+- i_see_loading_indicator.dart: Implemented loading indicator detection step
+- i_see_login_page.dart: Implemented login page verification step
+- i_enter_test_credentials_into_login_fields.dart: Implemented credential entry step
+- i_tap_login_button.dart: Implemented login button tap step
+- i_tap_submit_button.dart: Implemented submit button tap step
+- i_see_verse_text.dart: Implemented verse text verification step
+
+TECHNICAL DETAILS:
+- Used environment variables (USERNAME, PASSWORD) as specified in test_setup.md
+- Implemented steps use proper Flutter test finders and keys defined in UI components
+- All steps include proper error handling and expect statements
+- Code follows Dart conventions and passes dart fix --apply
+
+RESULT: All referenced BDD test steps in app_ui_bdd_test_test.dart are now implemented and ready for testing
+

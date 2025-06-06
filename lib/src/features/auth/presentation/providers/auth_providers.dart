@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/bootstrap.dart';
+import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
@@ -40,7 +41,8 @@ final authServiceProvider = Provider<AuthService>((ref) {
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = ref.watch(authServiceProvider);
   final clientId = ref.watch(clientIdProvider);
-  return AuthNotifier(authService, clientId);
+  final analyticsService = ref.watch(analyticsServiceProvider);
+  return AuthNotifier(authService, clientId, analyticsService);
 });
 
 /// Authentication state
@@ -65,12 +67,14 @@ class AuthState {
 
 /// Authentication state notifier
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier(this._authService, this._clientId) : super(const AuthState()) {
+  AuthNotifier(this._authService, this._clientId, this._analyticsService)
+    : super(const AuthState()) {
     _init();
   }
 
   final AuthService _authService;
   final String _clientId;
+  final AnalyticsService _analyticsService;
 
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
@@ -97,11 +101,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
           AppLogger.d('Successfully authenticated');
         }
         AppLogger.i('Successfully authenticated');
+
+        // Track successful login
+        await _analyticsService.trackLogin(username);
       }
 
       state = state.copyWith(isAuthenticated: true, isLoading: false, token: token);
     } catch (e) {
       AppLogger.e('Login failed', e);
+
+      // Track login failure
+      await _analyticsService.trackLoginFailure(username, e.toString());
+
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -110,6 +121,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       state = state.copyWith(isLoading: true);
       await _authService.logout();
+
+      // Track logout
+      await _analyticsService.trackLogout();
+
       state = const AuthState();
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

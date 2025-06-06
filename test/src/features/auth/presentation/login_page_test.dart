@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/features/auth/presentation/login_page.dart';
@@ -25,7 +26,8 @@ final mockAuthToken = AuthToken(
 // Mock Notifier - Now extends AuthNotifier
 class MockAuthNotifier extends AuthNotifier {
   // Constructor receives the pre-mocked service and passes it to super
-  MockAuthNotifier(this.passedInMockService) : super(passedInMockService, _mockClientId);
+  MockAuthNotifier(this.passedInMockService)
+    : super(passedInMockService, _mockClientId, NoOpAnalyticsService());
 
   // Store the service passed in
   final MockAuthService passedInMockService;
