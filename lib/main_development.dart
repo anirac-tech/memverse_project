@@ -1,39 +1,37 @@
+// Import for web-specific functionality
+import 'dart:js' as js;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/app/app.dart';
 import 'package:memverse/src/bootstrap.dart';
+import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/utils/app_logger.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
-
-bool hasPostHog = false;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize analytics service
+  final container = ProviderContainer();
+  final analyticsService = container.read(analyticsServiceProvider);
+
   const apiKey = String.fromEnvironment('POSTHOG_MEMVERSE_API_KEY');
-  if (apiKey.isEmpty) {
-    AppLogger.e('Error: POSTHOG_MEMVERSE_API_KEY environment variable is not set');
-  } else {
-    if (kDebugMode) {
-      AppLogger.d('PostHog API Key: $apiKey');
+  if (apiKey.isNotEmpty) {
+    // Web-specific JavaScript initialization
+    if (kIsWeb) {
+      try {
+        js.context.callMethod('initPostHog', [apiKey]);
+        AppLogger.i('PostHog JavaScript SDK initialized for web');
+      } catch (e) {
+        AppLogger.e('Failed to initialize PostHog JavaScript SDK: $e');
+      }
     }
-    final config = PostHogConfig(apiKey);
-    config.host = 'https://us.i.posthog.com';
-    config.debug = true;
-    config.captureApplicationLifecycleEvents = true;
 
-    // check https://posthog.com/docs/session-replay/installation?tab=Flutter
-    // for more config and to learn about how we capture sessions on mobile
-    // and what to expect
-    config.sessionReplay = true;
-    // choose whether to mask images or text
-    config.sessionReplayConfig.maskAllTexts = false;
-    config.sessionReplayConfig.maskAllImages = false;
-
-    // Setup PostHog with the given Context and Config
-    await Posthog().setup(config);
-    hasPostHog = true;
+    await analyticsService.init(apiKey: apiKey);
+  } else {
+    AppLogger.e('Error: POSTHOG_MEMVERSE_API_KEY environment variable is not set');
   }
 
-  bootstrap(() => const App());
+  bootstrap(() => ProviderScope(parent: container, child: const App()));
 }

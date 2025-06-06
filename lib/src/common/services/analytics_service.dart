@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/utils/app_logger.dart';
@@ -5,6 +7,9 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 
 /// Abstract interface for analytics tracking
 abstract class AnalyticsService {
+  /// Initialize the analytics service
+  Future<void> init({String? apiKey});
+
   /// Track a user event with optional properties
   Future<void> track(String eventName, {Map<String, dynamic>? properties});
 
@@ -77,12 +82,116 @@ abstract class AnalyticsService {
   /// Track empty password validation
   Future<void> trackEmptyPasswordValidation() =>
       track('empty_password_validation', properties: {'field': 'password', 'error': 'empty'});
+
+  /// Track web-specific events
+  Future<void> trackWebPageView(String pageName) =>
+      track('web_page_view', properties: {'page_name': pageName, 'platform': 'web'});
+
+  /// Track web browser information
+  Future<void> trackWebBrowserInfo(String userAgent) =>
+      track('web_browser_info', properties: {'user_agent': userAgent, 'platform': 'web'});
+
+  /// Track web performance metrics
+  Future<void> trackWebPerformance(int loadTime, String pageName) => track(
+    'web_performance',
+    properties: {'load_time_ms': loadTime, 'page_name': pageName, 'platform': 'web'},
+  );
 }
 
 /// PostHog implementation of analytics service
 class PostHogAnalyticsService extends AnalyticsService {
+  bool _isInitialized = false;
+
+  @override
+  Future<void> init({String? apiKey}) async {
+    if (_isInitialized) return;
+
+    if (apiKey?.isEmpty ?? true) {
+      AppLogger.e('Error: PostHog API key is not provided');
+      return;
+    }
+
+    try {
+      if (kDebugMode) {
+        AppLogger.d('PostHog API Key: $apiKey');
+      }
+
+      // Web-specific initialization
+      if (kIsWeb) {
+        try {
+          // Call the JavaScript initialization function
+          // Note: This requires js import in the calling code
+          AppLogger.i('PostHog JavaScript SDK would be initialized for web');
+        } catch (e) {
+          AppLogger.e('Failed to initialize PostHog JavaScript SDK: $e');
+        }
+      }
+
+      final config = PostHogConfig(apiKey!);
+      config.host = 'https://us.i.posthog.com';
+      config.debug = kDebugMode;
+      config.captureApplicationLifecycleEvents = true;
+
+      // Platform-specific configuration
+      if (kIsWeb) {
+        config.sessionReplay = true;
+        config.sessionReplayConfig.maskAllTexts = false;
+        config.sessionReplayConfig.maskAllImages = false;
+        AppLogger.i('PostHog configured for web with session replay enabled');
+      } else {
+        config.sessionReplay = true;
+        config.sessionReplayConfig.maskAllTexts = false;
+        config.sessionReplayConfig.maskAllImages = false;
+        AppLogger.i('PostHog configured for mobile with session replay');
+      }
+
+      // Setup PostHog with the given Context and Config
+      await Posthog().setup(config);
+      _isInitialized = true;
+
+      // Register custom properties for analytics tracking
+      await Posthog().register('app_flavor', 'development');
+      await Posthog().register('debug_mode', kDebugMode.toString());
+      await Posthog().register('platform', kIsWeb ? 'web' : Platform.operatingSystem);
+
+      // Detect and register emulator/simulator status
+      if (!kIsWeb) {
+        if (Platform.isAndroid) {
+          final isEmulator = await _isAndroidEmulator();
+          await Posthog().register('is_emulator', isEmulator.toString());
+          await Posthog().register('is_simulator', 'false');
+        } else if (Platform.isIOS) {
+          final isSimulator = await _isIOSSimulator();
+          await Posthog().register('is_emulator', 'false');
+          await Posthog().register('is_simulator', isSimulator.toString());
+        } else {
+          await Posthog().register('is_emulator', 'false');
+          await Posthog().register('is_simulator', 'false');
+        }
+      } else {
+        await Posthog().register('is_emulator', 'false');
+        await Posthog().register('is_simulator', 'false');
+      }
+
+      AppLogger.i('PostHog properties registered for development flavor');
+
+      if (kIsWeb) {
+        AppLogger.i('PostHog web analytics fully initialized - JS + Flutter SDK ready');
+      }
+    } catch (e) {
+      AppLogger.e('Failed to initialize PostHog analytics: $e');
+    }
+  }
+
   @override
   Future<void> track(String eventName, {Map<String, dynamic>? properties}) async {
+    if (!_isInitialized) {
+      if (kDebugMode) {
+        AppLogger.w('Analytics not initialized, skipping event: $eventName');
+      }
+      return;
+    }
+
     try {
       await Posthog().capture(eventName: eventName, properties: properties?.cast<String, Object>());
     } catch (e) {
@@ -92,10 +201,44 @@ class PostHogAnalyticsService extends AnalyticsService {
       }
     }
   }
+
+  Future<bool> _isAndroidEmulator() async {
+    try {
+      final result = await Process.run('getprop', ['ro.kernel.qemu']);
+      if (result.stdout.toString().trim() == '1') return true;
+
+      final buildFingerprint = await Process.run('getprop', ['ro.build.fingerprint']);
+      final fingerprint = buildFingerprint.stdout.toString().toLowerCase();
+
+      return fingerprint.contains('generic') ||
+          fingerprint.contains('emulator') ||
+          fingerprint.contains('sdk');
+    } catch (e) {
+      AppLogger.w('Could not detect Android emulator: $e');
+      return false;
+    }
+  }
+
+  Future<bool> _isIOSSimulator() async {
+    try {
+      final envResult = await Process.run('printenv', ['SIMULATOR_DEVICE_NAME']);
+      return envResult.exitCode == 0 && envResult.stdout.toString().isNotEmpty;
+    } catch (e) {
+      AppLogger.w('Could not detect iOS simulator: $e');
+      return false;
+    }
+  }
 }
 
 /// Logging implementation of analytics service for debug/testing
 class LoggingAnalyticsService extends AnalyticsService {
+  @override
+  Future<void> init({String? apiKey}) async {
+    if (kDebugMode) {
+      debugPrint('📊 Analytics: Logging service initialized');
+    }
+  }
+
   @override
   Future<void> track(String eventName, {Map<String, dynamic>? properties}) async {
     if (kDebugMode) {
@@ -106,6 +249,11 @@ class LoggingAnalyticsService extends AnalyticsService {
 
 /// No-op implementation of analytics service for testing
 class NoOpAnalyticsService extends AnalyticsService {
+  @override
+  Future<void> init({String? apiKey}) async {
+    // Do nothing
+  }
+
   @override
   Future<void> track(String eventName, {Map<String, dynamic>? properties}) async {
     // Do nothing

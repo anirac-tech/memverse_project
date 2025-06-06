@@ -6,59 +6,74 @@
 
 ## Description
 
-# Implement AppLogger, Enforce Logging Standards, and Add Documentation
+# Implement PostHog Analytics Integration with Service Architecture
 
 ## Jira Tickets
 
-- [MEM-112](https://anirac-tech.atlassian.net/browse/MEM-112): Implement logging standards and
-  AppLogger
-- [MEM-102](https://anirac-tech.atlassian.net/browse/MEM-102): Documentation for app flavors
+- [MEM-146](https://anirac-tech.atlassian.net/browse/MEM-146): Android POC for session replay and
+  basic analytics
 
 ## Changes vs. Origin/Main
 
-This branch introduces several key changes compared to the main branch:
+This branch implements comprehensive PostHog analytics integration with a clean service-oriented
+architecture:
 
-- **Standardized Logging**: Implemented `AppLogger` utility and updated existing code (e.g.,
-  `feedback_service.dart`) to use it.
-- **Logging Enforcement**:
-    - Added checks to `scripts/check_before_commit.sh` to prevent `debugPrint` and `log`.
-    - Added a new `check-logging-standards` job to the CI pipeline (`.github/workflows/main.yaml`).
-- **Custom Lint Rules (Experimental)**: Added a `memverse_lints` package with rules and quick fixes
-  for logging (currently facing dependency issues).
-- **CI Fixes**:
-    - Implemented `scripts/fix_generated_localizations.sh` to handle formatting issues in generated
-      localization files.
-    - Updated CI workflow to run this script before the format check.
-    - Excluded `app_localizations.dart` from analysis in `analysis_options.yaml`.
-- **Comprehensive Documentation**: Added several new documentation files:
-    - `logging.md` (explaining AppLogger and enforcement)
-    - `flavors_info_for_users.md` & `flavor_info_for_devs.md` (explaining flavors)
-    - `pwa_user.md`, `pwa_technical.md`, `demo_pwa.md` (PWA details)
-    - `questions-L1.md` & `questions-L2.md` (codebase questions)
-    - `gemini2.5pro_review.md` (AI review summary)
-    - `summary.md` (summary of branch changes)
-    - `LICENSE` (MIT License file)
-- **Documentation Updates**:
-    - Updated `README.md` with sections on running the app, flavors, logging, and contributing.
-    - Updated `CONTRIBUTING.md` with details on pre-commit hooks, logging standards, custom lints,
-      and
-      flavors.
-    - Updated `.github/cspell.json` with new technical terms.
-- **AI Interaction Log**: Created and maintained `MEM-102_3_may_2025_ai_prompts_log.md`.
+- **Analytics Service Architecture**:
+    - Created abstract `AnalyticsService` interface with `init()` and `track()` methods
+    - Implemented `PostHogAnalyticsService` with full PostHog Flutter SDK integration
+    - Added `LoggingAnalyticsService` and `NoOpAnalyticsService` for testing/debug
+    - Integrated with Riverpod dependency injection via `analyticsServiceProvider`
+
+- **PostHog Integration Features**:
+    - Session replay functionality with configurable masking options
+    - Automatic lifecycle event tracking (app opened, backgrounded, etc.)
+    - Environment variable support for PostHog API key (`POSTHOG_MEMVERSE_API_KEY`)
+    - Platform-specific configuration for web and mobile
+    - Comprehensive error handling and graceful fallbacks
+
+- **Automatic Property Tracking**:
+    - `app_flavor`: 'development' (flavor identification)
+    - `debug_mode`: true/false (build configuration)
+    - `platform`: 'web', 'android', 'ios', etc. (platform detection)
+    - `is_emulator`: true/false (Android emulator detection via system properties)
+    - `is_simulator`: true/false (iOS simulator detection via environment variables)
+
+- **Web-Specific Enhancements**:
+    - Dual SDK approach (JavaScript + Flutter) for comprehensive web tracking
+    - Session replay specifically configured for web platform
+    - Web performance tracking methods in service interface
+
+- **Comprehensive Event Tracking Interface**:
+    - User authentication events (login, logout, failures)
+    - Verse practice tracking (correct, incorrect, nearly correct answers)
+    - Navigation and user interaction events
+    - Form validation and password visibility tracking
+    - Feedback and practice session analytics
+
+- **Clean Architecture Benefits**:
+    - Removed direct PostHog dependencies from main.dart
+    - Centralized analytics configuration and initialization
+    - Easy testing with service mocks and no-op implementations
+    - Separation of concerns between app startup and analytics setup
 
 ## Testing Checklist
 
-- [ ] Verified AppLogger properly logs in debug mode only
-- [ ] Tested pre-commit hook catches invalid logging:
-    - [ ] Tested with `debugPrint()` usage
-    - [ ] Tested with `log()` usage
-- [ ] Confirmed CI pipeline fails when prohibited logging methods are used
-- [ ] Confirmed CI formatting check passes after running `fix_generated_localizations.sh`
-- [ ] Confirmed all new/updated documentation renders correctly and links are valid
-- [ ] (If Lint Package Enabled) Verified custom lint rules flag errors and quick fixes work in IDE
+- [ ] Verified analytics service initializes correctly with valid API key
+- [ ] Tested error handling when PostHog API key is missing
+- [ ] Confirmed session replay functionality on both web and mobile platforms
+- [ ] Verified automatic property registration (flavor, debug_mode, platform, emulator/simulator)
+- [ ] Tested platform detection logic for Android emulators and iOS simulators
+- [ ] Confirmed analytics events are captured and sent to PostHog dashboard
+- [ ] Verified web-specific JavaScript SDK integration works correctly
+- [ ] Tested service architecture with different implementations (PostHog, Logging, NoOp)
+- [ ] Confirmed graceful fallbacks when analytics initialization fails
+- [ ] Verified analytics tracking doesn't crash app on errors
 
 ## Outstanding Issues / Next Steps
 
-- Resolve dependency conflicts for the `memverse_lints` package or disable it.
-- Investigate a potentially more robust fix for localization file formatting.
-- Address any specific CodeRabbit / manual review comments.
+- Monitor PostHog analytics dashboard to ensure events and properties are being received correctly
+- Consider adding more granular event tracking for key user interactions
+- Evaluate performance impact of session replay on mobile devices, especially on lower-end hardware
+- Add analytics integration tests to verify service behavior in different scenarios
+- Consider implementing analytics batching for improved performance
+- Add flavor-specific analytics configurations for production vs development environments

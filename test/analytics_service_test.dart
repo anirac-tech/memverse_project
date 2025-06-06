@@ -33,6 +33,11 @@ void main() {
       await service.trackEmptyPasswordValidation();
       await service.trackValidationFailure('username', 'required');
 
+      // Test new web events
+      await service.trackWebPageView('login_page');
+      await service.trackWebBrowserInfo('Mozilla/5.0 Chrome');
+      await service.trackWebPerformance(1500, 'memverse_practice_page');
+
       expect(service, isA<AnalyticsService>());
     });
 
