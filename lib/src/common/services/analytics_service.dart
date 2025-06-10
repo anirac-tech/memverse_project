@@ -5,10 +5,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 
+/// Environment configuration for analytics
+enum AnalyticsEnvironment {
+  production('prod', 'https://api.memverse.com'),
+  staging('staging', 'https://api-staging.memverse.com'),
+  development('dev', 'https://api-dev.memverse.com');
+
+  const AnalyticsEnvironment(this.key, this.apiUrl);
+
+  final String key;
+  final String apiUrl;
+
+  static AnalyticsEnvironment fromApiUrl(String apiUrl) {
+    for (final env in values) {
+      if (env.apiUrl == apiUrl) return env;
+    }
+    return development; // Default fallback
+  }
+}
+
+/// Entry point identification for analytics
+enum AnalyticsEntryPoint {
+  mainDevelopment('main_development'),
+  mainStaging('main_staging'),
+  mainProduction('main_production');
+
+  const AnalyticsEntryPoint(this.key);
+
+  final String key;
+}
+
 /// Abstract interface for analytics tracking
 abstract class AnalyticsService {
   /// Initialize the analytics service
-  Future<void> init({String? apiKey});
+  Future<void> init({
+    String? apiKey,
+    AnalyticsEntryPoint? entryPoint,
+    String? flavor,
+    AnalyticsEnvironment? environment,
+  });
 
   /// Track a user event with optional properties
   Future<void> track(String eventName, {Map<String, dynamic>? properties});
@@ -103,7 +138,12 @@ class PostHogAnalyticsService extends AnalyticsService {
   bool _isInitialized = false;
 
   @override
-  Future<void> init({String? apiKey}) async {
+  Future<void> init({
+    String? apiKey,
+    AnalyticsEntryPoint? entryPoint,
+    String? flavor,
+    AnalyticsEnvironment? environment,
+  }) async {
     if (_isInitialized) return;
 
     if (apiKey?.isEmpty ?? true) {
@@ -149,8 +189,11 @@ class PostHogAnalyticsService extends AnalyticsService {
       await Posthog().setup(config);
       _isInitialized = true;
 
-      // Register custom properties for analytics tracking
-      await Posthog().register('app_flavor', 'development');
+      // Register enhanced properties for analytics tracking
+      await Posthog().register('entry_point', entryPoint?.key ?? 'unknown');
+      await Posthog().register('app_flavor', flavor ?? 'unknown');
+      await Posthog().register('environment', environment?.key ?? 'unknown');
+      await Posthog().register('environment_api_url', environment?.apiUrl ?? 'unknown');
       await Posthog().register('debug_mode', kDebugMode.toString());
       await Posthog().register('platform', kIsWeb ? 'web' : Platform.operatingSystem);
 
@@ -173,7 +216,9 @@ class PostHogAnalyticsService extends AnalyticsService {
         await Posthog().register('is_simulator', 'false');
       }
 
-      AppLogger.i('PostHog properties registered for development flavor');
+      AppLogger.i(
+        'PostHog properties registered - Entry: ${entryPoint?.key}, Flavor: $flavor, Env: ${environment?.key}',
+      );
 
       if (kIsWeb) {
         AppLogger.i('PostHog web analytics fully initialized - JS + Flutter SDK ready');
@@ -233,9 +278,16 @@ class PostHogAnalyticsService extends AnalyticsService {
 /// Logging implementation of analytics service for debug/testing
 class LoggingAnalyticsService extends AnalyticsService {
   @override
-  Future<void> init({String? apiKey}) async {
+  Future<void> init({
+    String? apiKey,
+    AnalyticsEntryPoint? entryPoint,
+    String? flavor,
+    AnalyticsEnvironment? environment,
+  }) async {
     if (kDebugMode) {
-      AppLogger.d('📊 Analytics: Logging service initialized');
+      AppLogger.d(
+        '📊 Analytics: Logging service initialized - Entry: ${entryPoint?.key}, Flavor: $flavor, Env: ${environment?.key}',
+      );
     }
   }
 
@@ -250,7 +302,12 @@ class LoggingAnalyticsService extends AnalyticsService {
 /// No-op implementation of analytics service for testing
 class NoOpAnalyticsService extends AnalyticsService {
   @override
-  Future<void> init({String? apiKey}) async {
+  Future<void> init({
+    String? apiKey,
+    AnalyticsEntryPoint? entryPoint,
+    String? flavor,
+    AnalyticsEnvironment? environment,
+  }) async {
     // Do nothing
   }
 

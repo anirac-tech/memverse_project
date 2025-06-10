@@ -17,6 +17,164 @@
 
 [ Detail the key changes introduced in this branch compared to the main branch ]
 
+## PostHog Analytics Testing (Web Demo Preview)
+
+*Test PostHog integration and analytics tracking from the Netlify web demo preview.*
+
+### Prerequisites
+
+- [ ] Netlify preview deployment is live and accessible
+- [ ] PostHog project is configured with correct CLIENT_ID
+- [ ] Access to PostHog dashboard: [https://app.posthog.com/](https://app.posthog.com/)
+
+### Step-by-Step Testing Instructions
+
+#### 1. Access Web Demo Preview & Setup
+
+- [ ] Open Netlify preview URL in browser
+- [ ] Verify app loads correctly with `--dart-define=CLIENT_ID=$CLIENT_ID` configuration
+- [ ] Open browser developer tools (F12) → Console tab
+- [ ] Clear console to see fresh PostHog events
+
+#### 2. Test Login Flow & Event Tracking
+
+- [ ] **Login Screen Events**:
+    - Navigate to login screen
+    - Verify Console shows: PostHog initialization messages
+    - Expected Console: `PostHog configured for web with session replay enabled`
+
+- [ ] **Successful Login**:
+    - Enter username: `njwandroid@gmail.com` (or your test credentials)
+    - Enter password: `[your test password]`
+    - Click login button
+    - **Expected PostHog Events**: `user_login` with username property
+    - **Expected Console**: Login success tracking messages
+
+- [ ] **Post-Login Page Load**:
+    - Wait for main verse practice page to load
+    - **Expected PostHog Events**:
+        - `app_opened`
+        - `practice_session_start`
+        - `web_page_view` with properties: `{page_name: 'memverse_practice_page', platform: 'web'}`
+        - `web_browser_info` with user agent data
+
+#### 3. Test Verse Practice Analytics (Happy Path Flow)
+
+- [ ] **First Verse - Correct Answer (Green Feedback)**:
+    - Verify verse text displays: "He is before all things, and in him all things hold together."
+    - **Expected PostHog Event**: `verse_displayed` with `{verse_reference: 'Col 1:17'}`
+    - Enter reference: `Col 1:17`
+    - Click submit button (key: "submit-ref")
+    - **Expected PostHog Event**: `verse_correct` with `{verse_reference: 'Col 1:17'}`
+    - **Expected UI**: Green snackbar with "Correct!" message
+    - **Expected Console**: Success tracking message
+
+- [ ] **Second Verse - Nearly Correct Answer (Orange Feedback)**:
+    - Wait for next verse to load (~1.5 seconds)
+    - Verify verse text displays: "It is for freedom that Christ has set us free"
+    - **Expected PostHog Event**: `verse_displayed` with `{verse_reference: 'Gal 5:1'}`
+    - Enter reference: `Gal 5:2` (intentionally one verse off)
+    - Click submit button
+    - **Expected PostHog Event**: `verse_nearly_correct` with
+      `{verse_reference: 'Gal 5:1', user_answer: 'Gal 5:2'}`
+    - **Expected UI**: Orange snackbar with "Not quite right" message
+
+- [ ] **Third Verse - Incorrect Answer (Red Feedback)** (if implemented):
+    - Wait for next verse to load
+    - Enter completely wrong reference (e.g., "John 1:1")
+    - Click submit button
+    - **Expected PostHog Event**: `verse_incorrect` with verse reference and user answer properties
+
+#### 4. Verify PostHog Dashboard Real-time
+
+- [ ] **Login to PostHog Dashboard**:
+    - Go to [https://app.posthog.com/](https://app.posthog.com/)
+    - Select correct project (CLIENT_ID should match)
+        - Navigate to "Events" or "Live Events" tab
+
+- [ ] **Real-time Event Verification** (within 30-60 seconds):
+    - **Login Events**: Look for `user_login` event with username
+    - **Page Events**: `app_opened`, `practice_session_start`, `web_page_view`
+    - **Verse Events**: `verse_displayed`, `verse_correct`, `verse_nearly_correct`
+    - **Session Data**: Verify user properties include platform: "web"
+
+#### 5. Test Feedback Feature Analytics
+
+- [ ] **Trigger Feedback**:
+    - Click the feedback button (🗩 icon) in app bar
+    - **Expected PostHog Event**: `feedback_trigger`
+    - Complete or cancel feedback dialog
+    - Verify event appears in PostHog dashboard
+
+#### 6. Debug Common Issues
+
+- [ ] **If events not appearing in PostHog**:
+    - Check Console for JavaScript errors
+    - Look for POST requests to `us.i.posthog.com` in Network tab
+    - Verify CLIENT_ID environment variable matches PostHog project
+    - Check PostHog project settings for correct API key
+
+- [ ] **If login events missing**:
+    - Verify successful login (no error messages)
+    - Check that auth provider is calling `trackLogin(username)`
+    - Test with valid credentials: `njwandroid@gmail.com`
+
+- [ ] **If verse events missing**:
+    - Ensure you're submitting valid verse references
+    - Check that verse text matches exactly what's expected
+    - Verify answer format: "Book Chapter:Verse" (e.g., "Col 1:17")
+
+#### 7. Cross-Browser Web Testing
+
+- [ ] **Chrome/Edge**:
+    - Complete steps 1-6 above
+    - Verify PostHog session replay works
+    - Check Network tab for successful API calls
+
+- [ ] **Firefox**:
+    - Test basic login and verse practice flow
+    - Verify no console errors related to PostHog
+    - Confirm events tracked correctly
+
+#### 8. Performance & Session Replay Check
+
+- [ ] **Session Recording Verification**:
+    - In PostHog dashboard, go to "Session Recordings"
+    - Look for your web session (should appear within minutes)
+    - Verify it captures login and verse practice interactions
+
+- [ ] **Network Performance**:
+    - Check Network tab: PostHog requests should be < 100KB each
+    - No excessive API calls (should be 1 request per event)
+    - Response times should be < 2 seconds
+
+### Expected PostHog Dashboard Results
+
+After completing the happy path test, PostHog should show:
+
+- [ ] **User Login**: `user_login` with username property
+- [ ] **Page Views**: `app_opened`, `practice_session_start`, `web_page_view`
+- [ ] **Verse Events**:
+    - `verse_displayed` for Col 1:17
+    - `verse_correct` for Col 1:17 correct answer
+    - `verse_displayed` for Gal 5:1
+    - `verse_nearly_correct` for Gal 5:2 nearly correct answer
+- [ ] **User Properties**: platform: "web", environment details
+- [ ] **Session Recording**: Web session with user interactions
+
+### Test Credentials & Expected Flow
+
+**Login**: `njwandroid@gmail.com` / `[your password]`  
+**Verse 1**: "He is before all things..." → Answer: `Col 1:17` → Green ✅  
+**Verse 2**: "It is for freedom..." → Answer: `Gal 5:2` → Orange ⚠️ (Expected: `Gal 5:1`)
+
+### Troubleshooting Links
+
+- PostHog Flutter
+  SDK: [https://posthog.com/docs/libraries/flutter](https://posthog.com/docs/libraries/flutter)
+- PostHog Events Debugger: Check "Live Events" in your PostHog project
+- Analytics Implementation: `lib/src/common/services/analytics_service.dart`
+
 ## AI-Assisted Development Log
 
 - [ ] Included a link to the AI Prompts Log file for this branch/task.
