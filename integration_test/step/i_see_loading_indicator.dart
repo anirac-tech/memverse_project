@@ -6,7 +6,6 @@ Future<void> iSeeLoadingIndicator(WidgetTester tester) async {
   // Look for various types of loading indicators
   final loadingIndicators = [
     find.byType(CircularProgressIndicator),
-    find.byType(CircularProgressIndicator.adaptive),
     find.byType(LinearProgressIndicator),
   ];
 
