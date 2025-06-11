@@ -1,8 +1,10 @@
 import 'package:feedback/feedback.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
@@ -29,6 +31,7 @@ class MemversePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentVerseIndex = useState(0);
+    final cycleCount = useState(0); // Track how many times we've cycled through the list
     final answerController = useTextEditingController();
     final answerFocusNode = useFocusNode();
     final hasSubmittedAnswer = useState(false);
@@ -39,9 +42,23 @@ class MemversePage extends HookConsumerWidget {
     final pageTitle = l10n.referenceTest;
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
     final versesAsync = ref.watch(verseListProvider);
+    final analyticsService = ref.read(analyticsServiceProvider);
 
     useEffect(() {
       answerFocusNode.requestFocus();
+      // Track app opened/practice session start
+      analyticsService
+        ..trackAppOpened()
+        ..trackPracticeSessionStart();
+
+      // Web-specific tracking
+      if (kIsWeb) {
+        analyticsService.trackWebPageView('memverse_practice_page');
+        // Track web browser info if available
+        // Note: In a real app, you might use dart:html to get navigator.userAgent
+        analyticsService.trackWebBrowserInfo('web_flutter_app');
+      }
+
       return null;
     }, const []);
 
@@ -58,6 +75,19 @@ class MemversePage extends HookConsumerWidget {
         } else {
           // Reset to the first verse when we reach the end
           currentVerseIndex.value = 0;
+          cycleCount.value++;
+
+          // Track verse list cycling
+          analyticsService.trackVerseListCycled(verses.length, cycleCount.value);
+        }
+
+        // Track verse displayed
+        if (verses.isNotEmpty) {
+          final nextIndex = currentVerseIndex.value + 1 < verses.length
+              ? currentVerseIndex.value + 1
+              : 0;
+          final nextVerse = verses[nextIndex];
+          analyticsService.trackVerseDisplayed(nextVerse.reference);
         }
       });
     }
@@ -108,9 +138,19 @@ class MemversePage extends HookConsumerWidget {
         final chapterVerseMatch = userChapterVerse == expectedChapterVerse;
 
         final isCorrect = booksMatch && chapterVerseMatch;
+        final isNearlyCorrect = !isCorrect && (booksMatch || chapterVerseMatch);
 
         hasSubmittedAnswer.value = true;
         isAnswerCorrect.value = isCorrect;
+
+        // Track verse answer
+        if (isCorrect) {
+          analyticsService.trackVerseCorrect(expectedReference);
+        } else if (isNearlyCorrect) {
+          analyticsService.trackVerseNearlyCorrect(expectedReference, userAnswer);
+        } else {
+          analyticsService.trackVerseIncorrect(expectedReference, userAnswer);
+        }
 
         final feedback = isCorrect
             ? '$userAnswer-[$expectedReference] Correct!'
@@ -147,6 +187,10 @@ class MemversePage extends HookConsumerWidget {
             tooltip: 'Send Feedback',
             onPressed: () {
               AppLogger.d('Feedback button pressed');
+
+              // Track feedback trigger
+              analyticsService.trackFeedbackTrigger();
+
               final feedbackService = ref.read(feedbackServiceProvider);
               BetterFeedback.of(context).show((feedback) async {
                 await feedbackService.handleFeedbackSubmission(context, feedback);

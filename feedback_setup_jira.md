@@ -3,6 +3,254 @@
 This document provides instructions for integrating the Memverse app's feedback feature with Jira,
 allowing users to submit feedback directly to your Jira instance.
 
+## NPS SaaS FAQ Section
+
+### PostHog Open Source Pricing Model
+
+PostHog offers one of the most generous free tiers available for NPS and analytics tracking:
+
+**Free Tier (Forever):**
+
+- **1M events per month** - All user interactions, NPS submissions, analytics events
+- **250 survey responses per month** - Perfect for NPS tracking
+- **5K session recordings per month** - User behavior analysis
+- **Unlimited team members** - No restrictions on team size
+- **1-year data retention** - Historical analysis
+- **Self-hosting option** - Complete data ownership and privacy
+
+**Key Benefits for NPS Tracking:**
+
+- 90%+ of companies use PostHog for free (according to their own data)
+- No credit card required for free tier
+- EU-hosted and GDPR compliant
+- Open source with self-hosting options
+- Usage-based pricing after free tier (starts at $0.20 per survey response beyond 250/month)
+
+**PostHog Official Pricing:** [https://posthog.com/pricing](https://posthog.com/pricing)
+
+### Flutter NPS Tracking Solutions Comparison
+
+#### Option 1: NPS Plugin + PostHog (Recommended - $0 Cost)
+
+**Setup:**
+
+```yaml
+dependencies:
+  nps_plugin: ^1.0.0
+  posthog_flutter: ^4.0.1
+```
+
+**Implementation:**
+
+```dart
+// Trigger NPS survey
+final (:nps, :message, :phone) = await npsStart(
+  context,
+  npsTitle: 'How likely are you to recommend our app?',
+  showInputPhone: false,
+);
+
+// Track to PostHog
+await Posthog().capture(
+  eventName: 'nps_submitted',
+  properties: {
+    'nps_score': nps,
+    'feedback_message': message,
+    'user_id': currentUserId,
+    'app_version': appVersion,
+  },
+);
+```
+
+**Tracking Method:**
+
+- Use PostHog's event tracking to capture NPS responses
+- Custom dashboards in PostHog for NPS analytics
+- Real-time NPS score calculations
+- Segmentation by user properties
+
+**Cost:** Free for up to 1M events/month (covers ~4000 NPS responses)
+
+#### Option 2: Wiredash (Freemium with NPS)
+
+**Features:**
+
+- Built-in NPS surveys (Promoter Score)
+- Screenshot feedback collection
+- Real-time analytics dashboard
+- Free up to 100,000 monthly active devices
+
+**Setup:**
+
+```yaml
+dependencies:
+  wiredash: ^2.5.0
+```
+
+**Implementation:**
+
+```dart
+// Launch NPS survey
+Wiredash.of(context).showPromoterSurvey(force: true);
+
+// Access analytics via Wiredash Console
+```
+
+**Cost:**
+
+- Free: Up to 100K monthly active devices
+- Paid: Contact for enterprise pricing
+
+#### Option 3: Custom Solution + Firebase/Supabase (Free)
+
+**Architecture:**
+
+```dart
+// Custom NPS widget + free backend
+class CustomNPSWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('Rate us 0-10'),
+        Row(
+          children: List.generate(11, (index) => 
+            IconButton(
+              icon: Icon(index <= 5 ? Icons.sentiment_very_dissatisfied : 
+                        index <= 8 ? Icons.sentiment_neutral :
+                        Icons.sentiment_very_satisfied),
+              onPressed: () => submitNPS(index),
+            )
+          ),
+        ),
+      ],
+    );
+  }
+}
+```
+
+**Backend Options:**
+
+- Firebase Firestore (free quota: 50K reads, 20K writes/day)
+- Supabase (free quota: 50MB database, 500MB bandwidth)
+- Self-hosted PostgreSQL/MongoDB
+
+#### Option 4: Emoji-Based NPS Alternative
+
+**Simple 5-Star Emoji Rating:**
+
+```dart
+class EmojiNPSWidget extends StatelessWidget {
+  final List<String> emojis = ['😡', '😞', '😐', '😊', '😍'];
+  
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: emojis.asMap().entries.map((entry) => 
+        GestureDetector(
+          onTap: () => submitEmojiRating(entry.key + 1),
+          child: Text(entry.value, style: TextStyle(fontSize: 40)),
+        )
+      ).toList(),
+    );
+  }
+}
+```
+
+### Wiredash Alternatives Analysis
+
+#### 1. **Doorbell.io** - Still Active (2024)
+
+- **Status:** Active and maintained
+- **Pricing:** $49/month for basic plan
+- **Features:** Feedback widget, email notifications, Slack integration
+- **Flutter Support:** Web widget integration only
+
+#### 2. **Instabug**
+
+- **Pricing:** Free tier (up to 1 app, 1 team member)
+- **Features:** Crash reporting, bug reporting, surveys
+- **Flutter Support:** Native SDK available
+- **Best For:** Bug reporting with feedback
+
+#### 3. **UserVoice**
+
+- **Pricing:** $499/month minimum
+- **Features:** Advanced feedback management, roadmap sharing
+- **Best For:** Enterprise feedback management
+
+#### 4. **Helpshift**
+
+- **Pricing:** Contact for pricing
+- **Features:** In-app messaging, knowledge base
+- **Best For:** Customer support integration
+
+#### 5. **Appcues** (Limited NPS)
+
+- **Pricing:** $249/month
+- **Features:** User onboarding with basic NPS
+- **Best For:** User onboarding flows
+
+### Cost-Effective Recommendations by Use Case
+
+#### Startup/Small App (< 10K users)
+
+1. **NPS Plugin + PostHog** (Free)
+2. **Wiredash** (Free tier)
+3. **Custom Solution + Firebase** (Free)
+
+#### Growing App (10K-100K users)
+
+1. **PostHog** ($0-50/month depending on usage)
+2. **Wiredash** (Free for 100K devices)
+3. **Instabug** (Free + paid tiers)
+
+#### Enterprise App (100K+ users)
+
+1. **PostHog Self-hosted** (Infrastructure costs only)
+2. **Wiredash Enterprise** (Contact pricing)
+3. **Custom solution with dedicated backend**
+
+### Implementation Timeline
+
+**Week 1:** PostHog + NPS Plugin Integration
+
+- Set up PostHog account and Flutter SDK
+- Implement nps_plugin
+- Create basic NPS event tracking
+
+**Week 2:** Analytics Dashboard Setup
+
+- Configure PostHog dashboards
+- Set up NPS score calculations
+- Implement user segmentation
+
+**Week 3:** Advanced Features
+
+- Add feedback categorization
+- Implement follow-up surveys
+- Set up automated alerts for low NPS scores
+
+### Self-Hosted Open Source Alternative
+
+For complete cost control and data ownership:
+
+**PostHog Self-Hosted:**
+
+- Docker/Kubernetes deployment
+- PostgreSQL + ClickHouse backend
+- Full feature set available
+- Only infrastructure costs (AWS/GCP/Azure)
+
+**Estimated monthly costs:**
+
+- Small deployment: $50-100/month
+- Medium deployment: $200-500/month
+- Large deployment: $1000+/month
+
+This provides unlimited events, users, and complete data ownership.
+
 ## Option 1: Using Jira's Email Integration
 
 The simplest approach is to configure your device's default email client to send feedback to Jira's
@@ -61,13 +309,13 @@ of using the share dialog.
 Replace the existing feedback handler with Jira API integration:
 
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:log';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-+import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Jira credentials - store these securely in production
 const String jiraBaseUrl = 'https://your-instance.atlassian.net';
@@ -77,19 +325,18 @@ const String jiraApiToken = 'your-api-token'; // From Step 1
 
 /// Handles the feedback submission by sending it directly to Jira
 Future<void> handleFeedbackSubmission(BuildContext context, UserFeedback feedback) async {
-  log('Submitting feedback directly to Jira');
+log('Submitting feedback directly to Jira');
 
-+  // declare file here so it's in scope for both try and catch
-+  File? file;
+// declare file here so it's in scope for both try and catch
+File? file;
 
-  try {
-    // 1. Save screenshot to temporary file
-    final dir = await getTemporaryDirectory();
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
--   final file = File('${dir.path}/memverse_feedback_$timestamp.png');
-+   file = File('${dir.path}/memverse_feedback_$timestamp.png');
-    await file.writeAsBytes(feedback.screenshot);
-    log('Screenshot saved to: ${file.path}');
+try {
+// 1. Save screenshot to temporary file
+final dir = await getTemporaryDirectory();
+final timestamp = DateTime.now().millisecondsSinceEpoch;
+file = File('${dir.path}/memverse_feedback_$timestamp.png');
+await file.writeAsBytes(feedback.screenshot);
+log('Screenshot saved to: ${file.path}');
 
     // 2. Create a Jira issue
     final issueResponse = await _createJiraIssue(feedback.text);
@@ -106,12 +353,12 @@ Future<void> handleFeedbackSubmission(BuildContext context, UserFeedback feedbac
         SnackBar(content: Text('Feedback submitted to Jira: $issueKey')),
       );
     }
-  } catch (e, stack) {
-    log('Error submitting to Jira: $e', stackTrace: stack);
+
+} catch (e, stack) {
+log('Error submitting to Jira: $e', stackTrace: stack);
 
     // Fall back to the share dialog
--   if (File(file.path).existsSync()) {
-+   if (file != null && file.existsSync()) {
+    if (file != null && file.existsSync()) {
       await Share.shareXFiles(
         [XFile(file.path)],
         text: feedback.text,
@@ -129,68 +376,68 @@ Future<void> handleFeedbackSubmission(BuildContext context, UserFeedback feedbac
         const SnackBar(content: Text('Direct Jira submission failed, shared instead')),
       );
     }
-  }
+
+}
 }
 
 /// Creates a new Jira issue with the feedback text
 Future<Map<String, dynamic>> _createJiraIssue(String feedbackText) async {
-  final auth = base64Encode(utf8.encode('$jiraEmail:$jiraApiToken'));
-  final response = await http.post(
-    Uri.parse('$jiraBaseUrl/rest/api/2/issue'),
-    headers: {
-      'Authorization': 'Basic $auth',
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode({
-      'fields': {
-        'project': {
-          'key': jiraProject,
-        },
-        'summary': 'User Feedback from Memverse App',
-        'description': feedbackText,
-        'issuetype': {
-          'name': 'Bug', // Or 'Feedback' if you created a custom type
-        },
-      },
-    }),
-  );
+final auth = base64Encode(utf8.encode('$jiraEmail:$jiraApiToken'));
+final response = await http.post(
+Uri.parse('$jiraBaseUrl/rest/api/2/issue'),
+headers: {
+'Authorization': 'Basic $auth',
+'Content-Type': 'application/json',
+},
+body: jsonEncode({
+'fields': {
+'project': {
+'key': jiraProject,
+},
+'summary': 'User Feedback from Memverse App',
+'description': feedbackText,
+'issuetype': {
+'name': 'Bug', // Or 'Feedback' if you created a custom type
+},
+},
+}),
+);
 
-  if (response.statusCode != 201) {
-    throw Exception('Failed to create Jira issue: ${response.statusCode} - ${response.body}');
-  }
+if (response.statusCode != 201) {
+throw Exception('Failed to create Jira issue: ${response.statusCode} - ${response.body}');
+}
 
-  return jsonDecode(response.body) as Map<String, dynamic>;
+return jsonDecode(response.body) as Map<String, dynamic>;
 }
 
 /// Attaches the screenshot to an existing Jira issue
 Future<void> _attachScreenshotToJira(String issueKey, File screenshot) async {
-  final auth = base64Encode(utf8.encode('$jiraEmail:$jiraApiToken'));
+final auth = base64Encode(utf8.encode('$jiraEmail:$jiraApiToken'));
 
-  final request = http.MultipartRequest(
-    'POST',
-    Uri.parse('$jiraBaseUrl/rest/api/2/issue/$issueKey/attachments'),
-  );
+final request = http.MultipartRequest(
+'POST',
+Uri.parse('$jiraBaseUrl/rest/api/2/issue/$issueKey/attachments'),
+);
 
-  request.headers.addAll({
-    'Authorization': 'Basic $auth',
-    'X-Atlassian-Token': 'no-check',
-  });
+request.headers.addAll({
+'Authorization': 'Basic $auth',
+'X-Atlassian-Token': 'no-check',
+});
 
-  request.files.add(await http.MultipartFile.fromPath(
-    'file',
-    screenshot.path,
-    filename: 'screenshot.png',
-  ));
+request.files.add(await http.MultipartFile.fromPath(
+'file',
+screenshot.path,
+filename: 'screenshot.png',
+));
 
-  final response = await request.send();
+final response = await request.send();
 
-  if (response.statusCode != 200) {
-    throw Exception('Failed to attach screenshot: ${response.statusCode}');
-  }
+if (response.statusCode != 200) {
+throw Exception('Failed to attach screenshot: ${response.statusCode}');
 }
-```
+}
 
-### Step 3: Update the App Configuration
+## Step 3: Update the App Configuration
 
 1. Modify the feedback button to use the new Jira integration:
 

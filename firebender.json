@@ -16,10 +16,13 @@
     "CLIENT_ID environment variable is REQUIRED for all builds and app functionality",
     "Build debug APK with: flutter build apk --debug --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID",
     "Install app with: flutter install --debug --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID",
-    "Run app with: flutter run --target lib/main_development.dart --dart-define=CLIENT_ID=$CLIENT_ID",
+    "For running the app, refer to setup.md for proper environment variable configuration and use: flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor development --target lib/main_development.dart",
+    "Android requires development flavor for proper configuration - never run without --flavor development on Android",
     "For Maestro testing, refer to maestro_rules.txt for platform-specific guidance and common issues",
     "When working with Maestro tests, always ensure app is installed on device before running tests",
     "Use temporarily_ditl.md file to track progress and show green checkmarks for completed tasks",
+    "Write clear, concise code comments and sparingly",
+    "put prompts and prompt times and response summaries in ai_interactions.log",
     {
       "filePathMatches": "*.feature",
       "rules": [

@@ -1,13 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/l10n.dart';
+import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 
 // Key constants for Patrol tests
 const loginUsernameFieldKey = ValueKey('login_username_field');
 const loginPasswordFieldKey = ValueKey('login_password_field');
 const loginButtonKey = ValueKey('login_button');
+const passwordVisibilityToggleKey = ValueKey('password_visibility_toggle');
 
 class LoginPage extends HookConsumerWidget {
   const LoginPage({super.key = const ValueKey('login_page')});
@@ -20,7 +23,35 @@ class LoginPage extends HookConsumerWidget {
     final passwordFocusNode = useFocusNode();
     final authState = ref.watch(authStateProvider);
     final isPasswordVisible = useState(false);
+    final analyticsService = ref.read(analyticsServiceProvider);
     final l10n = context.l10n;
+
+    // Track web page view for login page
+    useEffect(() {
+      if (kIsWeb) {
+        analyticsService.trackWebPageView('login_page');
+      }
+      return null;
+    }, const []);
+
+    // Function to validate form and track validation failures
+    Future<bool> validateFormWithAnalytics() async {
+      var isValid = true;
+
+      // Check username
+      if (usernameController.text.isEmpty) {
+        await analyticsService.trackEmptyUsernameValidation();
+        isValid = false;
+      }
+
+      // Check password
+      if (passwordController.text.isEmpty) {
+        await analyticsService.trackEmptyPasswordValidation();
+        isValid = false;
+      }
+
+      return formKey.currentState!.validate() && isValid;
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Memverse Login')),
@@ -111,18 +142,23 @@ class LoginPage extends HookConsumerWidget {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
+                        key: passwordVisibilityToggleKey,
                         icon: Icon(
                           isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
                         ),
-                        onPressed: () => isPasswordVisible.value = !isPasswordVisible.value,
+                        onPressed: () {
+                          isPasswordVisible.value = !isPasswordVisible.value;
+                          // Track password visibility toggle
+                          analyticsService.trackPasswordVisibilityToggle(isPasswordVisible.value);
+                        },
                         tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
                       ),
                     ),
                     validator: (value) =>
                         value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
                     textInputAction: TextInputAction.go,
-                    onFieldSubmitted: (_) {
-                      if (formKey.currentState!.validate()) {
+                    onFieldSubmitted: (_) async {
+                      if (await validateFormWithAnalytics()) {
                         ref
                             .read(authStateProvider.notifier)
                             .login(usernameController.text, passwordController.text);
@@ -139,7 +175,7 @@ class LoginPage extends HookConsumerWidget {
                     onPressed: authState.isLoading
                         ? null
                         : () async {
-                            if (formKey.currentState!.validate()) {
+                            if (await validateFormWithAnalytics()) {
                               await ref
                                   .read(authStateProvider.notifier)
                                   .login(usernameController.text, passwordController.text);
