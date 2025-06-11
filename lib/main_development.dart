@@ -41,7 +41,6 @@ Future<void> main() async {
   await AnalyticsBootstrap.initialize(
     entryPoint: AnalyticsEntryPoint.mainDevelopment,
     flavor: 'development',
-    memverseApiUrl: apiUrl,
   );
 
   bootstrap(() => const ProviderScope(child: App()));

@@ -44,7 +44,7 @@ onFlowStart:
 - takeScreenshot: "03_credentials_filled"
 
 # Login
-- tap:
+- tapOn:
     id: "login_button"
 - takeScreenshot: "04_login_submitted"
 
@@ -63,7 +63,7 @@ onFlowStart:
 
 # Submit the answer
 - tapOn:
-    key: "submit-ref"
+    id: "submit-ref"
 - takeScreenshot: "08_first_answer_submitted"
 
 # Verify correct feedback (green)
@@ -71,7 +71,7 @@ onFlowStart:
 - takeScreenshot: "09_first_answer_correct_feedback"
 
 # Wait for next verse to load
-- wait: 2000
+- waitForAnimationToEnd
 - takeScreenshot: "10_waiting_for_next_verse"
 
 # Step 3: Second verse - "Gal 5:1" expected but input "Gal 5:2" (should be almost correct/orange)
@@ -85,7 +85,7 @@ onFlowStart:
 
 # Submit the answer
 - tapOn:
-    key: "submit-ref"
+    id: "submit-ref"
 - takeScreenshot: "13_second_answer_submitted"
 
 # Verify almost correct feedback (orange/not quite right)

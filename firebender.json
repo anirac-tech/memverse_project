@@ -21,6 +21,8 @@
     "For Maestro testing, refer to maestro_rules.txt for platform-specific guidance and common issues",
     "When working with Maestro tests, always ensure app is installed on device before running tests",
     "Use temporarily_ditl.md file to track progress and show green checkmarks for completed tasks",
+    "Write clear, concise code comments and sparingly",
+    "put prompts and prompt times and response summaries in ai_interactions.log",
     {
       "filePathMatches": "*.feature",
       "rules": [
