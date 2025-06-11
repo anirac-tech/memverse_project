@@ -97,6 +97,24 @@ abstract class AnalyticsService {
     },
   );
 
+  /// Track when verse list cycles back to the beginning
+  Future<void> trackVerseListCycled(int totalVerses, int cycleCount) => track(
+    'verse_list_cycled',
+    properties: {'total_verses': totalVerses, 'cycle_count': cycleCount},
+  );
+
+  /// Track successful API call for verses
+  Future<void> trackVerseApiSuccess(int verseCount, int responseTime) => track(
+    'verse_api_success',
+    properties: {'verse_count': verseCount, 'response_time_ms': responseTime},
+  );
+
+  /// Track failed API call for verses
+  Future<void> trackVerseApiFailure(String errorType, String errorMessage) => track(
+    'verse_api_failure',
+    properties: {'error_type': errorType, 'error_message': errorMessage},
+  );
+
   /// Track password visibility toggle
   Future<void> trackPasswordVisibilityToggle(bool isVisible) =>
       track('password_visibility_toggle', properties: {'is_visible': isVisible});
@@ -130,11 +148,11 @@ abstract class AnalyticsService {
 
 /// PostHog implementation of analytics service
 class PostHogAnalyticsService extends AnalyticsService {
-  static final PostHogAnalyticsService _instance = PostHogAnalyticsService._internal();
 
   factory PostHogAnalyticsService() => _instance;
 
   PostHogAnalyticsService._internal();
+  static final PostHogAnalyticsService _instance = PostHogAnalyticsService._internal();
 
   bool _isInitialized = false;
 
@@ -233,12 +251,12 @@ class PostHogAnalyticsService extends AnalyticsService {
 
   @override
   Future<void> track(String eventName, {Map<String, dynamic>? properties}) async {
-    AppLogger.d('🔍 Track called on instance: ${hashCode}, initialized: $_isInitialized');
+    AppLogger.d('🔍 Track called on instance: $hashCode, initialized: $_isInitialized');
 
     if (!_isInitialized) {
       AppLogger.w('⚠️ PostHog not initialized, cannot track event: $eventName');
       AppLogger.w('   This usually means the API key was not provided or initialization failed');
-      AppLogger.w('   Instance hash: ${hashCode}');
+      AppLogger.w('   Instance hash: $hashCode');
       return;
     }
 

@@ -63,6 +63,9 @@
   initialized"
 - [ ] Confirm instance hash codes match between initialization and event tracking
 - [ ] ✅ All session prompts documented in AI prompts log
+- [ ] Test new analytics events: verse_list_cycled, verse_api_success, verse_api_failure
+- [ ] Verify verse cycling analytics when completing verse sets
+- [ ] Check API call timing and success/failure tracking in logs
 
 ---
 
@@ -580,3 +583,4 @@ Create comprehensive Maestro tests and BDD widget integration tests to cover ent
 ---
 **Current Status**: Final testing of Maestro script ⏳  
 **Last Updated**: 2025-05-30 10:50:00 PM
+

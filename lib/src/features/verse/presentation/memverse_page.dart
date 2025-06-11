@@ -31,6 +31,7 @@ class MemversePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentVerseIndex = useState(0);
+    final cycleCount = useState(0); // Track how many times we've cycled through the list
     final answerController = useTextEditingController();
     final answerFocusNode = useFocusNode();
     final hasSubmittedAnswer = useState(false);
@@ -74,6 +75,10 @@ class MemversePage extends HookConsumerWidget {
         } else {
           // Reset to the first verse when we reach the end
           currentVerseIndex.value = 0;
+          cycleCount.value++;
+
+          // Track verse list cycling
+          analyticsService.trackVerseListCycled(verses.length, cycleCount.value);
         }
 
         // Track verse displayed

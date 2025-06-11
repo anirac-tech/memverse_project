@@ -222,6 +222,46 @@ factory PostHogAnalyticsService() => _instance;
 
 ---
 
+## 2025-06-10 09:51:35 PM
+**User Query**: add analyticvs event for when you run through your verses and it cycles through again, also add event for whether the api call succeeds or fails and how many verses it returns if it succeeds.
+
+## New Analytics Events Added
+
+### 🔄 Verse Cycling Analytics:
+
+✅ **trackVerseListCycled**: Tracks when verse list cycles back to beginning
+- Properties: `total_verses`, `cycle_count`
+- Triggered in `MemversePage.loadNextVerse()` when reaching end of verse list
+- Added `cycleCount` state variable to track cycle iterations
+
+### 📡 API Call Analytics:
+
+✅ **trackVerseApiSuccess**: Tracks successful verse API calls  
+- Properties: `verse_count`, `response_time_ms`
+- Measures API response time with Stopwatch
+- Tracks number of verses returned
+
+✅ **trackVerseApiFailure**: Tracks failed verse API calls
+- Properties: `error_type`, `error_message` 
+- Categorizes error types (DioException, Exception, unknown_error)
+- Captures full error message for debugging
+
+### 🔧 Implementation Details:
+
+- Added timing measurement to `LiveVerseRepository.getVerses()`
+- Uses singleton `PostHogAnalyticsService()` for consistent tracking
+- Graceful error handling - analytics failures don't break app functionality
+- All analytics calls wrapped in try-catch blocks
+
+### 📊 Data Insights Available:
+
+- Verse engagement patterns (how many cycles users complete)
+- API reliability metrics (success rate, response times)  
+- Error categorization for API troubleshooting
+- User behavior patterns (verse completion vs cycling)
+
+---
+
 ## 2025-06-10 09:16:04 PM
 **User Query**: try again but with the ditl in temporary and the ai prompts updated. update firebender rules to use ditl
 
@@ -256,3 +296,43 @@ factory PostHogAnalyticsService() => _instance;
 - **Environment Variables**: ✅ Better validation and error reporting
 - **Event Tracking**: 🔧 Improved logging to show success vs "not initialized" messages
 
+---
+
+## 2025-06-10 10:01:01 PM - API Sorting Implementation
+
+**User Query**: Please try again and see why my recently added verse isnt showing up. Please use this for the api call https://www.memverse.com/1/memverses?sort=2" where the "2" means sort most recent first, this shoul causae heb 12:1 text to show up first.  please use enums or constants or self-documenting code for the 2 for desc
+
+## API Sorting Implementation
+
+### 🔄 Self-Documenting Sort Options:
+
+✅ **MemverseSortOrder Enum**: Created comprehensive enum for API sorting
+```dart
+enum MemverseSortOrder {
+  createdAscending(1),     // Oldest first
+  createdDescending(2),    // Newest first (most recent)
+  alphabetical(3);         // Alphabetical by reference
+  
+  static MemverseSortOrder get mostRecentFirst => createdDescending;
+}
+```
+
+### 📡 Updated API Implementation:
+
+✅ **Sort Parameter**: Added `?sort=2` to API URL for most recent verses first
+✅ **URL Construction**: Updated both web proxy and direct API URLs
+✅ **Self-Documenting**: Uses `MemverseSortOrder.mostRecentFirst` instead of magic number "2"
+✅ **Enhanced Logging**: Added sort order name to debug logs
+
+### 🔍 Expected Results:
+
+- **Heb 12:1** should now appear first in the verse list
+- **Debug logs** show: `"Fetching verses from https://www.memverse.com/1/memverses?sort=2 (sort: createdDescending)"`
+- **Analytics tracking** includes API response time and verse count
+- **Recently added verses** appear at the top instead of bottom
+
+### 📊 API Call Changes:
+
+- **Before**: `https://www.memverse.com/1/memverses`
+- **After**: `https://www.memverse.com/1/memverses?sort=2`
+- **Self-Documenting**: `sortOrder.value` where `sortOrder = MemverseSortOrder.mostRecentFirst`

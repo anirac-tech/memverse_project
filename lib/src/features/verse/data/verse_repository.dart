@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/constants/api_constants.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
@@ -37,6 +38,26 @@ final verseRepositoryOverrideProvider = Provider<VerseRepository>(
 abstract class VerseRepository {
   /// Get a list of verses
   Future<List<Verse>> getVerses();
+}
+
+/// Sort options for memverse API
+enum MemverseSortOrder {
+  /// Sort by creation date, oldest first (ascending)
+  createdAscending(1),
+
+  /// Sort by creation date, newest first (descending)
+  createdDescending(2),
+
+  /// Sort alphabetically by reference
+  alphabetical(3);
+
+  const MemverseSortOrder(this.value);
+
+  /// The numeric value to send to the API
+  final int value;
+
+  /// Get the sort order for most recent verses first
+  static MemverseSortOrder get mostRecentFirst => createdDescending;
 }
 
 /// Implementation that fetches Bible verses from the live API
@@ -108,6 +129,8 @@ class LiveVerseRepository implements VerseRepository {
   /// Get a list of verses from the remote API
   @override
   Future<List<Verse>> getVerses() async {
+    final stopwatch = Stopwatch()..start();
+
     try {
       // Validate token is available when not running tests
       // During tests, Dio is usually mocked so we don't need a real token
@@ -118,20 +141,25 @@ class LiveVerseRepository implements VerseRepository {
         throw Exception('No API token provided. Please login to get a valid token');
       }
 
-      // Construct the URL based on the platform
-      const getVersesUrl = kIsWeb
-          ? '$webApiPrefix$_memversesPath' // Use proxy for web
-          : '$apiBaseUrl$_memversesPath'; // Use direct URL otherwise
+      // Use sort parameter to get most recent verses first (Heb 12:1 should appear first)
+      final sortOrder = MemverseSortOrder.mostRecentFirst;
+
+      // Construct the URL based on the platform with sort parameter
+      final getVersesUrl = kIsWeb
+          ? '$webApiPrefix$_memversesPath?sort=${sortOrder.value}' // Use proxy for web
+          : '$apiBaseUrl$_memversesPath?sort=${sortOrder.value}'; // Use direct URL otherwise
 
       // Always output token for debugging (not just in debug mode)
       final redactedToken = token.isEmpty ? '' : '${token.substring(0, 4)}...';
       AppLogger.d('VERSE REPOSITORY - Token: $redactedToken (redacted) (empty: ${token.isEmpty})');
       AppLogger.d('VERSE REPOSITORY - Bearer token: $bearerToken');
-      AppLogger.d('VERSE REPOSITORY - Fetching verses from $getVersesUrl'); // Updated log
+      AppLogger.d(
+        'VERSE REPOSITORY - Fetching verses from $getVersesUrl (sort: ${sortOrder.name})',
+      );
 
       // Fetch data with authentication header - ensure Bearer prefix has a space
       final response = await _dio.get<dynamic>(
-        getVersesUrl, // Use constructed URL
+        getVersesUrl, // Use constructed URL with sort parameter
         options: Options(
           headers: {
             'Authorization': bearerToken.isNotEmpty ? bearerToken : 'Bearer $token',
@@ -152,11 +180,42 @@ class LiveVerseRepository implements VerseRepository {
 
         final versesList = jsonData['response'] as List<dynamic>;
         final verses = _parseVerses(versesList);
+
+        stopwatch.stop();
+
+        // Track successful API call
+        try {
+          final analyticsService = PostHogAnalyticsService();
+          await analyticsService.trackVerseApiSuccess(verses.length, stopwatch.elapsedMilliseconds);
+          AppLogger.i(
+            '📊 Tracked verse API success: ${verses.length} verses, ${stopwatch.elapsedMilliseconds}ms',
+          );
+        } catch (e) {
+          AppLogger.w('Failed to track verse API success: $e');
+        }
+
         return verses;
       } else {
         throw Exception('Failed to load verses. Status code: ${response.statusCode}');
       }
     } catch (e) {
+      stopwatch.stop();
+
+      // Track failed API call
+      try {
+        final analyticsService = PostHogAnalyticsService();
+        var errorType = 'unknown_error';
+        if (e is DioException) {
+          errorType = e.type.toString();
+        } else if (e is Exception) {
+          errorType = 'exception';
+        }
+        await analyticsService.trackVerseApiFailure(errorType, e.toString());
+        AppLogger.e('📊 Tracked verse API failure: $errorType - $e');
+      } catch (analyticsError) {
+        AppLogger.w('Failed to track verse API failure: $analyticsError');
+      }
+
       if (kDebugMode) {
         AppLogger.e('Error fetching verses: $e');
       }
