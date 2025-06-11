@@ -7,8 +7,8 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 
 /// Environment configuration for analytics
 enum AnalyticsEnvironment {
-  production('prod', 'https://api.memverse.com'),
-  staging('staging', 'https://api-staging.memverse.com'),
+  production('prd', 'https://api.memverse.com'),
+  staging('stg', 'https://api-stg.memverse.com'),
   development('dev', 'https://api-dev.memverse.com');
 
   const AnalyticsEnvironment(this.key, this.apiUrl);
@@ -144,27 +144,20 @@ class PostHogAnalyticsService extends AnalyticsService {
     String? flavor,
     AnalyticsEnvironment? environment,
   }) async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      AppLogger.i('PostHog analytics already initialized');
+      return;
+    }
 
     if (apiKey?.isEmpty ?? true) {
-      AppLogger.e('Error: PostHog API key is not provided');
+      AppLogger.e('❌ PostHog API key is not provided');
       return;
     }
 
     try {
+      AppLogger.i('🔧 Initializing PostHog analytics...');
       if (kDebugMode) {
-        AppLogger.d('PostHog API Key: $apiKey');
-      }
-
-      // Web-specific initialization
-      if (kIsWeb) {
-        try {
-          // Call the JavaScript initialization function
-          // Note: This requires js import in the calling code
-          AppLogger.i('PostHog JavaScript SDK would be initialized for web');
-        } catch (e) {
-          AppLogger.e('Failed to initialize PostHog JavaScript SDK: $e');
-        }
+        AppLogger.d('PostHog API Key: ${apiKey!.substring(0, 8)}...');
       }
 
       final config = PostHogConfig(apiKey!);
@@ -174,31 +167,75 @@ class PostHogAnalyticsService extends AnalyticsService {
 
       // Platform-specific configuration
       if (kIsWeb) {
-        config.sessionReplay = true;
-        config.sessionReplayConfig.maskAllTexts = false;
-        config.sessionReplayConfig.maskAllImages = false;
-        AppLogger.i('PostHog configured for web with session replay enabled');
+        try {
+          config.sessionReplay = true;
+          config.sessionReplayConfig.maskAllTexts = false;
+          config.sessionReplayConfig.maskAllImages = false;
+          AppLogger.i('PostHog configured for web with session replay enabled');
+        } catch (e) {
+          AppLogger.w('Session replay configuration failed for web: $e');
+        }
       } else {
-        config.sessionReplay = true;
-        config.sessionReplayConfig.maskAllTexts = false;
-        config.sessionReplayConfig.maskAllImages = false;
-        AppLogger.i('PostHog configured for mobile with session replay');
+        // For mobile platforms, be more conservative with session replay
+        try {
+          if (Platform.isAndroid) {
+            // Session replay can be problematic on Android emulators
+            config.sessionReplay = false;
+            AppLogger.i('PostHog configured for Android without session replay');
+          } else if (Platform.isIOS) {
+            config.sessionReplay = true;
+            config.sessionReplayConfig.maskAllTexts = false;
+            config.sessionReplayConfig.maskAllImages = false;
+            AppLogger.i('PostHog configured for iOS with session replay');
+          }
+        } catch (e) {
+          AppLogger.w('Session replay configuration failed for mobile: $e');
+          config.sessionReplay = false;
+        }
       }
 
       // Setup PostHog with the given Context and Config
+      AppLogger.i('📡 Setting up PostHog connection...');
       await Posthog().setup(config);
       _isInitialized = true;
 
-      // Register enhanced properties for analytics tracking
-      await Posthog().register('entry_point', entryPoint?.key ?? 'unknown');
-      await Posthog().register('app_flavor', flavor ?? 'unknown');
-      await Posthog().register('environment', environment?.key ?? 'unknown');
-      await Posthog().register('environment_api_url', environment?.apiUrl ?? 'unknown');
-      await Posthog().register('debug_mode', kDebugMode.toString());
-      await Posthog().register('platform', kIsWeb ? 'web' : Platform.operatingSystem);
+      AppLogger.i('✅ PostHog setup completed successfully');
 
-      // Detect and register emulator/simulator status
-      if (!kIsWeb) {
+      // Register enhanced properties for analytics tracking
+      try {
+        await _registerAnalyticsProperties(entryPoint, flavor, environment);
+        AppLogger.i('📋 PostHog properties registered successfully');
+      } catch (e) {
+        AppLogger.w('Failed to register some PostHog properties: $e');
+      }
+
+      if (kIsWeb) {
+        AppLogger.i('🌐 PostHog web analytics fully initialized');
+      } else {
+        AppLogger.i('📱 PostHog mobile analytics fully initialized');
+      }
+    } catch (e) {
+      AppLogger.e('❌ Failed to initialize PostHog analytics: $e');
+      _isInitialized = false;
+    }
+  }
+
+  Future<void> _registerAnalyticsProperties(
+    AnalyticsEntryPoint? entryPoint,
+    String? flavor,
+    AnalyticsEnvironment? environment,
+  ) async {
+    // Register basic properties first
+    await Posthog().register('entry_point', entryPoint?.key ?? 'unknown');
+    await Posthog().register('app_flavor', flavor ?? 'unknown');
+    await Posthog().register('environment', environment?.key ?? 'unknown');
+    await Posthog().register('environment_api_url', environment?.apiUrl ?? 'unknown');
+    await Posthog().register('debug_mode', kDebugMode.toString());
+    await Posthog().register('platform', kIsWeb ? 'web' : Platform.operatingSystem);
+
+    // Detect and register emulator/simulator status with better error handling
+    if (!kIsWeb) {
+      try {
         if (Platform.isAndroid) {
           final isEmulator = await _isAndroidEmulator();
           await Posthog().register('is_emulator', isEmulator.toString());
@@ -211,20 +248,14 @@ class PostHogAnalyticsService extends AnalyticsService {
           await Posthog().register('is_emulator', 'false');
           await Posthog().register('is_simulator', 'false');
         }
-      } else {
-        await Posthog().register('is_emulator', 'false');
-        await Posthog().register('is_simulator', 'false');
+      } catch (e) {
+        AppLogger.w('Failed to detect emulator/simulator status: $e');
+        await Posthog().register('is_emulator', 'unknown');
+        await Posthog().register('is_simulator', 'unknown');
       }
-
-      AppLogger.i(
-        'PostHog properties registered - Entry: ${entryPoint?.key}, Flavor: $flavor, Env: ${environment?.key}',
-      );
-
-      if (kIsWeb) {
-        AppLogger.i('PostHog web analytics fully initialized - JS + Flutter SDK ready');
-      }
-    } catch (e) {
-      AppLogger.e('Failed to initialize PostHog analytics: $e');
+    } else {
+      await Posthog().register('is_emulator', 'false');
+      await Posthog().register('is_simulator', 'false');
     }
   }
 
@@ -232,32 +263,47 @@ class PostHogAnalyticsService extends AnalyticsService {
   Future<void> track(String eventName, {Map<String, dynamic>? properties}) async {
     if (!_isInitialized) {
       if (kDebugMode) {
-        AppLogger.w('Analytics not initialized, skipping event: $eventName');
+        AppLogger.w('⚠️ Analytics not initialized, skipping event: $eventName');
       }
       return;
     }
 
     try {
       await Posthog().capture(eventName: eventName, properties: properties?.cast<String, Object>());
+      if (kDebugMode) {
+        AppLogger.d('📊 Tracked: $eventName${properties != null ? ' - $properties' : ''}');
+      }
     } catch (e) {
       // Silently fail - don't let analytics crash the app
       if (kDebugMode) {
-        AppLogger.d('Analytics tracking failed for event $eventName: $e');
+        AppLogger.d('⚠️ Analytics tracking failed for event $eventName: $e');
       }
     }
   }
 
   Future<bool> _isAndroidEmulator() async {
     try {
-      final result = await Process.run('getprop', ['ro.kernel.qemu']);
-      if (result.stdout.toString().trim() == '1') return true;
+      // Try multiple methods to detect Android emulator
+      final result = await Process.run('getprop', [
+        'ro.kernel.qemu',
+      ]).timeout(const Duration(seconds: 2), onTimeout: () => ProcessResult(0, 1, '', 'timeout'));
 
-      final buildFingerprint = await Process.run('getprop', ['ro.build.fingerprint']);
-      final fingerprint = buildFingerprint.stdout.toString().toLowerCase();
+      if (result.exitCode == 0 && result.stdout.toString().trim() == '1') {
+        return true;
+      }
 
-      return fingerprint.contains('generic') ||
-          fingerprint.contains('emulator') ||
-          fingerprint.contains('sdk');
+      final buildFingerprint = await Process.run('getprop', [
+        'ro.build.fingerprint',
+      ]).timeout(const Duration(seconds: 2), onTimeout: () => ProcessResult(0, 1, '', 'timeout'));
+
+      if (buildFingerprint.exitCode == 0) {
+        final fingerprint = buildFingerprint.stdout.toString().toLowerCase();
+        return fingerprint.contains('generic') ||
+            fingerprint.contains('emulator') ||
+            fingerprint.contains('sdk');
+      }
+
+      return false;
     } catch (e) {
       AppLogger.w('Could not detect Android emulator: $e');
       return false;
@@ -266,7 +312,9 @@ class PostHogAnalyticsService extends AnalyticsService {
 
   Future<bool> _isIOSSimulator() async {
     try {
-      final envResult = await Process.run('printenv', ['SIMULATOR_DEVICE_NAME']);
+      final envResult = await Process.run('printenv', [
+        'SIMULATOR_DEVICE_NAME',
+      ]).timeout(const Duration(seconds: 2), onTimeout: () => ProcessResult(0, 1, '', 'timeout'));
       return envResult.exitCode == 0 && envResult.stdout.toString().isNotEmpty;
     } catch (e) {
       AppLogger.w('Could not detect iOS simulator: $e');

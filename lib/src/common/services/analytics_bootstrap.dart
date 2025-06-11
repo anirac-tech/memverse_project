@@ -20,23 +20,37 @@ class AnalyticsBootstrap {
     }
 
     try {
+      AppLogger.i('🚀 Starting analytics initialization...');
+      AppLogger.i('📍 Entry Point: ${entryPoint.key}');
+      AppLogger.i('🏷️ Flavor: $flavor');
+      AppLogger.i('🌐 API URL: $memverseApiUrl');
+
       // Determine environment from API URL or default to development
       final environment = memverseApiUrl != null
           ? AnalyticsEnvironment.fromApiUrl(memverseApiUrl)
           : AnalyticsEnvironment.development;
 
+      AppLogger.i('🌍 Determined environment: ${environment.key} (${environment.apiUrl})');
+
       // Get PostHog API key - allow override per environment/flavor if needed
       final apiKey = customApiKey ?? _getPostHogApiKey(entryPoint, flavor, environment);
 
+      AppLogger.i(
+        '🔑 API Key check: ${apiKey?.isNotEmpty == true ? "API key provided" : "NO API KEY FOUND"}',
+      );
+
       if (apiKey?.isEmpty ?? true) {
         AppLogger.e('❌ Analytics initialization failed: No PostHog API key provided');
+        AppLogger.e('💡 Make sure POSTHOG_MEMVERSE_API_KEY environment variable is set');
         return;
       }
 
+      AppLogger.i('🔧 Creating analytics service...');
       // Initialize analytics service
       final container = ProviderContainer();
       final analyticsService = container.read(analyticsServiceProvider);
 
+      AppLogger.i('📡 Calling analytics service init...');
       await analyticsService.init(
         apiKey: apiKey,
         entryPoint: entryPoint,
@@ -52,9 +66,12 @@ class AnalyticsBootstrap {
       AppLogger.i('🌍 Environment: ${environment.key} (${environment.apiUrl})');
 
       // Track app initialization
+      AppLogger.i('📈 Tracking app opened event...');
       await analyticsService.trackAppOpened();
-    } catch (e) {
+      AppLogger.i('🎯 App opened event tracked successfully');
+    } catch (e, stackTrace) {
       AppLogger.e('❌ Analytics initialization failed: $e');
+      AppLogger.e('📋 Stack trace: $stackTrace');
     }
   }
 
@@ -73,8 +90,17 @@ class AnalyticsBootstrap {
 
     const apiKey = String.fromEnvironment('POSTHOG_MEMVERSE_API_KEY');
 
+    AppLogger.i('🔍 Checking environment variables:');
+    AppLogger.i('   POSTHOG_MEMVERSE_API_KEY length: ${apiKey.length}');
+    AppLogger.i('   CLIENT_ID length: ${const String.fromEnvironment('CLIENT_ID').length}');
+    AppLogger.i(
+      '   ENVIRONMENT: ${const String.fromEnvironment('ENVIRONMENT', defaultValue: 'not_set')}',
+    );
+
     if (kDebugMode && apiKey.isNotEmpty) {
-      AppLogger.d('🔑 Using PostHog API key for ${environment.key} environment');
+      AppLogger.d(
+        '🔑 Using PostHog API key for ${environment.key} environment (${apiKey.substring(0, 8)}...)',
+      );
     }
 
     return apiKey.isEmpty ? null : apiKey;
