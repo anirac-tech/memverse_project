@@ -480,10 +480,10 @@ packages:
     dependency: transitive
     description:
       name: jni
-      sha256: "3296e4327bd74d57763ba71fd9efeb6f132634a27ea8754101e4ff3f8bca5faa"
+      sha256: d2c361082d554d4593c3012e26f6b188f902acd291330f13d6427641a92b3da1
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.0"
+    version: "0.14.2"
   js:
     dependency: transitive
     description:
@@ -680,10 +680,10 @@ packages:
     dependency: "direct dev"
     description:
       name: patrol
-      sha256: "31fe66f3a34b965c5d835237448ce592eeb16bd461745affcb2acd8343cb6cef"
+      sha256: "039be8abc3477096297855d44cd01f6fecb81d023a6191d9ffd538c55262af1b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.16.0-dev.1"
+    version: "3.16.1-dev.1"
   patrol_finders:
     dependency: "direct dev"
     description:
