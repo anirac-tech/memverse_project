@@ -30,7 +30,7 @@ dependencies:
 
 dev_dependencies:
   bdd_widget_test: 1.8.2
-  build_runner: ^2.4.15
+  build_runner: ^2.5.1
   flutter_test:
     sdk: flutter
   freezed: ^3.0.6
