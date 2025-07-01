@@ -2,11 +2,6 @@
 class User {
   const User({required this.id, required this.email, this.username, this.createdAt});
 
-  final String id;
-  final String email;
-  final String? username;
-  final DateTime? createdAt;
-
   /// Create User from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -16,6 +11,11 @@ class User {
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
     );
   }
+
+  final String id;
+  final String email;
+  final String? username;
+  final DateTime? createdAt;
 
   /// Convert User to JSON
   Map<String, dynamic> toJson() {

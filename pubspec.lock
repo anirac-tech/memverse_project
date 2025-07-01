@@ -332,10 +332,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_secure_storage_linux
-      sha256: bf7404619d7ab5c0a1151d7c4e802edad8f33535abfbeff2f9e1fe1274e2d705
+      sha256: be76c1d24a97d0b98f8b54bce6b481a380a6590df992d0098f868ad54dc8f688
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "1.2.3"
   flutter_secure_storage_macos:
     dependency: transitive
     description:
@@ -476,14 +476,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  jni:
-    dependency: transitive
-    description:
-      name: jni
-      sha256: "3296e4327bd74d57763ba71fd9efeb6f132634a27ea8754101e4ff3f8bca5faa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.13.0"
   js:
     dependency: transitive
     description:
@@ -604,14 +596,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  objective_c:
-    dependency: transitive
-    description:
-      name: objective_c
-      sha256: "9f034ba1eeca53ddb339bc8f4813cb07336a849cd735559b60cdc068ecce2dc7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.1.0"
   package_config:
     dependency: transitive
     description:
@@ -640,10 +624,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "0ca7359dad67fd7063cb2892ab0c0737b2daafd807cf1acecd62374c8fae6c12"
+      sha256: d0d310befe2c8ab9e7f393288ccbb11b60c019c6b5afc21973eeee4dda2b35e9
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.16"
+    version: "2.2.17"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -680,10 +664,10 @@ packages:
     dependency: "direct dev"
     description:
       name: patrol
-      sha256: "31fe66f3a34b965c5d835237448ce592eeb16bd461745affcb2acd8343cb6cef"
+      sha256: "9d4aac7cbaf383a96abc992a3acc81f6796ab0dba922825ee0d5a2633bed61ce"
       url: "https://pub.dev"
     source: hosted
-    version: "3.16.0-dev.1"
+    version: "3.16.0"
   patrol_finders:
     dependency: "direct dev"
     description:
@@ -1045,10 +1029,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: dc6ecaa00a7c708e5b4d10ee7bec8c270e9276dfcab1783f57e9962d7884305f
+      sha256: "66814138c3562338d05613a6e368ed8cfb237ad6d64a9e9334be3f309acfca03"
       url: "https://pub.dev"
     source: hosted
-    version: "5.12.0"
+    version: "5.14.0"
   xdg_directories:
     dependency: transitive
     description:

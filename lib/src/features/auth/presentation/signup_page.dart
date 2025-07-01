@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:memverse/l10n/l10n.dart';
+import 'package:memverse/src/features/auth/data/user_repository_provider.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 // Key constants for Maestro tests
 const signupEmailFieldKey = ValueKey('signup_email_field');
-const signupUsernameFieldKey = ValueKey('signup_username_field');
+const signupNameFieldKey = ValueKey('signup_name_field');
 const signupPasswordFieldKey = ValueKey('signup_password_field');
 const signupSubmitButtonKey = ValueKey('signup_submit_button');
 
@@ -16,40 +17,56 @@ class SignupPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final emailController = useTextEditingController();
-    final usernameController = useTextEditingController();
+    final nameController = useTextEditingController();
     final passwordController = useTextEditingController();
     final isLoading = useState(false);
     final showSuccess = useState(false);
-    final l10n = context.l10n;
 
-    // Handle dummy signup
+    // Handle signup
     Future<void> handleSignup() async {
       if (!formKey.currentState!.validate()) return;
 
       isLoading.value = true;
 
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Check for dummy email
+      // Use dummy flow for specific test email
       if (emailController.text == 'dummynewuser@dummy.com') {
+        // Simulate network delay
+        await Future.delayed(const Duration(seconds: 2));
+
         showSuccess.value = true;
         isLoading.value = false;
 
         // After showing success, navigate to main app
         await Future.delayed(const Duration(seconds: 2));
         if (context.mounted) {
-          Navigator.of(context).pushReplacementNamed('/');
+          await Navigator.of(context).pushReplacementNamed('/');
         }
       } else {
-        isLoading.value = false;
-        // Show error for non-dummy emails
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Signup not yet implemented for real emails'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        // Use real API for actual signup
+        try {
+          final repository = ref.read(userRepositoryProvider);
+
+          // Create the user directly without checking if it exists
+          await repository.createUser(emailController.text, passwordController.text);
+
+          // Show success UI
+          showSuccess.value = true;
+          isLoading.value = false;
+
+          // After showing success, navigate to main app
+          await Future.delayed(const Duration(seconds: 2));
+          if (context.mounted) {
+            Navigator.of(context).pushReplacementNamed('/');
+          }
+        } catch (e) {
+          AppLogger.e('Signup failed', e);
+          isLoading.value = false;
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Signup failed: $e'), backgroundColor: Colors.red),
+            );
+          }
+        }
       }
     }
 
@@ -138,22 +155,22 @@ class SignupPage extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Username field
+                // Name field
                 TextFormField(
-                  key: signupUsernameFieldKey,
-                  controller: usernameController,
+                  key: signupNameFieldKey,
+                  controller: nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Username',
+                    labelText: 'Name',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.person),
-                    hintText: 'Choose a username',
+                    hintText: 'Enter your name',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
+                      return 'Please enter your name';
                     }
                     if (value.length < 3) {
-                      return 'Username must be at least 3 characters';
+                      return 'Name must be at least 3 characters';
                     }
                     return null;
                   },

@@ -25,13 +25,4 @@ class FakeUserRepository implements UserRepository {
     // Default error for other emails
     throw Exception('User creation failed');
   }
-
-  @override
-  Future<bool> userExists(String email) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    // Simulate existing user
-    return email == 'existing@example.com';
-  }
 }

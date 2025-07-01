@@ -148,7 +148,6 @@ abstract class AnalyticsService {
 
 /// PostHog implementation of analytics service
 class PostHogAnalyticsService extends AnalyticsService {
-
   factory PostHogAnalyticsService() => _instance;
 
   PostHogAnalyticsService._internal();

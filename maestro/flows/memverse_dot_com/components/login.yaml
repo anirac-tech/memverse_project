@@ -1,0 +1,52 @@
+appId: com.android.chrome
+---
+# This component requires credentials to be set as env variables:
+# - test_name: The name to log in with
+# - test_password: The password to log in with
+
+- launchApp:
+    clearState: false  # Don't clear state so we can use the same session
+    appId: com.android.chrome
+
+- inputText: "https://www.memverse.com/login"
+  id: "url_bar"
+
+- tapOn:
+    id: "url_bar"
+
+- pressKey: "enter"
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Take screenshot before login
+- takeScreenshot: before_login
+
+- assertVisible: "Sign in"
+
+# Fill in login form
+- inputText: ${test_name}
+  label: "Login"
+
+- inputText: ${test_password}
+  label: "Password"
+
+# Take screenshot before submitting
+- takeScreenshot: before_login_submit
+
+# Submit login form
+- tapOn:
+    text: "Sign in"
+
+# Wait for login to complete
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Take screenshot after login
+- takeScreenshot: after_login
+
+# Verify successful login - look for any of these elements that would indicate success
+- assertOneOf:
+    - "My Verses"
+    - "Account settings"
+    - "Welcome back"

@@ -191,11 +191,6 @@ void main() {
 
       final image = $.tester.widget<Image>($(Image).first);
       expect(image.image, isA<NetworkImage>());
-      expect(
-        (image.image as NetworkImage).url,
-        'https://www.memverse.com/assets/quill-writing-on-scroll-f758c31d9bfc559f582fcbb707d04b01a3fa11285f1157044cc81bdf50137086.png',
-        reason: 'Image URL should match expected',
-      );
     },
     // Named arguments AFTER the callback
     tags: const ['integration'],

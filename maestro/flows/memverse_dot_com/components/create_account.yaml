@@ -1,0 +1,65 @@
+appId: com.android.chrome
+---
+- runFlow:
+    file: navigate_to_signup.yaml
+    env:
+      test_env: true
+
+# Generate a trackable email using njwandroid+MMDDYYYY_HHMMSS@gmail.com format
+- evalScript: |
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    const timestamp = `${month}${day}${year}_${hours}${minutes}${seconds}`;
+    output.email = `njwandroid+${timestamp}@gmail.com`;
+    output.name = `Maestro User ${timestamp}`;
+    output.password = "TestPassword123!";
+    
+    // Store credentials in global vars for later use
+    env.test_email = output.email;
+    env.test_name = output.name;
+    env.test_password = output.password;
+    
+    // Log the created account info to keep track
+    console.log(`CREATED ACCOUNT: ${output.email} / ${output.name} / ${output.password}`);
+
+# Take screenshot before filling form
+- takeScreenshot: before_signup_form
+
+# Fill in the form
+- inputText: ${test_name}
+  label: "Name"
+
+- inputText: ${test_email}
+  label: "Email address"
+
+- inputText: ${test_password}
+  label: "Password"
+
+- inputText: ${test_password}
+  label: "Confirm Password"
+
+# Take screenshot before submitting
+- takeScreenshot: before_submit_signup
+
+# Submit the registration form
+- tapOn:
+    text: "Register"
+
+# Wait for registration to complete
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Take screenshot after submission
+- takeScreenshot: after_signup_submission
+
+# Check successful registration or error message
+- assertOneOf:
+    - "Welcome to Memverse"
+    - "Thank you for signing up"
+    - "Account settings"
