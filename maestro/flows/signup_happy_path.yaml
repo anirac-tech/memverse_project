@@ -1,0 +1,77 @@
+# MEM-160 Signup Happy Path Test - Dummy Implementation
+# This test uses hardcoded dummy signup to verify UI flow
+
+---
+appId: com.spiritflightapps.memverse
+name: Signup Happy Path - Dummy User Registration
+tags:
+  - signup
+  - registration
+  - happy-path
+  - dummy
+
+env:
+  DUMMY_EMAIL: dummynewuser@dummy.com
+  DUMMY_USERNAME: dummyuser
+  DUMMY_PASSWORD: test123
+
+onFlowStart:
+  - launchApp:
+      clearState: true
+      clearKeychain: true
+
+---
+
+# Step 1: Start from login screen and navigate to signup
+- takeScreenshot: "01_login_screen"
+- assertVisible: "Welcome to Memverse"
+
+# Find and tap Sign Up link
+- assertVisible: "Sign Up"
+- takeScreenshot: "02_signup_link_found"
+
+- tapOn: "Sign Up"
+- takeScreenshot: "03_navigated_to_signup"
+
+# Step 2: Verify signup form elements
+- assertVisible: "Create Account"
+- assertVisible: "Enter your email address"
+- assertVisible: "Choose a username"
+- assertVisible: "Create a password"
+- assertVisible: "Create Account"
+- takeScreenshot: "04_signup_form_displayed"
+
+# Step 3: Fill in signup form with dummy data using hint text
+- tapOn: "Enter your email address"
+- inputText: ${DUMMY_EMAIL}
+- takeScreenshot: "05_email_entered"
+
+- tapOn: "Choose a username"
+- inputText: ${DUMMY_USERNAME}
+- takeScreenshot: "06_username_entered"
+
+- tapOn: "Create a password"
+- inputText: ${DUMMY_PASSWORD}
+- takeScreenshot: "07_password_entered"
+
+# Step 4: Submit signup form
+- tapOn: "Create Account"
+- takeScreenshot: "08_signup_submitted"
+
+# Step 5: Wait for loading and verify success
+- assertVisible: "Create Account"  # Button should show loading
+- takeScreenshot: "09_loading_state"
+
+# Wait for success screen
+- assertVisible: "Welcome to Memverse!"
+- takeScreenshot: "10_success_message"
+
+# Verify success details
+- assertVisible: "Account created successfully"
+- assertVisible: ${DUMMY_EMAIL}
+- takeScreenshot: "11_success_details"
+
+# Wait for redirect (should happen automatically)
+- assertVisible:
+    text: "Memverse Reference Test"
+- takeScreenshot: "12_redirected_to_app"

@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
+import 'package:memverse/src/features/auth/presentation/signup_page.dart';
 
 // Key constants for Patrol tests
 const loginUsernameFieldKey = ValueKey('login_username_field');
@@ -196,6 +197,22 @@ class LoginPage extends HookConsumerWidget {
                     style: const TextStyle(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
+                const SizedBox(height: 24),
+                // Sign Up link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute(builder: (context) => const SignupPage()));
+                      },
+                      child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
