@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
+import 'package:memverse/src/common/widgets/password_field.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/auth/presentation/signup_page.dart';
 
@@ -127,28 +128,11 @@ class LoginPage extends HookConsumerWidget {
                   identifier: 'textPassword',
                   label: 'Password field',
                   textField: true,
-                  child: TextFormField(
-                    key: loginPasswordFieldKey,
+                  child: PasswordField(
+                    fieldKey: loginPasswordFieldKey,
                     controller: passwordController,
                     focusNode: passwordFocusNode,
-                    obscureText: !isPasswordVisible.value,
-                    decoration: InputDecoration(
-                      labelText: l10n.password,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        key: passwordVisibilityToggleKey,
-                        icon: Icon(
-                          isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          isPasswordVisible.value = !isPasswordVisible.value;
-                          // Track password visibility toggle
-                          analyticsService.trackPasswordVisibilityToggle(isPasswordVisible.value);
-                        },
-                        tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
-                      ),
-                    ),
+                    labelText: l10n.password,
                     validator: (value) =>
                         value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
                     textInputAction: TextInputAction.go,
@@ -159,6 +143,8 @@ class LoginPage extends HookConsumerWidget {
                             .login(usernameController.text, passwordController.text);
                       }
                     },
+                    externalVisibilityState: isPasswordVisible,
+                    onVisibilityToggle: analyticsService.trackPasswordVisibilityToggle,
                   ),
                 ),
                 const SizedBox(height: 32),

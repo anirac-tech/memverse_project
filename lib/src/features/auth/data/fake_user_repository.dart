@@ -6,7 +6,7 @@ import 'package:memverse/src/features/auth/domain/user_repository.dart';
 /// Uses JSON literals similar to Square's MockWebServer approach
 class FakeUserRepository implements UserRepository {
   @override
-  Future<User> createUser(String email, String password) async {
+  Future<User> createUser(String email, String password, String name) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 100));
 

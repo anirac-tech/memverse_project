@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:memverse/src/common/widgets/password_field.dart';
 import 'package:memverse/src/features/auth/data/user_repository_provider.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
@@ -47,7 +48,11 @@ class SignupPage extends HookConsumerWidget {
           final repository = ref.read(userRepositoryProvider);
 
           // Create the user directly without checking if it exists
-          await repository.createUser(emailController.text, passwordController.text);
+          await repository.createUser(
+            emailController.text,
+            passwordController.text,
+            nameController.text,
+          );
 
           // Show success UI
           showSuccess.value = true;
@@ -179,16 +184,10 @@ class SignupPage extends HookConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Password field
-                TextFormField(
-                  key: signupPasswordFieldKey,
+                PasswordField(
+                  fieldKey: signupPasswordFieldKey,
                   controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                    hintText: 'Create a password',
-                  ),
+                  hintText: 'Create a password',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a password';

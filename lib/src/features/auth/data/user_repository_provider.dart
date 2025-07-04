@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/src/features/auth/data/api_user_repository.dart';
 import 'package:memverse/src/features/auth/data/fake_user_repository.dart';
-
 import 'package:memverse/src/features/auth/domain/user_repository.dart';
 
 /// Provider for UserRepository
@@ -25,5 +24,9 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
     return FakeUserRepository();
   }
 
-  return ApiUserRepository(dio: dio);
+  // Get client credentials from environment variables
+  const clientId = String.fromEnvironment('CLIENT_ID');
+  const clientSecret = String.fromEnvironment('CLIENT_API_KEY');
+
+  return ApiUserRepository(dio: dio, clientId: clientId, clientSecret: clientSecret);
 });
