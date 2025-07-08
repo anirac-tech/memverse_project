@@ -41,7 +41,7 @@ dev_dependencies:
   mocktail: 1.0.4
   network_image_mock: ^2.1.1
   path_provider_platform_interface: ^2.1.2
-  patrol: ^3.15.1
+  patrol: ^3.17.0
   patrol_finders: ^2.8.2
   plugin_platform_interface: ^2.1.8
   riverpod_generator: ^2.6.5
