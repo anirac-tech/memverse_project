@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 class CurlLoggingInterceptor extends Interceptor {
   @override
@@ -9,21 +10,21 @@ class CurlLoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('✅ RESPONSE: ${response.statusCode}');
-    print('📝 Response Headers: ${response.headers}');
-    print('📦 Response Body: ${response.data}');
+    AppLogger.d('RESPONSE: ${response.statusCode}');
+    AppLogger.d('Response Headers: ${response.headers}');
+    AppLogger.d('Response Body: ${response.data}');
     super.onResponse(response, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print('❌ ERROR: ${err.message}');
-    print('🔍 Request URL: ${err.requestOptions.uri}');
-    print('📝 Request Headers: ${err.requestOptions.headers}');
-    print('📦 Request Data: ${err.requestOptions.data}');
+    AppLogger.e('ERROR: ${err.message}');
+    AppLogger.d('Request URL: ${err.requestOptions.uri}');
+    AppLogger.d('Request Headers: ${err.requestOptions.headers}');
+    AppLogger.d('Request Data: ${err.requestOptions.data}');
     if (err.response != null) {
-      print('📥 Error Response: ${err.response?.data}');
-      print('🔢 Status Code: ${err.response?.statusCode}');
+      AppLogger.e('Error Response: ${err.response?.data}');
+      AppLogger.e('Status Code: ${err.response?.statusCode}');
     }
     super.onError(err, handler);
   }
@@ -40,16 +41,16 @@ class CurlLoggingInterceptor extends Interceptor {
     // Add data if present
     if (options.data != null) {
       if (options.data is String) {
-        curl += ' \\\n  -d \'${options.data}\'';
+        curl += " \\\n  -d '${options.data}'";
       } else {
-        curl += ' \\\n  -d \'${options.data.toString()}\'';
+        curl += " \\\n  -d '${options.data}'";
       }
     }
 
     curl += ' \\\n  -v';
 
-    print('🚀 cURL Command:');
-    print(curl);
-    print('---');
+    AppLogger.d('cURL Command:');
+    AppLogger.d(curl);
+    AppLogger.d('---');
   }
 }

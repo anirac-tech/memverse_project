@@ -107,5 +107,5 @@ void main() {
 Future<void> takeScreenshot(WidgetTester tester, String name) async {
   await tester.pumpAndSettle();
   // Note: The actual screenshot saving implementation would be added later
-  debugPrint('Taking screenshot: $name');
+  // (Debug: Taking screenshot)
 }

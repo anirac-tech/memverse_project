@@ -20,10 +20,11 @@ void main() {
     const password = String.fromEnvironment('PASSWORD');
     const clientId = String.fromEnvironment('CLIENT_ID');
 
-    debugPrint(
-      'Starting live login test with username: $username, password length: ${password.length}, '
-      'and client ID is set: ${clientId.isNotEmpty}',
-    );
+    // (Debug: Live login test event)
+    // debugPrint(
+    //   'Starting live login test with username: $username, password length: ${password.length}, '
+    //   'and client ID is set: ${clientId.isNotEmpty}',
+    // );
 
     testWidgets('Login with real credentials and verify navigation', (WidgetTester tester) async {
       // Verify that all required credentials are provided
@@ -49,9 +50,9 @@ void main() {
       }
 
       // Log the username being used (not sensitive information)
-      debugPrint(
-        'Running test with username: $username and client ID is non-empty: ${clientId.isNotEmpty}',
-      );
+      // debugPrint(
+      //   'Running test with username: $username and client ID is non-empty: ${clientId.isNotEmpty}',
+      // );
 
       // Launch the app
       app.main();
@@ -83,7 +84,7 @@ void main() {
       // We're not adding additional verification steps because they would depend on network
       // conditions and actual server state, which could make the test flaky
 
-      debugPrint('✓ Successfully completed login test');
+      // debugPrint('✓ Successfully completed login test');
     });
   });
 }

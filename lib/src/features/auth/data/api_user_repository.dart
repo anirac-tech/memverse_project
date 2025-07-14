@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:memverse/src/common/interceptors/curl_logging_interceptor.dart';
 import 'package:memverse/src/features/auth/domain/user.dart';
 import 'package:memverse/src/features/auth/domain/user_repository.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 // Data models for signup request
 class RegisterUserRequest {
@@ -33,9 +34,9 @@ class RegisterUser {
 class ApiUserRepository implements UserRepository {
   ApiUserRepository({
     required Dio dio,
-    String baseUrl = 'https://www.memverse.com/api',
     required String clientId,
     required String clientSecret,
+    String baseUrl = 'https://www.memverse.com/api',
   }) : _dio = dio,
        _baseUrl = baseUrl,
        _clientId = clientId,
@@ -90,7 +91,7 @@ class ApiUserRepository implements UserRepository {
 
     for (final endpoint in endpointsToTry) {
       try {
-        print('🔄 Trying endpoint: $endpoint');
+        AppLogger.d('Trying endpoint: $endpoint');
 
         final response = await _dio.post<dynamic>(
           endpoint,
@@ -100,13 +101,13 @@ class ApiUserRepository implements UserRepository {
           ),
         );
 
-        print('📊 Response status: ${response.statusCode} for endpoint: $endpoint');
+        AppLogger.d('Response status: ${response.statusCode} for endpoint: $endpoint');
 
         if (response.statusCode == 201 || response.statusCode == 200) {
           final userData = response.data;
           return User(id: userData['id']?.toString() ?? '', email: email);
         } else if (response.statusCode == 404) {
-          print('⚠️ 404 - Trying next endpoint...');
+          AppLogger.w('404 - Trying next endpoint...');
           continue; // Try next endpoint
         } else {
           // For other errors, throw immediately
@@ -114,7 +115,7 @@ class ApiUserRepository implements UserRepository {
         }
       } on DioException catch (e) {
         if (e.response?.statusCode == 404 && endpoint != endpointsToTry.last) {
-          print('⚠️ 404 on $endpoint - Trying next endpoint...');
+          AppLogger.w('404 on $endpoint - Trying next endpoint...');
           continue; // Try next endpoint
         }
 
@@ -136,7 +137,7 @@ class ApiUserRepository implements UserRepository {
         if (endpoint == endpointsToTry.last) {
           throw Exception('Unexpected error during sign-up: $e');
         }
-        print('⚠️ Error on $endpoint - Trying next endpoint: $e');
+        AppLogger.e('Error on $endpoint - Trying next endpoint: $e');
         continue;
       }
     }

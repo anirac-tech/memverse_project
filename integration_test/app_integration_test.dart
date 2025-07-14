@@ -18,7 +18,6 @@
 //
 // Note: This test still uses native interaction for potential logout/login.
 
-import 'dart:developer' as dev;
 import 'dart:io'; // Import dart:io for Platform check
 
 import 'package:flutter/material.dart';
@@ -39,7 +38,7 @@ void main() {
 
       // Runtime check to ensure this test only runs on Android
       if (!Platform.isAndroid) {
-        dev.log('Skipping test: Android only');
+        // dev.log('Skipping test: Android only');
         return; // Skip test if not on Android
       }
 
@@ -49,14 +48,14 @@ void main() {
       // --- Check if already logged in and logout if necessary ---
       final logoutFinder = $('Logout');
       if (logoutFinder.exists) {
-        dev.log('Already logged in, attempting to log out...');
+        // dev.log('Already logged in, attempting to log out...');
         await $.tap(logoutFinder);
         // Explicit wait after logout action.
         await $.pump(const Duration(seconds: 3));
         await $.pumpAndSettle();
-        dev.log('Logged out.');
+        // dev.log('Logged out.');
       } else {
-        dev.log('Not logged in or Logout text not found, proceeding...');
+        // dev.log('Not logged in or Logout text not found, proceeding...');
         // Ensure settled state before proceeding.
         await $.pumpAndSettle();
       }
@@ -103,7 +102,7 @@ void main() {
       // --- Post-Login / End of Flow ---
       // Add checks here to verify successful login if needed.
       // Example: expect($('Welcome testuser'), findsOneWidget);
-      dev.log('Login flow complete.');
+      // dev.log('Login flow complete.');
 
       // --- Screenshot and Share REMOVED ---
     },

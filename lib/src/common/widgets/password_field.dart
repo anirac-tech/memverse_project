@@ -3,7 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class PasswordField extends HookWidget {
   const PasswordField({
-    required this.controller, super.key,
+    required this.controller,
+    super.key,
     this.labelText = 'Password',
     this.hintText,
     this.validator,
