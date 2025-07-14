@@ -1,0 +1,26 @@
+appId: com.android.chrome
+---
+- launchApp:
+    clearState: true
+    appId: com.android.chrome
+
+- inputText:
+    id: "url_bar"
+    text: "https://www.memverse.com"
+
+- tapOn:
+    id: "url_bar"
+
+- pressKey: "enter"
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+- assertVisible: "Sign Up"
+
+- tapOn: "Sign Up"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible: "Register"

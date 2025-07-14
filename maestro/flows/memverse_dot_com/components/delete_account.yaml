@@ -1,0 +1,64 @@
+appId: com.android.chrome
+---
+# This component requires the user to be already logged in
+# and credentials to be set as env variables for verification
+
+- launchApp:
+    clearState: false  # Don't clear state so we can use the same session
+    appId: com.android.chrome
+
+- inputText: "https://www.memverse.com/account"
+  id: "url_bar"
+
+- tapOn:
+    id: "url_bar"
+
+- pressKey: "enter"
+
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Take screenshot of account settings
+- takeScreenshot: account_settings_page
+
+# Navigate to account settings
+- assertVisible: "Account settings"
+
+# Scroll to the delete account section
+- scroll
+
+# Take screenshot before delete action
+- takeScreenshot: before_delete_account
+
+# Find and tap the delete account button
+- tapOn: "Delete my account"
+
+# Wait for the confirmation dialog
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Take screenshot of confirmation dialog
+- takeScreenshot: delete_confirmation_dialog
+
+# Confirm deletion
+- tapOn: "Yes, I am sure"
+
+# Alternatively, there might be a different UI flow:
+- optional:
+    - inputText: ${test_password}
+      label: "Password"
+
+    - tapOn: "Confirm"
+
+# Wait for deletion to complete
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Take screenshot after deletion
+- takeScreenshot: after_account_deletion
+
+# Verify account deletion was successful
+- assertOneOf:
+    - "Account has been deleted"
+    - "Sign Up"
+    - "Welcome to Memverse"

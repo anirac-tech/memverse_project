@@ -1,0 +1,51 @@
+appId: com.android.chrome
+---
+# Test for only deleting an account on memverse.com
+# This test requires name and password to be provided as environment variables
+
+- evalScript: |
+    console.log("Starting account deletion test for: " + env.name);
+    if (!env.name || !env.password) {
+      throw new Error("This test requires name and password environment variables");
+    }
+    
+    output.test_name = env.name;
+    output.test_password = env.password;
+
+# Step 1: Login with the provided credentials
+- runFlow:
+    file: components/login.yaml
+    env:
+      test_name: ${test_name}
+      test_password: ${test_password}
+
+# Wait a moment to verify successful login
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Step 2: Delete the account
+- runFlow:
+    file: components/delete_account.yaml
+    env:
+      test_name: ${test_name}
+      test_password: ${test_password}
+
+# Wait to verify account deletion success
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Final verification - make sure we're logged out and on the homepage
+- inputText:
+    id: "url_bar"
+    text: "https://www.memverse.com"
+
+- tapOn:
+    id: "url_bar"
+
+- pressKey: "enter"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Should see the sign-up option if account is truly deleted
+- assertVisible: "Sign Up"

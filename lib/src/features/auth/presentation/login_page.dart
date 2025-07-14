@@ -4,7 +4,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
+import 'package:memverse/src/common/widgets/password_field.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
+import 'package:memverse/src/features/auth/presentation/signup_page.dart';
 
 // Key constants for Patrol tests
 const loginUsernameFieldKey = ValueKey('login_username_field');
@@ -65,34 +67,28 @@ class LoginPage extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 32),
-                Image.network(
-                  'https://www.memverse.com/assets/quill-writing-on-scroll-f758c31d9bfc559f582fcbb707d04b01a3fa11285f1157044cc81bdf50137086.png',
-                  height: 100,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Column(
-                      children: [
-                        const Icon(Icons.menu_book, size: 80, color: Colors.blue),
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: const LinearGradient(
-                              colors: [Colors.blue, Colors.lightBlueAccent],
-                            ),
-                          ),
-                          child: const Text(
-                            'Memverse',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
+                Column(
+                  children: [
+                    const Icon(Icons.menu_book, size: 80, color: Colors.blue),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [Colors.blue, Colors.lightBlueAccent],
                         ),
-                      ],
-                    );
-                  },
+                      ),
+                      child: const Text(
+                        'Memverse',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 32),
                 const Text(
@@ -132,28 +128,11 @@ class LoginPage extends HookConsumerWidget {
                   identifier: 'textPassword',
                   label: 'Password field',
                   textField: true,
-                  child: TextFormField(
-                    key: loginPasswordFieldKey,
+                  child: PasswordField(
+                    fieldKey: loginPasswordFieldKey,
                     controller: passwordController,
                     focusNode: passwordFocusNode,
-                    obscureText: !isPasswordVisible.value,
-                    decoration: InputDecoration(
-                      labelText: l10n.password,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        key: passwordVisibilityToggleKey,
-                        icon: Icon(
-                          isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          isPasswordVisible.value = !isPasswordVisible.value;
-                          // Track password visibility toggle
-                          analyticsService.trackPasswordVisibilityToggle(isPasswordVisible.value);
-                        },
-                        tooltip: isPasswordVisible.value ? l10n.hidePassword : l10n.showPassword,
-                      ),
-                    ),
+                    labelText: l10n.password,
                     validator: (value) =>
                         value == null || value.isEmpty ? l10n.pleaseEnterYourPassword : null,
                     textInputAction: TextInputAction.go,
@@ -164,6 +143,8 @@ class LoginPage extends HookConsumerWidget {
                             .login(usernameController.text, passwordController.text);
                       }
                     },
+                    externalVisibilityState: isPasswordVisible,
+                    onVisibilityToggle: analyticsService.trackPasswordVisibilityToggle,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -196,6 +177,22 @@ class LoginPage extends HookConsumerWidget {
                     style: const TextStyle(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
+                const SizedBox(height: 24),
+                // Sign Up link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute(builder: (context) => const SignupPage()));
+                      },
+                      child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

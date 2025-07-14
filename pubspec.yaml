@@ -24,7 +24,7 @@ dependencies:
   json_annotation: ^4.9.0
   logger: 2.6.0
   path_provider: 2.1.5
-  posthog_flutter: ^5.0.0
+  posthog_flutter: 5.0.0
   riverpod_annotation: 2.6.1
   share_plus: 11.0.0
 
@@ -37,8 +37,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^6.9.5
-  mockito: ^5.4.5
-  mocktail: 1.0.4
+  mocktail: ^1.0.4
   network_image_mock: ^2.1.1
   path_provider_platform_interface: ^2.1.2
   patrol: ^3.17.0
@@ -48,6 +47,7 @@ dev_dependencies:
   test_api: any
   very_good_analysis: 9.0.0
 
+  mockito: any
 scripts:
   test: flutter test
   test_coverage: flutter test --coverage
