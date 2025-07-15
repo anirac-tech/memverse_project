@@ -166,6 +166,27 @@ class LoginPage extends HookConsumerWidget {
                     },
                   ),
                 ),
+                if (kDebugMode)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.lightGreen[50],
+                        borderRadius: BorderRadius.circular(7),
+                        border: Border.all(color: Colors.green.shade100, width: 0.8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      child: const Text(
+                        'Development Demo:\nTo skip sign-in and view a full mock UI, copy & paste:\n\nEmail: dummysigninuser@dummy.com\nPassword: (any)\nThen tap Sign in.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 32),
                 Semantics(
                   identifier: 'login_button',

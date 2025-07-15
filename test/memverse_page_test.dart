@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/question_section.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/stats_and_history_section.dart';
+import 'package:memverse/src/features/signed_in/presentation/signed_in_nav_scaffold.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
-import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
+import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
@@ -338,5 +340,28 @@ void main() {
     });
 
     // More tests can be added here for feedback functionality
+  });
+
+  group('SignedInNavScaffold tab navigation', () {
+    testWidgets('shows Ref quiz screen when Ref tab is selected', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: SignedInNavScaffold()));
+      await tester.pumpAndSettle();
+      // Default is Home, tap "Ref" tab
+      await tester.tap(find.text('Ref'));
+      await tester.pumpAndSettle();
+      // Expects a Ref quiz field to be present
+      expect(find.textContaining('Reference'), findsWidgets);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+    testWidgets('shows the static Verse quiz UI when Verse tab is selected', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SignedInNavScaffold()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Verse'));
+      await tester.pumpAndSettle();
+      expect(find.byType(VerseTextQuizScreen), findsOneWidget);
+      expect(find.textContaining('Gal 5:22'), findsOneWidget); // static screen check
+    });
   });
 }

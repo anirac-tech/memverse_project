@@ -5,6 +5,7 @@ import 'package:memverse/src/app/app.dart';
 import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/common/services/analytics_bootstrap.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
+import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
 String _getMemverseApiUrl() {
@@ -22,6 +23,12 @@ String _getMemverseApiUrl() {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  const bool autoSignIn = bool.fromEnvironment('AUTOSIGNIN', defaultValue: true);
+
+  if (autoSignIn) {
+    AuthService.isDummyUser = true;
+  }
 
   // Web-specific PostHog initialization is handled by analytics service
   if (kIsWeb) {

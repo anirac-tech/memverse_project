@@ -24,8 +24,17 @@ bool get isInTestMode {
   }
 }
 
+/// Track if we're using the dummy sign-in user (set by AuthService on login)
+bool isDummyUser = false;
+
 /// Provider for the verse repository
-final verseRepositoryProvider = Provider<VerseRepository>(LiveVerseRepository.new);
+final verseRepositoryProvider = Provider<VerseRepository>((ref) {
+  if (isDummyUser) {
+    return FakeVerseRepository();
+  } else {
+    return LiveVerseRepository(ref);
+  }
+});
 
 /// Provider that allows overriding the repository for testing
 final verseRepositoryOverrideProvider = Provider<VerseRepository>(
@@ -56,7 +65,7 @@ enum MemverseSortOrder {
   /// The numeric value to send to the API
   final int value;
 
-  /// Get the sort order for most recent verses first
+  /// Get the sort order for most recent verses first (Heb 12:1 should appear first)
   static MemverseSortOrder get mostRecentFirst => createdDescending;
 }
 

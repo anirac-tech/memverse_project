@@ -13,164 +13,171 @@ class AuthService {
   /// Create a new AuthService
   AuthService({FlutterSecureStorage? secureStorage, Dio? dio})
     : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
-      _dio = dio ?? Dio();
+      _dio = dio ?? Dio() {}
 
   final FlutterSecureStorage _secureStorage;
   final Dio _dio;
 
   static const _tokenKey = 'auth_token';
   static const String _tokenPath = '/oauth/token';
+  static const String clientSecret = String.fromEnvironment(
+    'MEMVERSE_CLIENT_API_KEY',
+    defaultValue: '',
+  );
+  static bool isDummyUser = false;
 
   /// Attempts to login with the provided credentials
   Future<AuthToken> login(String username, String password, String clientId) async {
+    // Dummy user fast-path (bypasses all real auth)
+    if (username.toLowerCase() == 'dummysigninuser@dummy.com') {
+      isDummyUser = true;
+      AppLogger.i('Bypassing authentication: using dummysigninuser');
+      final fakeToken = AuthToken(
+        accessToken: 'fake_token',
+        tokenType: 'bearer',
+        scope: 'user',
+        createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        userId: 0,
+      );
+      await saveToken(fakeToken);
+      return fakeToken;
+    }
     try {
       AppLogger.i('Attempting login with provided credentials');
       AppLogger.d(
-        'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty}',
+        'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty} and apiKey is non-empty: ${clientSecret.isNotEmpty}',
       );
 
-      // Change to final from const since kIsWeb is runtime value
-      const loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
+      final String loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
       AppLogger.d('LOGIN - Using URL: $loginUrl');
 
-      try {
-        // For web deployment, we need to be careful with FormData
-        final requestData = <String, dynamic>{
-          'grant_type': 'password',
-          'username': username,
-          'password': password,
-          'client_id': clientId,
-        };
-
-        // Use different approach for web vs native for better compatibility
-        final response = await _dio.post<Map<String, dynamic>>(
-          loginUrl,
-          data: kIsWeb ? requestData : FormData.fromMap(requestData),
-          options: Options(
-            contentType: kIsWeb ? 'application/json' : Headers.formUrlEncodedContentType,
-            headers: {'Accept': 'application/json'},
-            validateStatus: (status) => true,
-          ),
-        );
-
-        if (response.statusCode == 200) {
-          final jsonData = response.data!;
-          AppLogger.d('LOGIN - Received successful response with token');
-          final authToken = AuthToken.fromJson(jsonData);
-          AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
-          await saveToken(authToken);
-          return authToken;
-        } else {
-          AppLogger.e(
-            'Login failed with status: ${response.statusCode}, response: ${response.data}',
-          );
-          throw Exception('Login failed: ${response.statusCode} - ${response.data}');
-        }
-      } catch (dioError) {
-        AppLogger.e('Dio login attempt failed, trying with http package', dioError);
+      final requestData = <String, dynamic>{
+        'grant_type': 'password',
+        'username': username,
+        'password': password,
+        'client_id': clientId,
+      };
+      // Add api_key/client_secret if available
+      if (clientSecret.isNotEmpty) {
+        requestData['client_secret'] = clientSecret;
+        requestData['api_key'] = clientSecret; // try both field names, backend may expect either
       }
 
-      // Fallback to http package with appropriate content type
-      final uri = Uri.parse(loginUrl);
-      http.Response response;
-
-      if (kIsWeb) {
-        // For web, use regular JSON post
-        response = await http.post(
-          uri,
-          headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-          body: jsonEncode({
-            'grant_type': 'password',
-            'username': username,
-            'password': password,
-            'client_id': clientId,
-          }),
-        );
-      } else {
-        // For native, use MultipartRequest
-        final request = http.MultipartRequest('POST', uri);
-        request.fields.addAll({
-          'grant_type': 'password',
-          'username': username,
-          'password': password,
-          'client_id': clientId,
-        });
-
-        final streamedResponse = await request.send();
-        response = await http.Response.fromStream(streamedResponse);
-      }
+      // Use different approach for web vs native for better compatibility
+      final response = await _dio.post<Map<String, dynamic>>(
+        loginUrl,
+        data: kIsWeb ? requestData : FormData.fromMap(requestData),
+        options: Options(
+          contentType: kIsWeb ? 'application/json' : Headers.formUrlEncodedContentType,
+          headers: {'Accept': 'application/json'},
+          validateStatus: (status) => true,
+        ),
+      );
 
       if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+        final jsonData = response.data!;
+        AppLogger.d('LOGIN - Received successful response with token');
         final authToken = AuthToken.fromJson(jsonData);
         AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
         await saveToken(authToken);
         return authToken;
       } else {
-        AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
-        throw Exception('Login failed: ${response.statusCode} - ${response.body}');
+        AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.data}');
+        throw Exception('Login failed: ${response.statusCode} - ${response.data}');
       }
-    } catch (e) {
-      AppLogger.e('Login error', e);
-      rethrow;
+    } catch (dioError) {
+      AppLogger.e('Dio login attempt failed, trying with http package', dioError);
+    }
+
+    // Fallback to http package with appropriate content type
+    final uri = Uri.parse(kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath');
+    http.Response response;
+
+    if (kIsWeb) {
+      // For web, use regular JSON post
+      response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: jsonEncode({
+          'grant_type': 'password',
+          'username': username,
+          'password': password,
+          'client_id': clientId,
+          if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
+          if (clientSecret.isNotEmpty) 'api_key': clientSecret,
+        }),
+      );
+    } else {
+      // For native, use MultipartRequest
+      final request = http.MultipartRequest('POST', uri);
+      request.fields.addAll({
+        'grant_type': 'password',
+        'username': username,
+        'password': password,
+        'client_id': clientId,
+        if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
+        if (clientSecret.isNotEmpty) 'api_key': clientSecret,
+      });
+
+      final streamedResponse = await request.send();
+      response = await http.Response.fromStream(streamedResponse);
+    }
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+      final authToken = AuthToken.fromJson(jsonData);
+      AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
+      await saveToken(authToken);
+      return authToken;
+    } else {
+      AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
+      throw Exception('Login failed: ${response.statusCode} - ${response.body}');
     }
   }
 
   /// Logs the user out by clearing stored token
   Future<void> logout() async {
-    // coverage:ignore-line
     try {
-      // coverage:ignore-line
-      await _secureStorage.delete(key: _tokenKey); // coverage:ignore-line
+      await _secureStorage.delete(key: _tokenKey);
     } catch (e) {
-      // coverage:ignore-line
-      AppLogger.e('Error during logout', e); // coverage:ignore-line
-      rethrow; // coverage:ignore-line
+      AppLogger.e('Error during logout', e);
+      rethrow;
     }
   }
 
   /// Checks if the user is logged in by verifying token existence
   Future<bool> isLoggedIn() async {
-    // coverage:ignore-line
     try {
-      // coverage:ignore-line
-      final token = await _secureStorage.read(key: _tokenKey); // coverage:ignore-line
-      return token != null; // coverage:ignore-line
+      final token = await _secureStorage.read(key: _tokenKey);
+      return token != null;
     } catch (e) {
-      // coverage:ignore-line
-      AppLogger.e('Error checking login status', e); // coverage:ignore-line
-      return false; // coverage:ignore-line
+      AppLogger.e('Error checking login status', e);
+      return false;
     }
   }
 
   /// Gets the stored auth token if available
   Future<AuthToken?> getToken() async {
-    // coverage:ignore-line
     try {
-      // coverage:ignore-line
-      final tokenJson = await _secureStorage.read(key: _tokenKey); // coverage:ignore-line
-      if (tokenJson == null) return null; // coverage:ignore-line
+      final tokenJson = await _secureStorage.read(key: _tokenKey);
+      if (tokenJson == null) return null;
 
-      final tokenMap = jsonDecode(tokenJson) as Map<String, dynamic>; // coverage:ignore-line
-      return AuthToken.fromJson(tokenMap); // coverage:ignore-line
+      final tokenMap = jsonDecode(tokenJson) as Map<String, dynamic>;
+      return AuthToken.fromJson(tokenMap);
     } catch (e) {
-      // coverage:ignore-line
-      AppLogger.e('Error retrieving token', e); // coverage:ignore-line
-      return null; // coverage:ignore-line
+      AppLogger.e('Error retrieving token', e);
+      return null;
     }
   }
 
   /// Saves the auth token to secure storage
   Future<void> saveToken(AuthToken token) async {
-    // coverage:ignore-line
     try {
-      // coverage:ignore-line
-      final tokenJson = jsonEncode(token.toJson()); // coverage:ignore-line
-      await _secureStorage.write(key: _tokenKey, value: tokenJson); // coverage:ignore-line
+      final tokenJson = jsonEncode(token.toJson());
+      await _secureStorage.write(key: _tokenKey, value: tokenJson);
     } catch (e) {
-      // coverage:ignore-line
-      AppLogger.e('Error saving token', e); // coverage:ignore-line
-      rethrow; // coverage:ignore-line
+      AppLogger.e('Error saving token', e);
+      rethrow;
     }
   }
 }
