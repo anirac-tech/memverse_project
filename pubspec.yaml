@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   dio: 5.8.0+1
-  feedback: 3.1.0
+  feedback: 3.2.0
   flutter:
     sdk: flutter
   flutter_hooks: 0.21.2
