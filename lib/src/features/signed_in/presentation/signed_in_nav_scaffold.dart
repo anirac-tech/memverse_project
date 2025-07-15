@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memverse/src/features/ref_quiz/memverse_page.dart' as ref_quiz;
+import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
 import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
 
 class SignedInNavScaffold extends StatefulWidget {
@@ -15,9 +15,12 @@ class _SignedInNavScaffoldState extends State<SignedInNavScaffold> {
   final List<Widget> _tabs = [
     const _HomeTab(),
     const VerseTextQuizScreen(),
-    const ref_quiz.MemversePage(),
+    const MemversePage(),
     const _SettingsTab(),
   ];
+
+  //TODO(neiljaywarner)
+  // no magic strings or colors or number, fatarrow, useState not setState, no stateful widgert etc.
 
   final List<BottomNavigationBarItem> _navItems = const [
     BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

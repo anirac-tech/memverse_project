@@ -8,8 +8,8 @@ class VerseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorGreen = const Color(0xFF80BC00);
-    final colorLightGreen = const Color(0xFFC8F780);
+    const colorGreen = Color(0xFF80BC00);
+    const colorLightGreen = Color(0xFFC8F780);
     return Container(
       key: const Key('refTestVerse'),
       width: double.infinity,

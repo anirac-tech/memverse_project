@@ -6,11 +6,49 @@
 
 ### Flow: Automated UI screenshots for Home, Ref Quiz, Verse Quiz tabs
 
+## TASK PLAN - GoRouter + Provider Mock/Testing for Tabs (Manual+Emulator Validation)
+
+### WHAT I'M DOING
+
+- Refactor main.dart to use GoRouter (with tabs, ShellRoute, and deep navigation).
+- Ensure mocking is active for integration/dev/test (NoOpAnalyticsService, FakeVerseRepository,
+  dummy user).
+- Provide robust ProviderScope overrides for tests and manual runs (by
+  --dart-define=INTEGRATION_TEST=true).
+- Guide both emulator (me) and physical device (you) for UI validation with hot reload.
+
+### CHECKLIST FOR MANUAL+EMULATOR TEST
+
+- [ ] App launches with new GoRouter/navigation structure and tab ShellRoute.
+- [ ] "Verse" tab is default (first screen).
+- [ ] Navigation between Home, Verse, Ref, Settings tabs works and preserves state.
+- [ ] Analytics/logging is disabled in dummy/integration mode.
+- [ ] Verse fetching is mocked in dummy/integration mode.
+- [ ] Hot reload works without navigation or provider crashes.
+- [ ] adb screenshot yields correct UI snapshot (for emulator testing).
+- [ ] Physical device: Use standard device screenshots to compare with expected tabs/UI states.
+
+### HOW TO MONITOR/MANUALLY TEST
+
+1. Launch app with:
+   ```sh
+   flutter run --dart-define=INTEGRATION_TEST=true
+   ```
+   or using your flavor as appropriate (see setup.md).
+2. Switch between tabs and verify correct UI and mock content for "Verse" tab.
+3. Trigger hot reload (`r` in terminal or IDE action) and verify tab state and content persist.
+4. On emulator, take screenshot via:
+   ```sh
+   adb exec-out screencap -p > emulator_screen.png
+   ```
+5. Compare appearance/state with expected design and mark checkboxes above.
+6. If anything is wrong (tab order, navigation, mock data, etc.), fix and re-run/hot reload.
+
 #### Checklist (Updated at each run)
 
-- [x] Build debug APK, install on device/emulator -- success ✅
-- [x] Maestro YAML flows fixed, appId matches installed APK -- success ✅
-- [x] Dummy login returns instant success and mock data -- success ✅
+- [x] Build debug APK, install on device/emulator -- success
+- [x] Maestro YAML flows fixed, appId matches installed APK -- success
+- [x] Dummy login returns instant success and mock data -- success
 - [x] Maestro test launches app, scripts fields/buttons/tabs, expects Home/Ref/Verse visible --
   running
 - [ ] Screenshots generated for:

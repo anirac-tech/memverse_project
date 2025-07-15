@@ -30,15 +30,19 @@ class VerseTextQuizScreen extends StatelessWidget {
         backgroundColor: colorGreen,
         elevation: 0,
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.notifications_none), onPressed: () {}),
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              radius: 16,
-              child: Icon(Icons.person, size: 20, color: colorGreen),
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: 'Logout',
+            onPressed: () {
+              /* TODO: Wire logout */
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.feedback_outlined, color: Colors.white),
+            tooltip: 'Feedback',
+            onPressed: () {
+              /* TODO: Wire feedback */
+            },
           ),
         ],
       ),
