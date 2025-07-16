@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:memverse/src/constants/api_constants.dart';
 import 'package:memverse/src/features/auth/data/auth_api.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
+import 'package:memverse/src/features/auth/domain/password_token_request.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
 /// Authentication service for handling login, token storage, and session management
@@ -13,11 +14,9 @@ class AuthService {
   /// Create a new AuthService
   AuthService({FlutterSecureStorage? secureStorage, Dio? dio, AuthApi? authApi})
     : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
-      _dio = dio ?? Dio(),
       _authApi = authApi ?? AuthApi(dio ?? Dio(), baseUrl: kIsWeb ? webApiPrefix : apiBaseUrl);
 
   final FlutterSecureStorage _secureStorage;
-  final Dio _dio;
   final AuthApi _authApi;
 
   static const _tokenKey = 'auth_token';
@@ -47,28 +46,10 @@ class AuthService {
         'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty} and apiKey is non-empty: ${clientSecret.isNotEmpty}',
       );
 
-      AuthToken authToken;
-      if (kIsWeb) {
-        final requestData = {
-          'grant_type': 'password',
-          'username': username,
-          'password': password,
-          'client_id': clientId,
-          if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
-          if (clientSecret.isNotEmpty) 'api_key': clientSecret,
-        };
-        authToken = await _authApi.loginWeb(requestData);
-      } else {
-        authToken = await _authApi.loginNative(
-          'password',
-          username,
-          password,
-          clientId,
-          clientSecret.isNotEmpty ? clientSecret : null,
-          clientSecret.isNotEmpty ? clientSecret : null,
-        );
-      }
-      AppLogger.d('LOGIN - Received successful response with token');
+      final req = PasswordTokenRequest(username: username, password: password, clientId: clientId);
+
+      final authToken = await _authApi.getBearerToken(req);
+      AppLogger.d('LOGIN - Received successful response with token $authToken');
       AppLogger.d('LOGIN - Raw token type: ${authToken.tokenType}');
       await saveToken(authToken);
       return authToken;
