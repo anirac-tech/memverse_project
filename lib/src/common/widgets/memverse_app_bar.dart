@@ -86,15 +86,26 @@ class MemverseAppBar extends ConsumerWidget implements PreferredSizeWidget {
               text: 'verse',
               style: TextStyle(fontWeight: FontWeight.w400),
             ),
-            TextSpan(
-              text: ' $suffix',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: iconAndTitleColor,
-                letterSpacing: 0.5,
+            if (suffix.trim().toLowerCase().startsWith('ref'))
+              TextSpan(
+                text: ' (Reference Quiz)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: iconAndTitleColor,
+                  letterSpacing: 0.5,
+                ),
+              )
+            else if (suffix.trim().toLowerCase().startsWith('verse'))
+              TextSpan(
+                text: ' (Verse Quiz)',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: iconAndTitleColor,
+                  letterSpacing: 0.5,
+                ),
               ),
-            ),
           ],
         ),
       ),
