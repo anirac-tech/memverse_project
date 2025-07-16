@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:feedback/feedback.dart';
+import 'package:flutter/foundation.dart'; // for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/utils/app_logger.dart';
@@ -68,38 +69,32 @@ class ConfigurationErrorWidget extends StatelessWidget {
 
 /// Provider for bootstrap configuration
 final bootstrapProvider = Provider<BootstrapConfig>((ref) {
-  // Get the CLIENT_ID from dart-define
-  const clientId = String.fromEnvironment('CLIENT_ID');
-
-  // Validate that the CLIENT_ID is provided
+  // Get the CLIENT_ID from dart-define, using debug fallback if needed
+  String clientId = const String.fromEnvironment('CLIENT_ID');
+  if (clientId.isEmpty && kDebugMode) {
+    clientId = 'debug';
+  }
   if (clientId.isEmpty) {
     throw Exception(
       'CLIENT_ID environment variable is not defined. '
       'Please run with --dart-define=CLIENT_ID=your_client_id',
     );
   }
-
-  return const BootstrapConfig(clientId: clientId);
+  return BootstrapConfig(clientId: clientId);
 });
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
-  /*
-  FlutterError.onError = (details) {
-// do something worthwhile :)
-  };
-
-   */
-
   try {
-    // Check for CLIENT_ID early in the bootstrap process
-    const clientId = String.fromEnvironment('CLIENT_ID');
+    // Debug: Auto-fake a client ID for dev/test
+    String clientId = const String.fromEnvironment('CLIENT_ID');
+    if (clientId.isEmpty && kDebugMode) {
+      clientId = 'debug';
+    }
     if (clientId.isEmpty) {
       const errorMessage =
           'CLIENT_ID environment variable is not defined. '
           'This is required for authentication with the Memverse API.';
       AppLogger.e('ERROR: $errorMessage');
-
-      // Launch the error UI instead of the regular app
       runApp(
         const ConfigurationErrorWidget(
           error: 'Missing required CLIENT_ID configuration for authentication.',

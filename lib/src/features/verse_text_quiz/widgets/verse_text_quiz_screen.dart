@@ -5,14 +5,14 @@ class VerseTextQuizScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorGreen = const Color(0xFF80BC00);
-    final colorLightGreen = const Color(0xFFC8F780);
-    final colorBg = const Color(0xFFF8FFF0);
-    final colorHintBg = const Color(0xFFF1FDE9);
-    final colorYellow = const Color(0xFFFFF7CD);
-    final mnemonics = 'B t f o t S i l, j, p, p, k, g, f.';
-    final verseRef = 'Gal 5:22 [NIV]';
-    final refLight = colorLightGreen;
+    const colorGreen = Color(0xFF80BC00);
+    const colorLightGreen = Color(0xFFC8F780);
+    const colorBg = Color(0xFFF8FFF0);
+    const colorHintBg = Color(0xFFF1FDE9);
+    const colorYellow = Color(0xFFFFF7CD);
+    const mnemonics = 'B t f o t S i l, j, p, p, k, g, f.';
+    const verseRef = 'Gal 5:22 [NIV]';
+    const refLight = colorLightGreen;
     final cardRadius = BorderRadius.circular(14);
 
     return Scaffold(
@@ -104,7 +104,7 @@ class VerseTextQuizScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               verseRef,
                               style: TextStyle(
                                 color: colorGreen,
@@ -117,7 +117,7 @@ class VerseTextQuizScreen extends StatelessWidget {
                                 Icon(Icons.visibility_outlined, color: Colors.grey.shade500),
                                 const SizedBox(width: 6),
                                 Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: colorGreen,
                                     shape: BoxShape.circle,
                                   ),
@@ -142,10 +142,10 @@ class VerseTextQuizScreen extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(11, 10, 6, 10),
                           child: Row(
                             children: [
-                              Expanded(
+                              const Expanded(
                                 child: Text(
                                   mnemonics,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: 'RobotoMono',
                                     fontWeight: FontWeight.w500,
                                     color: Colors.brown,
@@ -169,7 +169,7 @@ class VerseTextQuizScreen extends StatelessWidget {
                             hintText: 'But the fruit of the Spirit it love...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: colorGreen, width: 1.2),
+                              borderSide: const BorderSide(color: colorGreen, width: 1.2),
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                               vertical: 13,
@@ -199,7 +199,7 @@ class VerseTextQuizScreen extends StatelessWidget {
                                           color: i == 2 ? colorGreen : Colors.grey.shade600,
                                         ),
                                       )
-                                    : Icon(Icons.info_outline, color: colorGreen, size: 22),
+                                    : const Icon(Icons.info_outline, color: colorGreen, size: 22),
                               ),
                             ),
                           ),
@@ -218,11 +218,11 @@ class VerseTextQuizScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        const Row(
                           children: [
                             Icon(Icons.eco_rounded, color: colorGreen, size: 22),
-                            const SizedBox(width: 7),
-                            const Text(
+                            SizedBox(width: 7),
+                            Text(
                               'Upcoming Verses',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -240,16 +240,16 @@ class VerseTextQuizScreen extends StatelessWidget {
                           ),
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                          child: Row(
-                            children: const [
+                          child: const Row(
+                            children: [
                               Icon(Icons.bookmark, color: Colors.green, size: 18),
                               SizedBox(width: 6),
                               Text('Gal 5:22', style: TextStyle(fontSize: 15.5)),
                             ],
                           ),
                         ),
-                        Row(
-                          children: const [
+                        const Row(
+                          children: [
                             Icon(Icons.bookmark_border, color: Colors.grey, size: 18),
                             SizedBox(width: 6),
                             Text('Col 1:17', style: TextStyle(fontSize: 15.5, color: Colors.grey)),

@@ -1,54 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
 import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
 
-class SignedInNavScaffold extends StatefulWidget {
+const _tabs = <Widget>[_HomeTab(), VerseTextQuizScreen(), MemversePage(), _SettingsTab()];
+
+class SignedInNavScaffold extends HookWidget {
   const SignedInNavScaffold({super.key});
 
   @override
-  State<SignedInNavScaffold> createState() => _SignedInNavScaffoldState();
-}
-
-class _SignedInNavScaffoldState extends State<SignedInNavScaffold> {
-  int _selectedIndex = 1;
-
-  final List<Widget> _tabs = [
-    const _HomeTab(),
-    const VerseTextQuizScreen(),
-    const MemversePage(),
-    const _SettingsTab(),
-  ];
-
-  //TODO(neiljaywarner)
-  // no magic strings or colors or number, fatarrow, useState not setState, no stateful widgert etc.
-
-  final List<BottomNavigationBarItem> _navItems = const [
-    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-    BottomNavigationBarItem(icon: Icon(Icons.menu_book_rounded), label: 'Verse'),
-    BottomNavigationBarItem(icon: Icon(Icons.bookmarks_outlined), label: 'Ref'),
-    BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    const navBg = Color(0xFFF8FFF0);
-    const navGreen = Color(0xFF80BC00);
-    const navGray = Color(0xFF767676);
+    final selectedIndex = useState(1);
+    final l10n = context.l10n;
+    final navItems = <BottomNavigationBarItem>[
+      BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.home),
+      BottomNavigationBarItem(icon: const Icon(Icons.menu_book_rounded), label: l10n.verse),
+      BottomNavigationBarItem(icon: const Icon(Icons.bookmarks_outlined), label: l10n.ref),
+      BottomNavigationBarItem(icon: const Icon(Icons.settings), label: l10n.settings),
+    ];
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _tabs),
+      body: IndexedStack(index: selectedIndex.value, children: _tabs),
       bottomNavigationBar: BottomNavigationBar(
-        items: _navItems,
-        currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        selectedItemColor: navGreen,
-        unselectedItemColor: navGray,
-        selectedFontSize: 13,
-        unselectedFontSize: 12.2,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.05),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400, letterSpacing: 0.04),
-        backgroundColor: navBg,
-        iconSize: 28,
+        items: navItems,
+        currentIndex: selectedIndex.value,
+        onTap: (index) => selectedIndex.value = index,
       ),
     );
   }
@@ -58,10 +34,10 @@ class _HomeTab extends StatelessWidget {
   const _HomeTab();
 
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
     child: Text(
-      'Home',
-      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.green),
+      context.l10n.home,
+      style: Theme.of(context).textTheme.headlineMedium,
       textAlign: TextAlign.center,
     ),
   );
@@ -71,5 +47,5 @@ class _SettingsTab extends StatelessWidget {
   const _SettingsTab();
 
   @override
-  Widget build(BuildContext context) => const Center(child: Text('Settings'));
+  Widget build(BuildContext context) => Center(child: Text(context.l10n.settings));
 }

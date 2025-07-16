@@ -24,7 +24,7 @@ String _getMemverseApiUrl() {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const bool autoSignIn = bool.fromEnvironment('AUTOSIGNIN', defaultValue: true);
+  const autoSignIn = bool.fromEnvironment('AUTOSIGNIN', defaultValue: true);
 
   if (autoSignIn) {
     AuthService.isDummyUser = true;

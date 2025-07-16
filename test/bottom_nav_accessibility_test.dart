@@ -9,7 +9,7 @@ double luminance(Color color) {
   final r = color.red / 255.0;
   final g = color.green / 255.0;
   final b = color.blue / 255.0;
-  final List<double> channels = [
+  final channels = [
     r,
     g,
     b,

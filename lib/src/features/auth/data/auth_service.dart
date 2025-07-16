@@ -13,17 +13,14 @@ class AuthService {
   /// Create a new AuthService
   AuthService({FlutterSecureStorage? secureStorage, Dio? dio})
     : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
-      _dio = dio ?? Dio() {}
+      _dio = dio ?? Dio();
 
   final FlutterSecureStorage _secureStorage;
   final Dio _dio;
 
   static const _tokenKey = 'auth_token';
   static const String _tokenPath = '/oauth/token';
-  static const String clientSecret = String.fromEnvironment(
-    'MEMVERSE_CLIENT_API_KEY',
-    defaultValue: '',
-  );
+  static const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
   static bool isDummyUser = false;
 
   /// Attempts to login with the provided credentials
@@ -48,7 +45,7 @@ class AuthService {
         'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty} and apiKey is non-empty: ${clientSecret.isNotEmpty}',
       );
 
-      final String loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
+      const loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
       AppLogger.d('LOGIN - Using URL: $loginUrl');
 
       final requestData = <String, dynamic>{
@@ -180,4 +177,32 @@ class AuthService {
       rethrow;
     }
   }
+}
+
+class MockAuthService extends AuthService {
+  MockAuthService();
+
+  @override
+  Future<bool> isLoggedIn() async => true;
+
+  @override
+  Future<AuthToken> login(String username, String password, String clientId) async => AuthToken(
+    accessToken: 'mock',
+    tokenType: 'Bearer',
+    scope: 'user',
+    createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    userId: 0,
+  );
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<AuthToken?> getToken() async => AuthToken(
+    accessToken: 'mock',
+    tokenType: 'Bearer',
+    scope: 'user',
+    createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    userId: 0,
+  );
 }

@@ -32,7 +32,7 @@ class VerseCard extends StatelessWidget {
         children: [
           Text(
             verse.reference,
-            style: TextStyle(color: colorGreen, fontWeight: FontWeight.bold, fontSize: 17.2),
+            style: const TextStyle(color: colorGreen, fontWeight: FontWeight.bold, fontSize: 17.2),
           ),
           const SizedBox(height: 4),
           Text(
@@ -56,7 +56,11 @@ class VerseCard extends StatelessWidget {
                 ),
                 child: Text(
                   verse.translation ?? 'NIV',
-                  style: TextStyle(fontSize: 12.6, color: colorGreen, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 12.6,
+                    color: colorGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

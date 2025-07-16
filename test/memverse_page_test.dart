@@ -16,7 +16,7 @@ class MockAppLocalizations extends Mock implements AppLocalizations {}
 class FakeVerseRepository extends VerseRepository {
   @override
   Future<List<Verse>> getVerses() async {
-    return [Verse(reference: 'John 3:16', text: 'For God so loved the world...')];
+    return [const Verse(reference: 'John 3:16', text: 'For God so loved the world...')];
   }
 }
 
@@ -103,7 +103,7 @@ void main() {
 
       // Setup mock repository
       when(() => mockRepository.getVerses()).thenAnswer(
-        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
+        (_) async => [const Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
       );
 
       // Setup localizations
@@ -277,8 +277,8 @@ void main() {
     testWidgets('handles end of verse list correctly', (WidgetTester tester) async {
       when(() => mockRepository.getVerses()).thenAnswer(
         (_) async => [
-          Verse(reference: 'Genesis 1:1', text: 'In the beginning...'),
-          Verse(reference: 'John 3:16', text: 'For God so loved the world...'),
+          const Verse(reference: 'Genesis 1:1', text: 'In the beginning...'),
+          const Verse(reference: 'John 3:16', text: 'For God so loved the world...'),
         ],
       );
 
@@ -316,7 +316,7 @@ void main() {
     setUp(() {
       mockVerseRepository = MockVerseRepository();
       when(() => mockVerseRepository.getVerses()).thenAnswer(
-        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
+        (_) async => [const Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
       );
     });
 

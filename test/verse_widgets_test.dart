@@ -15,7 +15,7 @@ void main() {
       const verseReference = 'Genesis 1:1';
       const verseTranslation = 'NLT';
 
-      final verse = Verse(text: verseText, reference: verseReference);
+      const verse = Verse(text: verseText, reference: verseReference);
 
       await tester.pumpWidget(
         MaterialApp(

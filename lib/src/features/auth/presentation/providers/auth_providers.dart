@@ -34,6 +34,10 @@ final clientIdProvider = Provider<String>((ref) {
 
 /// Provider for the AuthService
 final authServiceProvider = Provider<AuthService>((ref) {
+  final clientId = ref.watch(clientIdProvider);
+  if (clientId.isEmpty || clientId == 'debug') {
+    return MockAuthService();
+  }
   return AuthService();
 });
 
