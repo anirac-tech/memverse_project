@@ -1,3 +1,16 @@
+// ===========================
+//        THEME USAGE GUIDE
+// ===========================
+// All colors, typography, spacing, radii, shadows, etc, are centralized below.
+// To update the app's visual identity (light or dark), change values here.
+// Use AppThemes.light/dark/feedback for MaterialApp and feedback overlays.
+// For custom widget padding/spacings: use pagePadding / cardRadius, etc.
+// Typography: ALWAYS use Theme.of(context).textTheme, or the role-specific text style below.
+// Colors: reference only the tokens below (e.g., mvLightGreen), never Colors.* in other files.
+// Button/Card/Snackbar/Dialog/etc. themes: update the relevant ThemeData section here, not individual widgets.
+// This keeps the UI consistent and makes future rebrands super easy!
+// ===========================
+
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 
@@ -13,30 +26,99 @@ const Color mvDarkGreen = Color(0xFF91FF7B);
 const Color mvDarkNavText = Color(0xFFDAFFD3);
 const Color mvDarkNavInactive = Color(0xFF338855);
 
-// TYPOGRAPHY/MISC CONSTANTS
-const double kPagePadding = 20.0;
-const double kCardRadius = 16.0;
-const double kButtonRadius = 12.0;
-const double kCardElevation = 2.0;
-const EdgeInsets kVerticalPadding = EdgeInsets.symmetric(vertical: 16);
-const EdgeInsets kHorizontalPadding = EdgeInsets.symmetric(horizontal: 20);
+const Color secondaryButtonColorLight = mvLightNavInactive;
+const Color secondaryButtonColorDark = mvDarkNavInactive;
+const Color secondaryButtonTextColor = Colors.white; // Or mvLightGreen for less contrast
 
-final customLightTextTheme = TextTheme(
-  headlineMedium: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: mvLightGreen),
-  bodyMedium: TextStyle(fontSize: 16, color: Colors.black),
-  labelMedium: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.05, color: mvLightGreen),
+// TYPOGRAPHY/MISC CONSTANTS
+const double pagePadding = 20;
+const double cardRadius = 16;
+const double buttonRadius = 12;
+const EdgeInsets verticalPadding = EdgeInsets.symmetric(vertical: 16);
+const EdgeInsets horizontalPadding = EdgeInsets.symmetric(horizontal: 20);
+
+// =============== CARD TOKENS ===============
+const Color cardColorLight = Colors.white;
+const Color cardColorDark = Color(0xFF23321F);
+const double cardElevationDefault = 2;
+
+// =============== TYPOGRAPHY TOKEN CONSTANTS ===============
+const double fontSizeHeadline = 26;
+const double fontSizeBody = 16;
+const double fontSizeNavLabel = 13;
+const double fontSizeNavLabelUnselected = 12.2;
+const double letterSpacingTight = 0.04;
+const double letterSpacingWide = 0.05;
+const FontWeight fontWeightBold = FontWeight.bold;
+const FontWeight fontWeightSemiBold = FontWeight.w600;
+const FontWeight fontWeightRegular = FontWeight.w400;
+
+// =============== SIZING TOKEN CONSTANTS ===============
+const double navIconSize = 28;
+const double appBarTitleFontSize = 20;
+
+// =============== FEEDBACK THEME TOKEN CONSTANTS ===============
+const int feedbackOverlayAlpha = 235; // Almost solid, but not quite
+const Color feedbackOrange = Color(0xFFE28600);
+const Color feedbackRed = Color(0xFFE52020);
+const Color feedbackBlue = Color(0xFF1C7CF6);
+const Color feedbackDarkSheet = Color(0xFF1D2724);
+const Color feedbackLightSheet = Colors.white;
+
+// Feedback draw palette: NOT brand colors, just highly visible choices for annotation,
+// tuned for each background (see also https://raw.githubusercontent.com/ueman/feedback/master/img/theme_description.png)
+// Try: black (visible on light), white (on dark), red, blue, orange, (optionally) green.
+const List<Color> feedbackLightDrawColors = [
+  Colors.black, // Maximum contrast on light
+  feedbackRed, // Error
+  feedbackBlue, // Annotation
+  feedbackOrange, // Warning/highlight
+  mvLightGreen, // Accept/positive, optional
+];
+const List<Color> feedbackDarkDrawColors = [
+  Colors.white, // Maximum contrast on dark
+  feedbackRed, // Error
+  feedbackBlue, // Annotation
+  feedbackOrange, // Warning/highlight
+  mvDarkGreen, // Accept/positive, optional
+];
+
+const TextTheme customLightTextTheme = TextTheme(
+  headlineMedium: TextStyle(
+    fontSize: fontSizeHeadline,
+    fontWeight: fontWeightBold,
+    color: mvLightGreen,
+  ),
+  bodyMedium: TextStyle(fontSize: fontSizeBody, color: Colors.black),
+  labelMedium: TextStyle(
+    fontWeight: fontWeightSemiBold,
+    letterSpacing: letterSpacingWide,
+    color: mvLightGreen,
+  ),
   labelSmall: TextStyle(
-    fontWeight: FontWeight.w400,
-    letterSpacing: 0.04,
+    fontWeight: fontWeightRegular,
+    letterSpacing: letterSpacingTight,
     color: mvLightNavInactive,
   ),
 );
 
-final customDarkTextTheme = TextTheme(
-  headlineMedium: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: mvDarkGreen),
-  bodyMedium: TextStyle(fontSize: 16, color: Colors.white),
-  labelMedium: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.05, color: mvDarkGreen),
-  labelSmall: TextStyle(fontWeight: FontWeight.w400, letterSpacing: 0.04, color: mvDarkNavInactive),
+const TextTheme customDarkTextTheme = TextTheme(
+  headlineMedium: TextStyle(
+    fontSize: fontSizeHeadline,
+    fontWeight: fontWeightBold,
+    color: mvDarkGreen,
+  ),
+  bodyMedium: TextStyle(fontSize: fontSizeBody, color: Colors.white),
+  labelMedium: TextStyle(
+    fontWeight: fontWeightSemiBold,
+    letterSpacing: letterSpacingWide,
+    color: mvDarkGreen,
+  ),
+  labelSmall: TextStyle(
+    fontWeight: fontWeightRegular,
+    letterSpacing: letterSpacingTight,
+    color: mvDarkNavInactive,
+  ),
 );
 
 class AppThemes {
@@ -48,45 +130,51 @@ class AppThemes {
       backgroundColor: mvLightNavBg,
       elevation: 0,
       iconTheme: IconThemeData(color: mvLightGreen),
-      titleTextStyle: TextStyle(fontSize: 20, color: mvLightGreen, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(
+        fontSize: appBarTitleFontSize,
+        color: mvLightGreen,
+        fontWeight: FontWeight.bold,
+      ),
     ),
     cardTheme: CardThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kCardRadius)),
-      elevation: kCardElevation,
-      margin: kHorizontalPadding,
-      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(cardRadius)),
+      elevation: cardElevationDefault,
+      margin: horizontalPadding,
+      color: cardColorLight,
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: mvLightNavBg,
       selectedItemColor: mvLightNavText,
       unselectedItemColor: mvLightNavInactive,
       selectedLabelStyle: TextStyle(
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.05,
+        fontWeight: fontWeightSemiBold,
+        letterSpacing: letterSpacingWide,
+        fontSize: fontSizeNavLabel,
         color: mvLightNavText,
       ),
       unselectedLabelStyle: TextStyle(
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.04,
+        fontWeight: fontWeightRegular,
+        letterSpacing: letterSpacingTight,
+        fontSize: fontSizeNavLabelUnselected,
         color: mvLightNavInactive,
       ),
-      selectedIconTheme: IconThemeData(size: 28),
-      unselectedIconTheme: IconThemeData(size: 28),
+      selectedIconTheme: IconThemeData(size: navIconSize),
+      unselectedIconTheme: IconThemeData(size: navIconSize),
       type: BottomNavigationBarType.fixed,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kButtonRadius)),
-        padding: kVerticalPadding,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+        padding: verticalPadding,
+        textStyle: const TextStyle(fontWeight: fontWeightBold),
         backgroundColor: mvLightGreen,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kButtonRadius)),
-        padding: kVerticalPadding,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+        padding: verticalPadding,
+        textStyle: TextStyle(fontWeight: fontWeightBold),
         side: const BorderSide(color: mvLightGreen),
       ),
     ),
@@ -101,58 +189,98 @@ class AppThemes {
       backgroundColor: mvDarkNavBg,
       elevation: 0,
       iconTheme: IconThemeData(color: mvDarkGreen),
-      titleTextStyle: TextStyle(fontSize: 20, color: mvDarkGreen, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(
+        fontSize: appBarTitleFontSize,
+        color: mvDarkGreen,
+        fontWeight: FontWeight.bold,
+      ),
     ),
     cardTheme: CardThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kCardRadius)),
-      elevation: kCardElevation,
-      margin: kHorizontalPadding,
-      color: Color(0xFF23321F),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(cardRadius)),
+      elevation: cardElevationDefault,
+      margin: horizontalPadding,
+      color: cardColorDark,
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: mvDarkNavBg,
       selectedItemColor: mvDarkNavText,
       unselectedItemColor: mvDarkNavInactive,
       selectedLabelStyle: TextStyle(
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.05,
+        fontWeight: fontWeightSemiBold,
+        letterSpacing: letterSpacingWide,
+        fontSize: fontSizeNavLabel,
         color: mvDarkNavText,
       ),
       unselectedLabelStyle: TextStyle(
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.04,
+        fontWeight: fontWeightRegular,
+        letterSpacing: letterSpacingTight,
+        fontSize: fontSizeNavLabelUnselected,
         color: mvDarkNavInactive,
       ),
-      selectedIconTheme: IconThemeData(size: 28),
-      unselectedIconTheme: IconThemeData(size: 28),
+      selectedIconTheme: IconThemeData(size: navIconSize),
+      unselectedIconTheme: IconThemeData(size: navIconSize),
       type: BottomNavigationBarType.fixed,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kButtonRadius)),
-        padding: kVerticalPadding,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+        padding: verticalPadding,
+        textStyle: TextStyle(fontWeight: fontWeightBold),
         backgroundColor: mvDarkGreen,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kButtonRadius)),
-        padding: kVerticalPadding,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
+        padding: verticalPadding,
+        textStyle: TextStyle(fontWeight: fontWeightBold),
         side: const BorderSide(color: mvDarkGreen),
       ),
     ),
   );
 
   static final feedbackTheme = FeedbackThemeData(
-    background: mvLightNavBg.withAlpha(235),
-    feedbackSheetColor: Colors.white,
-    drawColors: [mvLightGreen, Color(0xFFE28600), Color(0xFFE52020), Color(0xFF1C7CF6)],
+    background: mvLightNavBg.withAlpha(feedbackOverlayAlpha),
+    feedbackSheetColor: feedbackLightSheet,
+    drawColors: feedbackLightDrawColors,
+    colorScheme: ColorScheme.fromSeed(
+      brightness: Brightness.light,
+      primary: mvLightGreen,
+      onPrimary: Colors.white,
+      secondary: secondaryButtonColorLight,
+      onSecondary: Colors.white,
+      error: feedbackRed,
+      onError: Colors.white,
+      surface: feedbackLightSheet,
+      onSurface: mvLightGreen,
+      background: mvLightNavBg,
+      onBackground: mvLightGreen,
+      seedColor: mvLightGreen,
+    ),
+    // activeFeedbackModeColor: Used for the 'Submit' button AND for the highlighted 'Draw' button (mode selector) in the feedback overlay/tool
+    // See feedback readme: https://raw.githubusercontent.com/ueman/feedback/master/img/theme_description.png
+    activeFeedbackModeColor: mvLightGreen,
   );
   static final feedbackDarkTheme = FeedbackThemeData(
-    background: mvDarkNavBg.withAlpha(235),
-    feedbackSheetColor: const Color(0xFF1D2724),
-    drawColors: [mvDarkGreen, Color(0xFFE28600), Color(0xFFE52020), Color(0xFF82B1FF)],
+    background: mvDarkNavBg.withAlpha(feedbackOverlayAlpha),
+    feedbackSheetColor: feedbackDarkSheet,
+    drawColors: feedbackDarkDrawColors,
+    colorScheme: ColorScheme.fromSeed(
+      brightness: Brightness.dark,
+      primary: mvDarkGreen,
+      onPrimary: Colors.white,
+      secondary: secondaryButtonColorDark,
+      onSecondary: Colors.white,
+      error: feedbackRed,
+      onError: Colors.white,
+      surface: feedbackDarkSheet,
+      onSurface: mvDarkGreen,
+      background: mvDarkNavBg,
+      onBackground: mvDarkGreen,
+      seedColor: mvDarkGreen,
+    ),
+    // activeFeedbackModeColor: Used for the 'Submit' button AND for the highlighted 'Draw' button (mode selector) in the feedback overlay/tool
+    // See feedback readme: https://raw.githubusercontent.com/ueman/feedback/master/img/theme_description.png
+    activeFeedbackModeColor: mvDarkGreen,
   );
 }
