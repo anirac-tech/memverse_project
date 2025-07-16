@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
@@ -100,12 +99,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Log token information (non-sensitive parts)
       if (token.accessToken.isNotEmpty) {
-        // Only log in debug mode
-        if (kDebugMode) {
-          AppLogger.d('Successfully authenticated');
-        }
         AppLogger.i('Successfully authenticated');
-
         // Track successful login
         await _analyticsService.trackLogin(username);
       }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:memverse/src/constants/api_constants.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
@@ -82,53 +81,9 @@ class AuthService {
         AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.data}');
         throw Exception('Login failed: ${response.statusCode} - ${response.data}');
       }
-    } catch (dioError) {
-      AppLogger.e('Dio login attempt failed, trying with http package', dioError);
-    }
-
-    // Fallback to http package with appropriate content type
-    final uri = Uri.parse(kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath');
-    http.Response response;
-
-    if (kIsWeb) {
-      // For web, use regular JSON post
-      response = await http.post(
-        uri,
-        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        body: jsonEncode({
-          'grant_type': 'password',
-          'username': username,
-          'password': password,
-          'client_id': clientId,
-          if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
-          if (clientSecret.isNotEmpty) 'api_key': clientSecret,
-        }),
-      );
-    } else {
-      // For native, use MultipartRequest
-      final request = http.MultipartRequest('POST', uri);
-      request.fields.addAll({
-        'grant_type': 'password',
-        'username': username,
-        'password': password,
-        'client_id': clientId,
-        if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
-        if (clientSecret.isNotEmpty) 'api_key': clientSecret,
-      });
-
-      final streamedResponse = await request.send();
-      response = await http.Response.fromStream(streamedResponse);
-    }
-
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
-      final authToken = AuthToken.fromJson(jsonData);
-      AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
-      await saveToken(authToken);
-      return authToken;
-    } else {
-      AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
-      throw Exception('Login failed: ${response.statusCode} - ${response.body}');
+    } catch (e) {
+      AppLogger.e('Login failed with Dio exception', e);
+      throw Exception('Login failed due to Dio error: $e');
     }
   }
 
