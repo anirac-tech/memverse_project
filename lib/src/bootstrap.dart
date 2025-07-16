@@ -70,7 +70,7 @@ class ConfigurationErrorWidget extends StatelessWidget {
 /// Provider for bootstrap configuration
 final bootstrapProvider = Provider<BootstrapConfig>((ref) {
   // Get the CLIENT_ID from dart-define, using debug fallback if needed
-  String clientId = const String.fromEnvironment('CLIENT_ID');
+  var clientId = const String.fromEnvironment('CLIENT_ID');
   if (clientId.isEmpty && kDebugMode) {
     clientId = 'debug';
   }
@@ -86,7 +86,7 @@ final bootstrapProvider = Provider<BootstrapConfig>((ref) {
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   try {
     // Debug: Auto-fake a client ID for dev/test
-    String clientId = const String.fromEnvironment('CLIENT_ID');
+    var clientId = const String.fromEnvironment('CLIENT_ID');
     if (clientId.isEmpty && kDebugMode) {
       clientId = 'debug';
     }

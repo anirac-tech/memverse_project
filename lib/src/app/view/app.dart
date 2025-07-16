@@ -18,12 +18,16 @@ class App extends StatelessWidget {
     // which doesn't have the necessary information.
     child: Builder(
       builder: (context) => BetterFeedback(
-        theme: MediaQuery.of(context).platformBrightness == Brightness.dark
-            ? AppThemes.feedbackDarkTheme
-            : AppThemes.feedbackTheme,
+        theme: forceLightMode
+            ? AppThemes.feedbackTheme
+            : (MediaQuery.of(context).platformBrightness == Brightness.dark
+                  ? AppThemes.feedbackDarkTheme
+                  : AppThemes.feedbackTheme),
         child: MaterialApp(
           theme: AppThemes.light,
           darkTheme: AppThemes.dark,
+          themeMode: forceLightMode ? ThemeMode.light : ThemeMode.system,
+          // Set forceLightMode=false in themes.dart to re-enable true dark mode when ready
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: AuthService.isDummyUser ? const SignedInNavScaffold() : const AuthWrapper(),

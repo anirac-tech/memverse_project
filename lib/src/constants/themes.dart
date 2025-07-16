@@ -20,11 +20,11 @@ const Color mvLightNavBg = Color(0xFFF4FFF0);
 const Color mvLightGreen = Color(0xFF224600);
 const Color mvLightNavText = Color(0xFF224600);
 const Color mvLightNavInactive = Color(0xFF5D6E60);
-const Color mvDarkScaffoldBg = Color(0xFF0B130D);
-const Color mvDarkNavBg = Color(0xFF101A12);
+const Color mvDarkScaffoldBg = Color(0xFF10130D);
+const Color mvDarkNavBg = Color(0xFF121A14);
 const Color mvDarkGreen = Color(0xFF91FF7B);
-const Color mvDarkNavText = Color(0xFFDAFFD3);
-const Color mvDarkNavInactive = Color(0xFF338855);
+const Color mvDarkNavText = Colors.white;
+const Color mvDarkNavInactive = Color(0xFF6A786B);
 
 const Color secondaryButtonColorLight = mvLightNavInactive;
 const Color secondaryButtonColorDark = mvDarkNavInactive;
@@ -39,7 +39,7 @@ const EdgeInsets horizontalPadding = EdgeInsets.symmetric(horizontal: 20);
 
 // =============== CARD TOKENS ===============
 const Color cardColorLight = Colors.white;
-const Color cardColorDark = Color(0xFF162417);
+const Color cardColorDark = Color(0xFF1D2520);
 const double cardElevationDefault = 2;
 
 // =============== TYPOGRAPHY TOKEN CONSTANTS ===============
@@ -120,6 +120,11 @@ const TextTheme customDarkTextTheme = TextTheme(
     color: mvDarkNavInactive,
   ),
 );
+
+/// Set to true to globally force light mode everywhere (MaterialApp and BetterFeedback theme).
+/// Set to false to let the app respect the user's system dark mode preference.
+const bool forceLightMode = true;
+// Set to false to respect system dark mode preference.
 
 class AppThemes {
   static final light = ThemeData(
