@@ -20,8 +20,8 @@ const Color mvLightNavBg = Color(0xFFF4FFF0);
 const Color mvLightGreen = Color(0xFF224600);
 const Color mvLightNavText = Color(0xFF224600);
 const Color mvLightNavInactive = Color(0xFF5D6E60);
-const Color mvDarkScaffoldBg = Color(0xFF111D14);
-const Color mvDarkNavBg = Color(0xFF19391E);
+const Color mvDarkScaffoldBg = Color(0xFF0B130D);
+const Color mvDarkNavBg = Color(0xFF101A12);
 const Color mvDarkGreen = Color(0xFF91FF7B);
 const Color mvDarkNavText = Color(0xFFDAFFD3);
 const Color mvDarkNavInactive = Color(0xFF338855);
@@ -39,7 +39,7 @@ const EdgeInsets horizontalPadding = EdgeInsets.symmetric(horizontal: 20);
 
 // =============== CARD TOKENS ===============
 const Color cardColorLight = Colors.white;
-const Color cardColorDark = Color(0xFF23321F);
+const Color cardColorDark = Color(0xFF162417);
 const double cardElevationDefault = 2;
 
 // =============== TYPOGRAPHY TOKEN CONSTANTS ===============
@@ -174,7 +174,7 @@ class AppThemes {
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
         padding: verticalPadding,
-        textStyle: TextStyle(fontWeight: fontWeightBold),
+        textStyle: const TextStyle(fontWeight: fontWeightBold),
         side: const BorderSide(color: mvLightGreen),
       ),
     ),
@@ -225,7 +225,7 @@ class AppThemes {
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
         padding: verticalPadding,
-        textStyle: TextStyle(fontWeight: fontWeightBold),
+        textStyle: const TextStyle(fontWeight: fontWeightBold),
         backgroundColor: mvDarkGreen,
       ),
     ),
@@ -233,7 +233,7 @@ class AppThemes {
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(buttonRadius)),
         padding: verticalPadding,
-        textStyle: TextStyle(fontWeight: fontWeightBold),
+        textStyle: const TextStyle(fontWeight: fontWeightBold),
         side: const BorderSide(color: mvDarkGreen),
       ),
     ),
@@ -244,7 +244,6 @@ class AppThemes {
     feedbackSheetColor: feedbackLightSheet,
     drawColors: feedbackLightDrawColors,
     colorScheme: ColorScheme.fromSeed(
-      brightness: Brightness.light,
       primary: mvLightGreen,
       onPrimary: Colors.white,
       secondary: secondaryButtonColorLight,

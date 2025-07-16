@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memverse/src/common/widgets/memverse_app_bar.dart';
 
 class VerseTextQuizScreen extends StatelessWidget {
   const VerseTextQuizScreen({super.key});
@@ -17,35 +18,7 @@ class VerseTextQuizScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorBg,
-      appBar: AppBar(
-        title: const Text(
-          'memverse',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            letterSpacing: 0.5,
-          ),
-        ),
-        backgroundColor: colorGreen,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
-            onPressed: () {
-              /* TODO: Wire logout */
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.feedback_outlined, color: Colors.white),
-            tooltip: 'Feedback',
-            onPressed: () {
-              /* TODO: Wire feedback */
-            },
-          ),
-        ],
-      ),
+      appBar: MemverseAppBar(suffix: 'Verse'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Center(

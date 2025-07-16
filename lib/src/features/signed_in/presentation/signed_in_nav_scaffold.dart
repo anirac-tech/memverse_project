@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:memverse/l10n/l10n.dart';
+import 'package:memverse/src/features/home/home_tab.dart';
 import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
+import 'package:memverse/src/features/settings/settings_tab.dart';
 import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
 
-const _tabs = <Widget>[_HomeTab(), VerseTextQuizScreen(), MemversePage(), _SettingsTab()];
+const _tabs = <Widget>[HomeTab(), VerseTextQuizScreen(), MemversePage(), SettingsTab()];
 
 class SignedInNavScaffold extends HookWidget {
   const SignedInNavScaffold({super.key});
@@ -28,24 +30,4 @@ class SignedInNavScaffold extends HookWidget {
       ),
     );
   }
-}
-
-class _HomeTab extends StatelessWidget {
-  const _HomeTab();
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Text(
-      context.l10n.home,
-      style: Theme.of(context).textTheme.headlineMedium,
-      textAlign: TextAlign.center,
-    ),
-  );
-}
-
-class _SettingsTab extends StatelessWidget {
-  const _SettingsTab();
-
-  @override
-  Widget build(BuildContext context) => Center(child: Text(context.l10n.settings));
 }

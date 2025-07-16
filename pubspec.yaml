@@ -29,6 +29,7 @@ dependencies:
   posthog_flutter: ^5.0.0
   riverpod_annotation: 2.6.1
   share_plus: 11.0.0
+  url_launcher: ^6.1.7
 
 dev_dependencies:
   bdd_widget_test: 1.8.2

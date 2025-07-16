@@ -1,18 +1,15 @@
-import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
-import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
-import 'package:memverse/src/features/ref_quiz/feedback_service.dart';
+import 'package:memverse/src/common/widgets/memverse_app_bar.dart';
 import 'package:memverse/src/features/ref_quiz/widgets/question_section.dart';
 import 'package:memverse/src/features/ref_quiz/widgets/stats_and_history_section.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
-import 'package:memverse/src/utils/app_logger.dart';
 
 // Key constants for Patrol tests
 const memversePageScaffoldKey = ValueKey('memverse_page_scaffold');
@@ -182,42 +179,7 @@ class MemversePage extends HookConsumerWidget {
 
     return Scaffold(
       key: memversePageScaffoldKey,
-      appBar: AppBar(
-        title: Text(
-          isSmallScreen ? pageTitle : 'Memverse $pageTitle',
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: colorGreen,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          // coverage:ignore-start
-          IconButton(
-            key: feedbackButtonKey,
-            icon: const Icon(Icons.feedback_outlined, color: Colors.white),
-            tooltip: 'Send Feedback',
-            onPressed: () {
-              AppLogger.d('Feedback button pressed');
-
-              // Track feedback trigger
-              analyticsService.trackFeedbackTrigger();
-
-              final feedbackService = ref.read(feedbackServiceProvider);
-              BetterFeedback.of(context).show((feedback) async {
-                await feedbackService.handleFeedbackSubmission(context, feedback);
-              });
-            },
-          ),
-          // coverage:ignore-end
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () async {
-              await ref.read(authStateProvider.notifier).logout();
-            },
-            tooltip: 'Logout',
-          ),
-        ],
-      ),
+      appBar: MemverseAppBar(suffix: 'Ref'),
       backgroundColor: colorBg,
       body: SingleChildScrollView(
         child: Container(
