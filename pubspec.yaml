@@ -28,6 +28,7 @@ dependencies:
   path_provider: 2.1.5
   posthog_flutter: ^5.0.0
   riverpod_annotation: 2.6.1
+  retrofit: ^4.0.1
   share_plus: 11.0.0
   url_launcher: ^6.1.7
 
@@ -47,6 +48,7 @@ dev_dependencies:
   patrol: ^3.17.0
   patrol_finders: ^2.8.2
   plugin_platform_interface: ^2.1.8
+  retrofit_generator: ^9.7.0
   riverpod_generator: ^2.6.5
   test_api: any
   very_good_analysis: 9.0.0

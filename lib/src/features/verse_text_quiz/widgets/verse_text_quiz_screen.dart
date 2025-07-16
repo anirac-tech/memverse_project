@@ -18,7 +18,7 @@ class VerseTextQuizScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorBg,
-      appBar: MemverseAppBar(suffix: 'Verse'),
+      appBar: const MemverseAppBar(suffix: 'Verse'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Center(
