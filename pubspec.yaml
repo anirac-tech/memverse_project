@@ -9,8 +9,8 @@ environment:
 
 dependencies:
   dio: 5.8.0+1
-  dio_curl_logger: ^1.1.0
-  feedback: 3.1.0
+  dio_curl_logger: ^1.2.0
+  feedback: 3.2.0
   flutter:
     sdk: flutter
   flutter_hooks: 0.21.2
@@ -19,7 +19,7 @@ dependencies:
   flutter_riverpod: 2.6.1
   flutter_secure_storage: 9.2.4
   freezed_annotation: ^3.1.0
-  go_router: ^7.1.1
+  go_router: ^16.0.0
   hooks_riverpod: ^2.6.1
   http: 1.4.0
   intl: ^0.20.2
@@ -28,9 +28,14 @@ dependencies:
   path_provider: 2.1.5
   posthog_flutter: ^5.0.0
   riverpod_annotation: 2.6.1
-  retrofit: ^4.0.1
+  retrofit: ^4.6.0
   share_plus: 11.0.0
-  url_launcher: ^6.1.7
+  talker: 4.9.2
+  talker_dio_logger: 4.9.2
+  talker_flutter: 4.9.2
+  talker_riverpod_logger: 4.9.2
+
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   bdd_widget_test: 1.8.2

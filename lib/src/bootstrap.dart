@@ -4,7 +4,10 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart'; // for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/app/app.dart';
+import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/utils/app_logger.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
 
 /// Class to hold bootstrap configuration
 class BootstrapConfig {
@@ -103,8 +106,9 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       return;
     }
 
-    // Wrap the app with BetterFeedback and ProviderScope
-    runApp(ProviderScope(child: BetterFeedback(child: await builder())));
+    container = ProviderContainer(overrides: []);
+    container.observers.add(TalkerRiverpodObserver(talker: container.read(talkerProvider)));
+    runApp(BetterFeedback(child: await builder()));
   } catch (e, stackTrace) {
     AppLogger.e('Error during bootstrap: $e', e, stackTrace);
     runApp(ConfigurationErrorWidget(error: 'Error during app initialization: $e'));

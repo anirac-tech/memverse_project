@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/app/app.dart';
 import 'package:memverse/src/bootstrap.dart';
-import 'package:memverse/src/common/services/analytics_bootstrap.dart';
-import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
@@ -45,10 +42,6 @@ Future<void> main() async {
   );
 
   // Initialize analytics with bootstrap
-  await AnalyticsBootstrap.initialize(
-    entryPoint: AnalyticsEntryPoint.mainDevelopment,
-    flavor: 'development',
-  );
 
-  bootstrap(() => const ProviderScope(child: App()));
+  await bootstrap(App.new);
 }

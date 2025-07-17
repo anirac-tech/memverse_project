@@ -1,9 +1,15 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
+import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Provider to check if user is logged in
 final isLoggedInProvider = FutureProvider<bool>((ref) async {
@@ -37,8 +43,28 @@ final authServiceProvider = Provider<AuthService>((ref) {
   if (clientId.isEmpty || clientId == 'debug') {
     return MockAuthService();
   }
-  return AuthService();
+  final dio = Dio();
+  dio.options.baseUrl = 'https://memverse.com/api/';
+  dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+  dio.options.headers['Accept'] = 'application/json';
+  if (appFlavor != 'production' || kDebugMode) {
+    dio.interceptors.add(
+      TalkerDioLogger(
+        talker: ref.watch(talkerProvider),
+        settings: const TalkerDioLoggerSettings(
+          printResponseTime: true,
+          printResponseHeaders: true,
+          printRequestHeaders: true,
+        ),
+      ),
+    );
+  }
+
+  return AuthService(dio: dio);
 });
+
+// also could consider https://pub.dev/packages/dio_curl_interceptor for discord hooks
+final talkerProvider = Provider<Talker>((ref) => TalkerFlutter.init());
 
 /// Authentication state provider
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
