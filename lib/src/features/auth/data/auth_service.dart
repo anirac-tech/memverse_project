@@ -9,6 +9,8 @@ import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/features/auth/domain/password_token_request.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
+const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
+
 /// Authentication service for handling login, token storage, and session management
 class AuthService {
   /// Create a new AuthService
@@ -20,8 +22,6 @@ class AuthService {
   final AuthApi _authApi;
 
   static const _tokenKey = 'auth_token';
-  static const String _tokenPath = '/oauth/token';
-  static const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
   static bool isDummyUser = false;
 
   /// Attempts to login with the provided credentials

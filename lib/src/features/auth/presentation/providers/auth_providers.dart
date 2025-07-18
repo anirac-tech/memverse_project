@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -40,13 +42,23 @@ final clientIdProvider = Provider<String>((ref) {
 /// Provider for the AuthService
 final authServiceProvider = Provider<AuthService>((ref) {
   final clientId = ref.watch(clientIdProvider);
-  if (clientId.isEmpty || clientId == 'debug') {
+  if (clientId.isEmpty || clientId == 'debug' || clientSecret.isEmpty) {
+    AppLogger.w('Using mock auth service bc clientId or clientSecret is empty or debug');
     return MockAuthService();
   }
   final dio = Dio();
   dio.options.baseUrl = 'https://memverse.com/api/';
-  dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-  dio.options.headers['Accept'] = 'application/json';
+  dio.options.headers[Headers.contentTypeHeader] = Headers.jsonContentType;
+  dio.options.headers[Headers.acceptHeader] = Headers.jsonContentType;
+  dio.options.headers['User-Agent'] = 'Memverse-Flutter/1.0.0';
+  String urlEncodedClientId = Uri.encodeComponent(clientId);
+  String urlEncodedClientSecret = Uri.encodeComponent(clientSecret);
+  var credentials = '$urlEncodedClientId:$urlEncodedClientSecret';
+  final List<int> credentialsBytes = utf8.encode(credentials);
+  final base64Credentials = base64.encode(credentialsBytes);
+  final authorizationHeader = 'Basic $base64Credentials';
+
+  dio.options.headers['Authorization'] = authorizationHeader;
   if (appFlavor != 'production' || kDebugMode) {
     dio.interceptors.add(
       TalkerDioLogger(
