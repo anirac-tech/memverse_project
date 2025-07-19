@@ -3,12 +3,15 @@
 This document provides instructions for setting up environment variables for the Memverse app
 development.
 
-## Setting up CLIENT_ID Environment Variable
+## Required Environment Variables
 
-The app requires a CLIENT_ID for authentication with the Memverse API. You can set this up as an
-environment variable to avoid hardcoding values in your code.
+The app requires three environment variables for proper functionality:
 
-### Note: use same type of instructions for $MEMVERSE_CLIENT_API_KEY
+- **`MEMVERSE_CLIENT_ID`** - Client ID for authentication with the Memverse API
+- **`MEMVERSE_CLIENT_API_KEY`** - API key for bearer token authentication with the signup endpoint
+- **`POSTHOG_MEMVERSE_API_KEY`** - PostHog API key for analytics and logging in development
+
+## Setting Up Environment Variables
 
 ### For Bash/Zsh (macOS/Linux)
 
@@ -24,75 +27,10 @@ environment variable to avoid hardcoding values in your code.
    nano ~/.zshrc
    ```
 
-2. Add the following line to the file:
+2. Add the following lines to the file:
    ```bash
    export MEMVERSE_CLIENT_ID="your_client_id_here"
-   ```
-
-3. Save the file and reload your configuration:
-   ```bash
-   source ~/.bashrc  # or ~/.bash_profile for Bash
-   source ~/.zshrc   # for Zsh
-   ```
-
-4. Verify that the variable is set correctly:
-   ```bash
-   echo $MEMVERSE_CLIENT_ID
-   ```
-
-### For Windows Command Prompt
-
-1. Open Command Prompt as Administrator
-
-2. Set the environment variable:
-   ```cmd
-   setx MEMVERSE_CLIENT_ID "your_client_id_here"
-   ```
-
-3. Close and reopen Command Prompt
-
-4. Verify that the variable is set correctly:
-   ```cmd
-   echo %MEMVERSE_CLIENT_ID%
-   ```
-
-### For Windows PowerShell
-
-1. Open PowerShell as Administrator
-
-2. Set the environment variable:
-   ```powershell
-   [Environment]::SetEnvironmentVariable("MEMVERSE_CLIENT_ID", "your_client_id_here", "User")
-   ```
-
-3. Close and reopen PowerShell
-
-4. Verify that the variable is set correctly:
-   ```powershell
-   echo $env:MEMVERSE_CLIENT_ID
-   ```
-
-## Setting up POSTHOG_MEMVERSE_API_KEY for Development Flavor
-
-The development flavor of the app can be configured to use a specific PostHog API key for analytics
-and logging events during testing and development.
-
-### For Bash/Zsh (macOS/Linux)
-
-1. Edit your shell configuration file:
-
-   For Bash:
-   ```bash
-   nano ~/.bashrc  # or ~/.bash_profile
-   ```
-
-   For Zsh:
-   ```bash
-   nano ~/.zshrc
-   ```
-
-2. Add the following line to the file:
-   ```bash
+   export MEMVERSE_CLIENT_API_KEY="your_client_api_key_here"
    export POSTHOG_MEMVERSE_API_KEY="your_posthog_api_key_here"
    ```
 
@@ -102,8 +40,10 @@ and logging events during testing and development.
    source ~/.zshrc   # for Zsh
    ```
 
-4. Verify that the variable is set correctly:
+4. Verify that the variables are set correctly:
    ```bash
+   echo $MEMVERSE_CLIENT_ID
+   echo $MEMVERSE_CLIENT_API_KEY
    echo $POSTHOG_MEMVERSE_API_KEY
    ```
 
@@ -111,15 +51,19 @@ and logging events during testing and development.
 
 1. Open Command Prompt as Administrator
 
-2. Set the environment variable:
+2. Set the environment variables:
    ```cmd
+   setx MEMVERSE_CLIENT_ID "your_client_id_here"
+   setx MEMVERSE_CLIENT_API_KEY "your_client_api_key_here"
    setx POSTHOG_MEMVERSE_API_KEY "your_posthog_api_key_here"
    ```
 
 3. Close and reopen Command Prompt
 
-4. Verify that the variable is set correctly:
+4. Verify that the variables are set correctly:
    ```cmd
+   echo %MEMVERSE_CLIENT_ID%
+   echo %MEMVERSE_CLIENT_API_KEY%
    echo %POSTHOG_MEMVERSE_API_KEY%
    ```
 
@@ -127,15 +71,19 @@ and logging events during testing and development.
 
 1. Open PowerShell as Administrator
 
-2. Set the environment variable:
+2. Set the environment variables:
    ```powershell
+   [Environment]::SetEnvironmentVariable("MEMVERSE_CLIENT_ID", "your_client_id_here", "User")
+   [Environment]::SetEnvironmentVariable("MEMVERSE_CLIENT_API_KEY", "your_client_api_key_here", "User")
    [Environment]::SetEnvironmentVariable("POSTHOG_MEMVERSE_API_KEY", "your_posthog_api_key_here", "User")
    ```
 
 3. Close and reopen PowerShell
 
-4. Verify that the variable is set correctly:
+4. Verify that the variables are set correctly:
    ```powershell
+   echo $env:MEMVERSE_CLIENT_ID
+   echo $env:MEMVERSE_CLIENT_API_KEY
    echo $env:POSTHOG_MEMVERSE_API_KEY
    ```
 
@@ -147,8 +95,9 @@ Once you've set up your environment variables, you can run the app using:
 flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor production --target lib/main_production.dart --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY
 ```
 
-This command will pass your MEMVERSE_CLIENT_ID and POSTHOG_MEMVERSE_API_KEY values to the app as the
-CLIENT_ID and POSTHOG_MEMVERSE_API_KEY parameters respectively.
+This command will pass your MEMVERSE_CLIENT_ID, MEMVERSE_CLIENT_API_KEY, and
+POSTHOG_MEMVERSE_API_KEY values to the app as the CLIENT_ID, CLIENT_API_KEY, and
+POSTHOG_MEMVERSE_API_KEY parameters respectively.
 
 ## Troubleshooting
 
