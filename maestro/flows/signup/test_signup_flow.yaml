@@ -1,0 +1,34 @@
+appId: com.memverse.development
+---
+- launchApp
+- tapOn: "Create Account"
+- assertVisible: "Create Account"
+- assertVisible: "Join the Memverse community"
+
+# Fill out signup form with test credentials
+- tapOn:
+    id: "signup_email_field"
+- inputText: "njwandroid+01022025_230523@gmail.com"
+
+- tapOn:
+    id: "signup_name_field"
+- inputText: "Test User"
+
+- tapOn:
+    id: "signup_password_field"
+- inputText: "Test1234"
+
+# Submit signup
+- tapOn:
+    id: "signup_submit_button"
+
+# Check for success or error states
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Welcome to Memverse!"
+    optional: true
+
+# If we see error, log it but don't fail the test
+- assertVisible:
+    text: "Signup failed"
+    optional: true

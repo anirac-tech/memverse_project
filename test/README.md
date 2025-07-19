@@ -1,36 +1,64 @@
-# Testing in Memverse
+# Memverse Test Suite
 
-This directory contains tests for the Memverse application.
+This directory contains unit tests and widget tests for the Memverse app.
 
-## Test Structure
+## Running Tests
 
+```bash
+# Run all tests
+flutter test
+
+# Run with coverage
+flutter test --coverage
+
+# Generate coverage report
+genhtml coverage/lcov.info -o coverage/html
+```
+
+## Directory Structure
+
+- `features/` - Tests organized by feature
+    - `auth/` - Authentication-related tests
+        - `signup_page_test.dart` - Widget tests for signup page
 - `test/src/common/`: Common test utilities and helpers
 - `test/src/features/`: Feature-specific tests organized by feature
     - `auth/`: Authentication feature tests
     - `verse/`: Verse management feature tests
 - `integration_test/`: Integration tests for full user flows
 
-## Running Tests
+## Test Guidelines
 
-### Running All Tests
+1. **Coverage Goals**:
+    - Aim for 100% line coverage of happy path flows
+    - Validate all form inputs and error states
+    - Test UI state transitions (loading, success, error)
 
-```bash
-flutter test
-```
+2. **Naming Conventions**:
+    - Use descriptive test names that explain what's being tested
+    - Format: `should [expected behavior] when [condition]`
 
-### Running Widget/Unit Tests
+3. **Organization**:
+    - Use `group` to organize related tests
+    - Minimize repeated setup with `setUp` and `tearDown`
+
+## Mock Strategy
+
+We use fake implementations (like `FakeUserRepository`) to isolate tests from external dependencies.
+This approach is similar to Square's "JSON literals" pattern for testing.
+
+## Running Widget/Unit Tests
 
 ```bash
 flutter test test/
 ```
 
-### Running Integration Tests
+## Running Integration Tests
 
 ```bash
 flutter test integration_test/
 ```
 
-### Running Golden Tests
+## Running Golden Tests
 
 ```bash
 # Update golden files (baseline images)
@@ -40,7 +68,7 @@ flutter test --update-goldens --tags golden
 flutter test --tags golden
 ```
 
-### Generating Golden Test Report
+## Generating Golden Test Report
 
 After running golden tests, you can generate an HTML report to compare any differences:
 
@@ -80,3 +108,8 @@ To install the hook:
 ```bash
 ./scripts/setup_git_hooks.sh
 ```
+
+## Related Testing Resources
+
+- Integration tests: See `integration_test/` directory
+- End-to-end tests: See `maestro/` directory for Maestro UI tests
