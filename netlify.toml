@@ -12,7 +12,7 @@ command = """
     flutter config --enable-web
     flutter precache --web 
     flutter pub get 
-    flutter build web --release --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID  --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --target lib/main_development.dart
+    flutter build web --flavor=production --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY --release --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --target lib/main_production.dart
   """
 publish = "build/web"
 
