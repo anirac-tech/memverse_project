@@ -1,10 +1,17 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
+import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Provider to check if user is logged in
 final isLoggedInProvider = FutureProvider<bool>((ref) async {
@@ -35,11 +42,41 @@ final clientIdProvider = Provider<String>((ref) {
 /// Provider for the AuthService
 final authServiceProvider = Provider<AuthService>((ref) {
   final clientId = ref.watch(clientIdProvider);
-  if (clientId.isEmpty || clientId == 'debug') {
+  if (clientId.isEmpty || clientId == 'debug' || clientSecret.isEmpty) {
+    AppLogger.w('Using mock auth service bc clientId or clientSecret is empty or debug');
     return MockAuthService();
   }
-  return AuthService();
+  final dio = Dio();
+  dio.options.baseUrl = 'https://memverse.com/api/';
+  dio.options.headers[Headers.contentTypeHeader] = Headers.jsonContentType;
+  dio.options.headers[Headers.acceptHeader] = Headers.jsonContentType;
+  dio.options.headers['User-Agent'] = 'Memverse-Flutter/1.0.0';
+  String urlEncodedClientId = Uri.encodeComponent(clientId);
+  String urlEncodedClientSecret = Uri.encodeComponent(clientSecret);
+  var credentials = '$urlEncodedClientId:$urlEncodedClientSecret';
+  final List<int> credentialsBytes = utf8.encode(credentials);
+  final base64Credentials = base64.encode(credentialsBytes);
+  final authorizationHeader = 'Basic $base64Credentials';
+
+  dio.options.headers['Authorization'] = authorizationHeader;
+  if (appFlavor != 'production' || kDebugMode) {
+    dio.interceptors.add(
+      TalkerDioLogger(
+        talker: ref.watch(talkerProvider),
+        settings: const TalkerDioLoggerSettings(
+          printResponseTime: true,
+          printResponseHeaders: true,
+          printRequestHeaders: true,
+        ),
+      ),
+    );
+  }
+
+  return AuthService(dio: dio);
 });
+
+// also could consider https://pub.dev/packages/dio_curl_interceptor for discord hooks
+final talkerProvider = Provider<Talker>((ref) => TalkerFlutter.init());
 
 /// Authentication state provider
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
@@ -100,12 +137,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Log token information (non-sensitive parts)
       if (token.accessToken.isNotEmpty) {
-        // Only log in debug mode
-        if (kDebugMode) {
-          AppLogger.d('Successfully authenticated');
-        }
         AppLogger.i('Successfully authenticated');
-
         // Track successful login
         await _analyticsService.trackLogin(username);
       }

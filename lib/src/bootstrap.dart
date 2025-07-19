@@ -4,7 +4,11 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart'; // for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/app/app.dart';
+import 'package:memverse/src/features/auth/data/auth_service.dart';
+import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/utils/app_logger.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
 
 /// Class to hold bootstrap configuration
 class BootstrapConfig {
@@ -24,49 +28,48 @@ class ConfigurationErrorWidget extends StatelessWidget {
   final String error;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 80),
-                const SizedBox(height: 24),
-                const Text(
-                  'Configuration Error',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+  Widget build(BuildContext context) => MaterialApp(
+    home: Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 80),
+              const SizedBox(height: 24),
+              const Text(
+                'Configuration Error',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Text(error, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+              const SizedBox(height: 24),
+              const Text(
+                'Please run the app with proper configuration:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 16),
-                Text(error, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 24),
-                const Text(
-                  'Please run the app with proper configuration:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: const Text(
+                  'flutter run --dart-define=CLIENT_ID=your_client_id',
+                  style: TextStyle(fontFamily: 'monospace'),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'flutter run --dart-define=CLIENT_ID=your_client_id',
-                    style: TextStyle(fontFamily: 'monospace'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
+// TODO: cleanup what is not needed
 /// Provider for bootstrap configuration
 final bootstrapProvider = Provider<BootstrapConfig>((ref) {
   // Get the CLIENT_ID from dart-define, using debug fallback if needed
@@ -83,6 +86,8 @@ final bootstrapProvider = Provider<BootstrapConfig>((ref) {
   return BootstrapConfig(clientId: clientId);
 });
 
+/// with env variables in .zshrc or CI/CD
+/// flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor production --target lib/main_production.dart --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   try {
     // Debug: Auto-fake a client ID for dev/test
@@ -103,8 +108,22 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       return;
     }
 
-    // Wrap the app with BetterFeedback and ProviderScope
-    runApp(ProviderScope(child: BetterFeedback(child: await builder())));
+    if (clientSecret.isEmpty) {
+      const errorMessage =
+          'clientSecret (MEMVERSE_CLIENT_API_KEY) environment variable is not dart-defined. '
+          'This is required for authentication with the Memverse API.';
+      AppLogger.e('ERROR: $errorMessage');
+      runApp(
+        const ConfigurationErrorWidget(
+          error: 'Missing required MEMVERSE_CLIENT_API_KEY configuration for authentication.',
+        ),
+      );
+      return;
+    }
+
+    container = ProviderContainer(overrides: []);
+    container.observers.add(TalkerRiverpodObserver(talker: container.read(talkerProvider)));
+    runApp(BetterFeedback(child: await builder()));
   } catch (e, stackTrace) {
     AppLogger.e('Error during bootstrap: $e', e, stackTrace);
     runApp(ConfigurationErrorWidget(error: 'Error during app initialization: $e'));

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:memverse/src/app/view/app.dart';
-import 'package:memverse/src/common/services/analytics_service.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
+import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
 import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
 
+// TODO: Make this identical to main_developement
 void main() {
   // Detect if running in integration test mode via dart-define
   const isIntegrationTest = bool.fromEnvironment('INTEGRATION_TEST');
@@ -14,20 +16,13 @@ void main() {
     // Ensure dummy user mode for integration tests
     AuthService.isDummyUser = true;
   }
-  runApp(
-    ProviderScope(
-      overrides: isIntegrationTest
-          ? [
-              analyticsServiceProvider.overrideWithValue(NoOpAnalyticsService()),
-              // Add additional test-mode providers here once implemented
-            ]
-          : [],
-      child: const App(),
-    ),
-  );
+  container = ProviderContainer(overrides: []);
+  container.observers.add(TalkerRiverpodObserver(talker: container.read(talkerProvider)));
+  runApp(const App());
 }
 
-// GoRouter configuration
+// TODO: use and use with TalkerObservere
+// see andrea's article
 final _router = GoRouter(
   initialLocation: '/verse',
   routes: [
@@ -74,7 +69,7 @@ class TabScaffold extends StatelessWidget {
   ];
 
   int _currentIndex(BuildContext context) {
-    final location = GoRouterState.of(context).location;
+    final location = GoRouterState.of(context).uri.toString();
     return _tabs.indexWhere((t) => location == t.location) >= 0
         ? _tabs.indexWhere((t) => location == t.location)
         : 1; // Default to Verse/Review tab
@@ -89,7 +84,7 @@ class TabScaffold extends StatelessWidget {
         currentIndex: currentIdx,
         onTap: (idx) {
           final loc = _tabs[idx].location;
-          if (GoRouterState.of(context).location != loc) {
+          if (GoRouterState.of(context).uri.toString() != loc) {
             context.go(loc);
           }
         },

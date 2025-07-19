@@ -8,6 +8,8 @@ development.
 The app requires a CLIENT_ID for authentication with the Memverse API. You can set this up as an
 environment variable to avoid hardcoding values in your code.
 
+### Note: use same type of instructions for $MEMVERSE_CLIENT_API_KEY
+
 ### For Bash/Zsh (macOS/Linux)
 
 1. Edit your shell configuration file:
@@ -142,7 +144,7 @@ and logging events during testing and development.
 Once you've set up your environment variables, you can run the app using:
 
 ```bash
-flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor development --target lib/main_development.dart
+flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor production --target lib/main_production.dart --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY
 ```
 
 This command will pass your MEMVERSE_CLIENT_ID and POSTHOG_MEMVERSE_API_KEY values to the app as the

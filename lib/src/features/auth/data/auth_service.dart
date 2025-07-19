@@ -3,24 +3,25 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:memverse/src/constants/api_constants.dart';
+import 'package:memverse/src/features/auth/data/auth_api.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
+import 'package:memverse/src/features/auth/domain/password_token_request.dart';
 import 'package:memverse/src/utils/app_logger.dart';
+
+const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
 
 /// Authentication service for handling login, token storage, and session management
 class AuthService {
   /// Create a new AuthService
-  AuthService({FlutterSecureStorage? secureStorage, Dio? dio})
+  AuthService({FlutterSecureStorage? secureStorage, Dio? dio, AuthApi? authApi})
     : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
-      _dio = dio ?? Dio();
+      _authApi = authApi ?? AuthApi(dio ?? Dio(), baseUrl: kIsWeb ? webApiPrefix : apiBaseUrl);
 
   final FlutterSecureStorage _secureStorage;
-  final Dio _dio;
+  final AuthApi _authApi;
 
   static const _tokenKey = 'auth_token';
-  static const String _tokenPath = '/oauth/token';
-  static const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
   static bool isDummyUser = false;
 
   /// Attempts to login with the provided credentials
@@ -45,90 +46,16 @@ class AuthService {
         'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty} and apiKey is non-empty: ${clientSecret.isNotEmpty}',
       );
 
-      const loginUrl = kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath';
-      AppLogger.d('LOGIN - Using URL: $loginUrl');
+      final req = PasswordTokenRequest(username: username, password: password, clientId: clientId);
 
-      final requestData = <String, dynamic>{
-        'grant_type': 'password',
-        'username': username,
-        'password': password,
-        'client_id': clientId,
-      };
-      // Add api_key/client_secret if available
-      if (clientSecret.isNotEmpty) {
-        requestData['client_secret'] = clientSecret;
-        requestData['api_key'] = clientSecret; // try both field names, backend may expect either
-      }
-
-      // Use different approach for web vs native for better compatibility
-      final response = await _dio.post<Map<String, dynamic>>(
-        loginUrl,
-        data: kIsWeb ? requestData : FormData.fromMap(requestData),
-        options: Options(
-          contentType: kIsWeb ? 'application/json' : Headers.formUrlEncodedContentType,
-          headers: {'Accept': 'application/json'},
-          validateStatus: (status) => true,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonData = response.data!;
-        AppLogger.d('LOGIN - Received successful response with token');
-        final authToken = AuthToken.fromJson(jsonData);
-        AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
-        await saveToken(authToken);
-        return authToken;
-      } else {
-        AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.data}');
-        throw Exception('Login failed: ${response.statusCode} - ${response.data}');
-      }
-    } catch (dioError) {
-      AppLogger.e('Dio login attempt failed, trying with http package', dioError);
-    }
-
-    // Fallback to http package with appropriate content type
-    final uri = Uri.parse(kIsWeb ? '$webApiPrefix$_tokenPath' : '$apiBaseUrl$_tokenPath');
-    http.Response response;
-
-    if (kIsWeb) {
-      // For web, use regular JSON post
-      response = await http.post(
-        uri,
-        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-        body: jsonEncode({
-          'grant_type': 'password',
-          'username': username,
-          'password': password,
-          'client_id': clientId,
-          if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
-          if (clientSecret.isNotEmpty) 'api_key': clientSecret,
-        }),
-      );
-    } else {
-      // For native, use MultipartRequest
-      final request = http.MultipartRequest('POST', uri);
-      request.fields.addAll({
-        'grant_type': 'password',
-        'username': username,
-        'password': password,
-        'client_id': clientId,
-        if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
-        if (clientSecret.isNotEmpty) 'api_key': clientSecret,
-      });
-
-      final streamedResponse = await request.send();
-      response = await http.Response.fromStream(streamedResponse);
-    }
-
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
-      final authToken = AuthToken.fromJson(jsonData);
-      AppLogger.d('LOGIN - Raw token type: ${jsonData['token_type']}');
+      final authToken = await _authApi.getBearerToken(req);
+      AppLogger.d('LOGIN - Received successful response with token $authToken');
+      AppLogger.d('LOGIN - Raw token type: ${authToken.tokenType}');
       await saveToken(authToken);
       return authToken;
-    } else {
-      AppLogger.e('Login failed with status: ${response.statusCode}, response: ${response.body}');
-      throw Exception('Login failed: ${response.statusCode} - ${response.body}');
+    } catch (e) {
+      AppLogger.e('Login failed with AuthApi/Retrofit exception', e);
+      throw Exception('Login failed via Retrofit: $e');
     }
   }
 

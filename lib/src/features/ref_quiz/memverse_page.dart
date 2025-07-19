@@ -179,7 +179,7 @@ class MemversePage extends HookConsumerWidget {
 
     return Scaffold(
       key: memversePageScaffoldKey,
-      appBar: MemverseAppBar(suffix: 'Ref'),
+      appBar: const MemverseAppBar(suffix: 'Ref'),
       backgroundColor: colorBg,
       body: SingleChildScrollView(
         child: Container(

@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_import, directives_ordering
+// ignore_for_file: type=lint, type=warning
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +11,7 @@ import './step/i_see_verse_text.dart';
 import './step/i_enter_into_reference_input_field.dart';
 import './step/i_tap_submit_button.dart';
 import './step/i_should_see_input_field_color.dart';
-import 'package:bdd_widget_test/step/i_see_text.dart';
+import './step/i_see_text.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,8 @@ void main() {
       await iAmLoggedInAsTestUser(tester);
     }
 
-    testWidgets('''Correct verse reference provides feedback''', (tester) async {
+    testWidgets('''Correct verse reference provides feedback''',
+        (tester) async {
       await bddSetUp(tester);
       await iSeeVerseText(tester);
       await iEnterIntoReferenceInputField(tester, 'Col 1:17');
@@ -30,7 +31,8 @@ void main() {
       await iShouldSeeInputFieldColor(tester, Colors.green);
       await iSeeText(tester, 'Correct!');
     });
-    testWidgets('''Almost correct verse reference provides feedback''', (tester) async {
+    testWidgets('''Almost correct verse reference provides feedback''',
+        (tester) async {
       await bddSetUp(tester);
       await iSeeVerseText(tester);
       await iEnterIntoReferenceInputField(tester, 'Gal 5:2');

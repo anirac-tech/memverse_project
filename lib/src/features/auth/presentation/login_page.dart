@@ -71,13 +71,13 @@ class LoginPage extends HookConsumerWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Column(
                       children: [
-                        const Icon(Icons.menu_book, size: 80, color: Colors.blue),
+                        const Icon(Icons.menu_book, size: 80, color: Colors.green),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             gradient: const LinearGradient(
-                              colors: [Colors.blue, Colors.lightBlueAccent],
+                              colors: [Colors.green, Colors.lightGreenAccent],
                             ),
                           ),
                           child: const Text(
@@ -191,7 +191,7 @@ class LoginPage extends HookConsumerWidget {
                 Semantics(
                   identifier: 'login_button',
                   button: true,
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     key: loginButtonKey,
                     onPressed: authState.isLoading
                         ? null
@@ -202,9 +202,6 @@ class LoginPage extends HookConsumerWidget {
                                   .login(usernameController.text, passwordController.text);
                             }
                           },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
                     child: authState.isLoading
                         ? const CircularProgressIndicator()
                         : Text(l10n.login, style: const TextStyle(fontSize: 16)),
