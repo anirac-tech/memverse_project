@@ -22,7 +22,7 @@ dependencies:
   http: 1.4.0
   intl: ^0.20.2
   json_annotation: ^4.9.0
-  logger: 2.6.0
+  logger: 2.6.1
   path_provider: 2.1.5
   posthog_flutter: 5.0.0
   riverpod_annotation: 2.6.1
