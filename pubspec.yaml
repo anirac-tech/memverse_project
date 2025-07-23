@@ -24,7 +24,7 @@ dependencies:
   json_annotation: ^4.9.0
   logger: 2.6.0
   path_provider: 2.1.5
-  posthog_flutter: 5.0.0
+  posthog_flutter: 5.1.0
   riverpod_annotation: 2.6.1
   share_plus: 11.0.0
 
