@@ -16,7 +16,8 @@ command = """
     # https://github.com/flutter/flutter/issues/59388
     # web itself has no concept of flavors but 3 workarounds
     # dart defines, sep targets, sep index.htmls etc
-    flutter build web --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY --release --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --target lib/main_production.dart
+    # Note: diff env variable MEMVERSE_API_KEY for now, check netlify UI
+    flutter build web --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_API_KEY --release --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --target lib/main_production.dart
   """
 publish = "build/web"
 
