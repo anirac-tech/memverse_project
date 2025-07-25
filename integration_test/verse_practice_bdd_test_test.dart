@@ -22,7 +22,8 @@ void main() {
       await iAmLoggedInAsTestUser(tester);
     }
 
-    testWidgets('''Correct verse reference provides feedback''', (tester) async {
+    testWidgets('''Correct verse reference provides feedback''',
+        (tester) async {
       await bddSetUp(tester);
       await iSeeVerseText(tester);
       await iEnterIntoReferenceInputField(tester, 'Col 1:17');
@@ -30,7 +31,8 @@ void main() {
       await iShouldSeeInputFieldColor(tester, Colors.green);
       await iSeeText(tester, 'Correct!');
     });
-    testWidgets('''Almost correct verse reference provides feedback''', (tester) async {
+    testWidgets('''Almost correct verse reference provides feedback''',
+        (tester) async {
       await bddSetUp(tester);
       await iSeeVerseText(tester);
       await iEnterIntoReferenceInputField(tester, 'Gal 5:2');

@@ -43,20 +43,24 @@ void main() {
       await theAppIsRunningWithSpecificTestVerses(tester);
     }
 
-    testWidgets('''Complete happy path with correct and almost correct answers''', (tester) async {
+    testWidgets(
+        '''Complete happy path with correct and almost correct answers''',
+        (tester) async {
       await bddSetUp(tester);
       await iAmOnTheLoginScreen(tester);
       await iEnterUsernameNjwandroidgmaimlcom(tester);
       await iEnterPasswordFixmeplaceholder(tester);
       await iTapTheLoginButton(tester);
       await iShouldSeeMemverseReferenceTest(tester);
-      await iShouldSeeTheFirstVerseHeIsBeforeAllThingsAndInHimAllThingsHoldTogether(tester);
+      await iShouldSeeTheFirstVerseHeIsBeforeAllThingsAndInHimAllThingsHoldTogether(
+          tester);
       await iEnterTheReferenceCol117(tester);
       await iTapTheSubmitButton(tester);
       await iShouldSeeCorrectFeedbackWithGreenStyling(tester);
       await iShouldSeeCorrectMessage(tester);
       await theNextVerseLoads(tester);
-      await iShouldSeeTheSecondVerseItIsForFreedomThatChristHasSetUsFree(tester);
+      await iShouldSeeTheSecondVerseItIsForFreedomThatChristHasSetUsFree(
+          tester);
       await iEnterTheReferenceGal52(tester);
       await iTapTheSubmitButton(tester);
       await iShouldSeeAlmostCorrectFeedbackWithOrangeStyling(tester);
@@ -75,7 +79,8 @@ void main() {
     testWidgets('''First verse correct answer feedback''', (tester) async {
       await bddSetUp(tester);
       await iAmLoggedInAndOnTheMainScreen(tester);
-      await iSeeTheVerseHeIsBeforeAllThingsAndInHimAllThingsHoldTogether(tester);
+      await iSeeTheVerseHeIsBeforeAllThingsAndInHimAllThingsHoldTogether(
+          tester);
       await iEnterTheReferenceCol117(tester);
       await iTapTheSubmitButton(tester);
       await iShouldSeeCorrectFeedbackWithGreenStyling(tester);
@@ -83,7 +88,8 @@ void main() {
       await iShouldSeeCorrectMessage(tester);
       await theInputFieldShouldHaveAGreenBorder(tester);
     });
-    testWidgets('''Second verse almost correct answer feedback''', (tester) async {
+    testWidgets('''Second verse almost correct answer feedback''',
+        (tester) async {
       await bddSetUp(tester);
       await iAmLoggedInAndOnTheMainScreen(tester);
       await iSeeTheVerseItIsForFreedomThatChristHasSetUsFree(tester);

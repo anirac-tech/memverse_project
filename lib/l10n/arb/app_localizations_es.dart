@@ -104,4 +104,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get login => 'Iniciar sesión';
+
+  @override
+  String get home => 'Inicio';
+
+  @override
+  String get verse => 'Verso';
+
+  @override
+  String get ref => 'Referencia';
+
+  @override
+  String get settings => 'Configuración';
 }

@@ -34,11 +34,11 @@ void main() {
 
   group('QuestionSection', () {
     final testVerses = [
-      Verse(
+      const Verse(
         text: 'In the beginning God created the heavens and the earth.',
         reference: 'Genesis 1:1',
       ),
-      Verse(
+      const Verse(
         text: 'For God so loved the world that he gave his one and only Son.',
         reference: 'John 3:16',
       ),

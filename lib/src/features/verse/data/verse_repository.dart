@@ -1,172 +1,99 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:memverse/src/common/services/analytics_service.dart';
-import 'package:memverse/src/constants/api_constants.dart';
+import 'package:memverse/src/app/app.dart';
+import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/utils/app_logger.dart';
-import 'package:memverse/src/utils/test_utils.dart';
+import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
-// More reliable test detection
-bool get isInTestMode {
-  try {
-    // Check multiple indicators that we're in a test environment
-    return kDebugMode || // Running in debug mode is a good indicator during tests
-        identical(0, 0.0) || // True only in VM/test, false in release/web
-        const bool.fromEnvironment('FLUTTER_TEST') ||
-        Zone.current[#test] != null; // flutter_test sets this up
-  } catch (_) {
-    return false;
-  }
-}
-
-/// Provider for the verse repository
-final verseRepositoryProvider = Provider<VerseRepository>(LiveVerseRepository.new);
-
-/// Provider that allows overriding the repository for testing
-final verseRepositoryOverrideProvider = Provider<VerseRepository>(
-  (ref) => throw UnimplementedError('Provider was not overridden'),
-);
-
-/// Interface for accessing verse data
-/// Marked as abstract for future expansion capabilities
-// ignore: one_member_abstracts
 abstract class VerseRepository {
-  /// Get a list of verses
   Future<List<Verse>> getVerses();
 }
 
-/// Sort options for memverse API
-enum MemverseSortOrder {
-  /// Sort by creation date, oldest first (ascending)
-  createdAscending(1),
-
-  /// Sort by creation date, newest first (descending)
-  createdDescending(2),
-
-  /// Sort alphabetically by reference
-  alphabetical(3);
-
-  const MemverseSortOrder(this.value);
-
-  /// The numeric value to send to the API
-  final int value;
-
-  /// Get the sort order for most recent verses first
-  static MemverseSortOrder get mostRecentFirst => createdDescending;
+class FakeVerseRepository implements VerseRepository {
+  @override
+  Future<List<Verse>> getVerses() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return [
+      const Verse(
+        reference: 'Gal 5:22',
+        text: 'But the fruit of the Spirit is love, joy, peace...',
+      ),
+      const Verse(
+        reference: 'Col 1:17',
+        text: 'He is before all things, and in him all things hold together.',
+      ),
+    ];
+  }
 }
+
+final verseRepositoryProvider = Provider<VerseRepository>((ref) {
+  final clientId = ref.read(bootstrapProvider).clientId;
+  if (clientId.isEmpty || clientId == 'debug') {
+    return FakeVerseRepository();
+  }
+  // Add real repository when ready for production, e.g.:
+  // return RealVerseRepository(clientId);
+  return LiveVerseRepository();
+});
 
 /// Implementation that fetches Bible verses from the live API
 class LiveVerseRepository implements VerseRepository {
   /// The HTTP client to use for network requests
   final Dio _dio;
-  final Ref _ref;
 
   /// Create a new LiveVerseRepository with an optional Dio client
   // ignore: sort_constructors_first
-  LiveVerseRepository(this._ref, {Dio? dio}) : _dio = dio ?? Dio() {
+  LiveVerseRepository({Dio? dio}) : _dio = dio ?? Dio() {
     // Configure dio options if not provided externally
     if (dio == null) {
-      _dio.options.connectTimeout = const Duration(seconds: 10);
-      _dio.options.receiveTimeout = const Duration(seconds: 10);
+      _dio.options.connectTimeout = const Duration(seconds: 5);
+      _dio.options.receiveTimeout = const Duration(seconds: 5);
       _dio.options.contentType = 'application/json';
       _dio.options.validateStatus = (status) {
         return status != null && status >= 200 && status < 400;
       };
-
-      // Add logging interceptor to help with debugging
-      if (kDebugMode) {
-        _dio.interceptors.add(_createLoggingInterceptor());
-      }
-
-      // Add retry interceptor
-      _dio.interceptors.add(RetryInterceptor(dio: _dio));
+    }
+    if (appFlavor != 'production' || kDebugMode) {
+      _dio.interceptors.add(
+        TalkerDioLogger(
+          talker: container.read(talkerProvider),
+          settings: const TalkerDioLoggerSettings(
+            printResponseTime: true,
+            printResponseHeaders: true,
+            printRequestHeaders: true,
+          ),
+        ),
+      );
     }
   }
 
-  /// Create a logging interceptor for debugging
-  Interceptor _createLoggingInterceptor() {
-    return InterceptorsWrapper(
-      onRequest: (options, handler) {
-        AppLogger.i('REQUEST[${options.method}] => PATH: ${options.baseUrl}${options.path}');
-        AppLogger.d('Headers: ${options.headers}');
-        if (options.data != null) {
-          AppLogger.d('Data: ${options.data}');
-        }
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        AppLogger.i('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
-        final responseData = response.data;
-        if (responseData is String && responseData.length > 100) {
-          AppLogger.d('Response: ${responseData.substring(0, 100)}...');
-        } else {
-          AppLogger.d('Response: $responseData');
-        }
-        return handler.next(response);
-      },
-      onError: (DioException e, handler) {
-        AppLogger.e(
-          'ERROR[${e.response?.statusCode}] => PATH: ${e.requestOptions.path}',
-          e,
-          e.stackTrace,
-        );
-        AppLogger.e('Error Type: ${e.type}');
-        AppLogger.e('Error: ${e.message}');
-        AppLogger.e('Error Response: ${e.response?.data}');
-        return handler.next(e);
-      },
-    );
-  }
+  /// The URL to fetch Bible verses from
+  static const String _apiUrl = 'https://www.memverse.com/1/memverses';
 
-  // Define path separately
-  static const String _memversesPath = '/1/memverses';
+  /// The private authentication token from environment variables
+  //static const String _privateToken = String.fromEnvironment('MEMVERSE_API_TOKEN');
 
   /// Get a list of verses from the remote API
   @override
   Future<List<Verse>> getVerses() async {
-    final stopwatch = Stopwatch()..start();
-
     try {
-      // Validate token is available when not running tests
-      // During tests, Dio is usually mocked so we don't need a real token
-      final token = _ref.read(accessTokenProvider);
-      final bearerToken = _ref.read(bearerTokenProvider);
-      final isTestMockDio = _dio.isTestMockDio;
-      if (token.isEmpty && !isInTestMode && !isTestMockDio) {
-        throw Exception('No API token provided. Please login to get a valid token');
+      final authToken = await container.read(authServiceProvider).getToken();
+      if (authToken == null || authToken.accessToken.isEmpty) {
+        AppLogger.e('No auth token available');
+        return [];
       }
-
-      // Use sort parameter to get most recent verses first (Heb 12:1 should appear first)
-      final sortOrder = MemverseSortOrder.mostRecentFirst;
-
-      // Construct the URL based on the platform with sort parameter
-      final getVersesUrl = kIsWeb
-          ? '$webApiPrefix$_memversesPath?sort=${sortOrder.value}' // Use proxy for web
-          : '$apiBaseUrl$_memversesPath?sort=${sortOrder.value}'; // Use direct URL otherwise
-
-      // Always output token for debugging (not just in debug mode)
-      final redactedToken = token.isEmpty ? '' : '${token.substring(0, 4)}...';
-      AppLogger.d('VERSE REPOSITORY - Token: $redactedToken (redacted) (empty: ${token.isEmpty})');
-      AppLogger.d('VERSE REPOSITORY - Bearer token: $bearerToken');
-      AppLogger.d(
-        'VERSE REPOSITORY - Fetching verses from $getVersesUrl (sort: ${sortOrder.name})',
-      );
-
-      // Fetch data with authentication header - ensure Bearer prefix has a space
+      final privateToken = authToken.accessToken;
+      // Fetch data with authentication header
       final response = await _dio.get<dynamic>(
-        getVersesUrl, // Use constructed URL with sort parameter
-        options: Options(
-          headers: {
-            'Authorization': bearerToken.isNotEmpty ? bearerToken : 'Bearer $token',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        ),
+        _apiUrl,
+        options: Options(headers: {'Authorization': 'Bearer $privateToken'}),
       );
 
       if (response.statusCode == 200) {
@@ -179,46 +106,14 @@ class LiveVerseRepository implements VerseRepository {
         }
 
         final versesList = jsonData['response'] as List<dynamic>;
+        AppLogger.d('Verses list length: ${versesList.length}');
         final verses = _parseVerses(versesList);
-
-        stopwatch.stop();
-
-        // Track successful API call
-        try {
-          final analyticsService = PostHogAnalyticsService();
-          await analyticsService.trackVerseApiSuccess(verses.length, stopwatch.elapsedMilliseconds);
-          AppLogger.i(
-            '📊 Tracked verse API success: ${verses.length} verses, ${stopwatch.elapsedMilliseconds}ms',
-          );
-        } catch (e) {
-          AppLogger.w('Failed to track verse API success: $e');
-        }
-
         return verses;
       } else {
+        // coverage:ignore-line
         throw Exception('Failed to load verses. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      stopwatch.stop();
-
-      // Track failed API call
-      try {
-        final analyticsService = PostHogAnalyticsService();
-        var errorType = 'unknown_error';
-        if (e is DioException) {
-          errorType = e.type.toString();
-        } else if (e is Exception) {
-          errorType = 'exception';
-        }
-        await analyticsService.trackVerseApiFailure(errorType, e.toString());
-        AppLogger.e('📊 Tracked verse API failure: $errorType - $e');
-      } catch (analyticsError) {
-        AppLogger.w('Failed to track verse API failure: $analyticsError');
-      }
-
-      if (kDebugMode) {
-        AppLogger.e('Error fetching verses: $e');
-      }
       // Re-throw the exception instead of returning hardcoded data as fallback
       rethrow;
     }
@@ -239,138 +134,10 @@ class LiveVerseRepository implements VerseRepository {
 
         result.add(Verse(text: text, reference: reference, translation: translation));
       } catch (e) {
-        // coverage:ignore-start
         // Rethrow exceptions instead of skipping them
         rethrow;
-        // coverage:ignore-end
       }
     }
     return result;
-  }
-}
-
-// coverage:ignore-file
-/// Simple retry interceptor for Dio
-class RetryInterceptor extends Interceptor {
-  /// Creates a retry interceptor
-  RetryInterceptor({
-    required this.dio,
-    this.logPrint,
-    this.retries = 3,
-    this.retryDelays = const [Duration(seconds: 1), Duration(seconds: 2), Duration(seconds: 3)],
-  });
-
-  /// The Dio client to use for retries
-  final Dio dio;
-
-  /// Optional function for logging
-  final void Function(String)? logPrint;
-
-  /// Maximum number of retry attempts
-  final int retries;
-
-  /// Delays between retry attempts
-  final List<Duration> retryDelays;
-
-  // ignore: sort_constructors_first
-  /// Determines if a request should be retried based on error type
-  bool _shouldRetry(DioException error) {
-    return error.type == DioExceptionType.connectionError ||
-        error.type == DioExceptionType.connectionTimeout ||
-        (error.response?.statusCode ?? 0) >= 500;
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    final retryCount = err.requestOptions.extra['retryCount'] as int? ?? 0;
-
-    if (_shouldRetry(err) && retryCount < retries) {
-      if (logPrint != null) {
-        logPrint!('Retry ${retryCount + 1}/$retries for ${err.requestOptions.path}');
-      } else {
-        AppLogger.i('Retry ${retryCount + 1}/$retries for ${err.requestOptions.path}');
-      }
-
-      final delay = retryCount < retryDelays.length ? retryDelays[retryCount] : retryDelays.last;
-
-      Future<void>.delayed(delay, () {
-        final options = Options(
-          method: err.requestOptions.method,
-          headers: err.requestOptions.headers,
-          contentType: err.requestOptions.contentType,
-          responseType: err.requestOptions.responseType,
-        )..extra = {...err.requestOptions.extra, 'retryCount': retryCount + 1};
-
-        dio
-            .request<dynamic>(
-              err.requestOptions.path,
-              data: err.requestOptions.data,
-              queryParameters: err.requestOptions.queryParameters,
-              options: options,
-            )
-            .then(
-              (response) => handler.resolve(response),
-              onError: (Object error) {
-                if (error is DioException) {
-                  handler.reject(error);
-                } else {
-                  handler.reject(
-                    DioException(
-                      requestOptions: err.requestOptions,
-                      error: error,
-                      message: error.toString(),
-                    ),
-                  );
-                }
-              },
-            );
-      });
-      return;
-    }
-
-    handler.next(err);
-  }
-}
-
-/// Sample implementation that provides a hardcoded list of verses
-/// but simulates a network call with a delay
-class FakeVerseRepository implements VerseRepository {
-  /// Get a list of verses
-  @override
-  Future<List<Verse>> getVerses() async {
-    // Simulate a very short network delay for tests
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-
-    return [
-      // First verse for testing "Col 1:17" (correct answer)
-      Verse(
-        text: 'He is before all things, and in him all things hold together.',
-        reference: 'Colossians 1:17',
-      ),
-      // Second verse for testing "Gal 5:1" (almost correct answer)
-      Verse(
-        text:
-            'It is for freedom that Christ has set us free. Stand firm, then, and do not let yourselves be burdened again by a yoke of slavery.',
-        reference: 'Galatians 5:1',
-      ),
-      // Additional verses for variety
-      Verse(
-        text: 'In the beginning God created the heavens and the earth.',
-        reference: 'Genesis 1:1',
-      ),
-      Verse(
-        text:
-            'For God so loved the world that he gave his one and only Son, '
-            'that whoever believes in him shall not perish '
-            'but have eternal life.',
-        reference: 'John 3:16',
-      ),
-      Verse(
-        text:
-            'Trust in the LORD with all your heart; do not depend on your own '
-            'understanding.',
-        reference: 'Proverbs 3:5',
-      ),
-    ];
   }
 }

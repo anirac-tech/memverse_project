@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 
@@ -151,6 +152,7 @@ class PostHogAnalyticsService extends AnalyticsService {
   factory PostHogAnalyticsService() => _instance;
 
   PostHogAnalyticsService._internal();
+
   static final PostHogAnalyticsService _instance = PostHogAnalyticsService._internal();
 
   bool _isInitialized = false;
@@ -349,7 +351,9 @@ class NoOpAnalyticsService extends AnalyticsService {
 
 /// Provider for the analytics service
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
-  // Return the singleton PostHog analytics instance
-  // Can be easily overridden for testing or debug modes
+  final clientId = ref.read(bootstrapProvider).clientId;
+  if (clientId.isEmpty || clientId == 'debug') {
+    return LoggingAnalyticsService();
+  }
   return PostHogAnalyticsService();
 });
