@@ -22,7 +22,7 @@ jobs:
       min_coverage: ${{ steps.extract.outputs.min_coverage }}
       coverage_excludes: ${{ steps.extract.outputs.coverage_excludes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: extract
         name: Extract configuration values
         run: |
@@ -43,7 +43,7 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -190,7 +190,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true  # This ensures the job doesn't block other tasks
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -222,7 +222,7 @@ jobs:
     name: Check Logging Standards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Check for prohibited logging methods
         run: |
