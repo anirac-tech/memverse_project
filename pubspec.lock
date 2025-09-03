@@ -712,10 +712,10 @@ packages:
     dependency: "direct main"
     description:
       name: posthog_flutter
-      sha256: c0ce2896b546b835aa1c2a928e90159aae3d6ced843c9cc85c726b9d7e9a1f8b
+      sha256: fe371bf8be9df3e8d8b1e78c52b3eb179c8db18a0ac86e9f3f74ad5beb0048e0
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.4.1"
   process:
     dependency: transitive
     description:
