@@ -133,3 +133,21 @@ REMAINING: Token save fails in test environment (needs Flutter bindings), but OA
 ✅ CODE FORMATTED: Applied dart format --line-length=100
 
 FINAL STATUS: ✅ READY TO COMMIT - Authentication works on iOS, no security issues, well documented
+
+2025-11-10 11:00:30 PM - CORS FIX FOR WEB DEPLOYMENT:
+ISSUE: Web version was getting CORS errors after OAuth endpoint changes
+ROOT CAUSE: OAuth and API endpoints needed separate Netlify proxy routing
+
+✅ FIXED:
+- Added OPTIONS preflight handling to both netlify/functions/oauth.js and api.js
+- Added webOAuthPrefix = '/oauth' constant for web platform routing
+- Updated AuthService to use platform-specific base URLs:
+  * Web: Uses /oauth prefix (Netlify proxy)
+  * Native: Uses https://www.memverse.com (direct HTTPS)
+- Cleaned up OAuth-specific code from api.js (now handled by oauth.js)
+
+NETLIFY ROUTING STRUCTURE:
+- /oauth/* → /.netlify/functions/oauth (for OAuth token requests)
+- /api/* → /.netlify/functions/api (for all other API requests)
+
+✅ Web deployments should now work correctly with proper CORS handling

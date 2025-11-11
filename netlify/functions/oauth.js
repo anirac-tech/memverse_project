@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-// Configuration - Set to your actual API base URL
-const API_BASE_URL = 'https://www.memverse.com/api/v1';
+// Configuration - OAuth endpoint is at root level
+const OAUTH_BASE_URL = 'https://www.memverse.com';
 
 exports.handler = async function(event, context) {
   // Handle CORS preflight OPTIONS request
@@ -18,15 +18,21 @@ exports.handler = async function(event, context) {
     };
   }
 
-  // Extract the path part after /api/ from the incoming request
-  const apiPath = event.path.replace(/^\/\.netlify\/functions\/api/, '').replace(/^\/api/, '');
+  // Extract the path part after /oauth/ from the incoming request
+  const oauthPath = event.path.replace(/^\/\.netlify\/functions\/oauth/, '').replace(/^\/oauth/, '');
   const queryString = new URLSearchParams(event.queryStringParameters || {}).toString();
   const queryPart = queryString ? `?${queryString}` : '';
 
   try {
-    // Build the target URL
-    const targetUrl = `${API_BASE_URL}${apiPath}${queryPart}`;
-    console.log(`[${event.httpMethod}] Proxying request to: ${targetUrl}`);
+    // Build the target URL - OAuth endpoints are at root level
+    const targetUrl = `${OAUTH_BASE_URL}/oauth${oauthPath}${queryPart}`;
+    console.log(`[${event.httpMethod}] Proxying OAuth request to: ${targetUrl}`);
+
+    // Debug OAuth request details (without logging sensitive data)
+    console.log('OAuth request detected');
+    console.log('Headers:', JSON.stringify(event.headers));
+    console.log('Content-Type:', event.headers['content-type']);
+    console.log('Body present:', !!event.body);
 
     // Forward necessary headers
     const headersToForward = {};
@@ -40,28 +46,15 @@ exports.handler = async function(event, context) {
       headersToForward['Accept'] = event.headers.accept;
     }
 
-    // Handle request body based on content type
+    // Handle request body - for OAuth, it's usually form-urlencoded
     let requestData = event.body;
     
-    // Parse body if it's JSON and we're sending as JSON 
-    if (event.headers['content-type'] && 
-        event.headers['content-type'].includes('application/json') && 
-        event.body) {
-      try {
-        // If body is Base64 encoded, decode it first
-        const bodyText = event.isBase64Encoded 
-          ? Buffer.from(event.body, 'base64').toString() 
-          : event.body;
-          
-        requestData = JSON.parse(bodyText);
-        console.log('Parsed JSON body successfully');
-      } catch (err) {
-        console.log('Failed to parse JSON body:', err.message);
-        // Continue with the original body if parsing fails
-      }
+    // If body is Base64 encoded, decode it first
+    if (event.isBase64Encoded && event.body) {
+      requestData = Buffer.from(event.body, 'base64').toString();
     }
 
-    // Make the request to the external API
+    // Make the request to the OAuth endpoint
     const response = await axios({
       method: event.httpMethod,
       url: targetUrl,
@@ -71,7 +64,15 @@ exports.handler = async function(event, context) {
       responseType: 'arraybuffer'
     });
 
-    console.log(`Response status: ${response.status}`);
+    console.log(`OAuth response status: ${response.status}`);
+    
+    // Log OAuth response (without sensitive token data)
+    if (response.status !== 200) {
+      const responseText = Buffer.from(response.data, 'binary').toString();
+      console.log('OAuth error response:', responseText);
+    } else {
+      console.log('OAuth successful response (token not logged for security)');
+    }
 
     // Convert ArrayBuffer to base64 string for Netlify Function response
     const responseBody = Buffer.from(response.data, 'binary').toString('base64');
@@ -89,22 +90,22 @@ exports.handler = async function(event, context) {
       isBase64Encoded: true
     };
   } catch (error) {
-    console.error('Proxy error:', error.message);
+    console.error('OAuth proxy error:', error.message);
     if (error.response) {
-      console.error('Error status:', error.response.status);
-      console.error('Error headers:', error.response.headers);
+      console.error('OAuth error status:', error.response.status);
+      console.error('OAuth error headers:', error.response.headers);
     }
 
     return {
       statusCode: error.response?.status || 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept", 
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        error: 'Proxy failed',
+        error: 'OAuth proxy failed',
         details: error.message,
       })
     };

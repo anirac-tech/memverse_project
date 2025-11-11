@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:memverse/src/common/interceptors/curl_logging_interceptor.dart';
+import 'package:memverse/src/constants/api_constants.dart';
 import 'package:memverse/src/features/auth/data/auth_api.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
 import 'package:memverse/src/utils/app_logger.dart';
@@ -12,19 +14,25 @@ const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
 /// Authentication service for handling login, token storage, and session management
 ///
 /// IMPORTANT: Memverse API has different base URLs for different endpoints:
-/// - OAuth endpoint: https://www.memverse.com/oauth/token (root level)
-/// - Other API endpoints: https://www.memverse.com/api/v1/* (versioned path)
+/// - OAuth endpoint (native): https://www.memverse.com/oauth/token (root level)
+/// - OAuth endpoint (web): /oauth/token (Netlify proxy)
+/// - Other API endpoints (native): https://www.memverse.com/api/v1/* (versioned path)
+/// - Other API endpoints (web): /api/* (Netlify proxy)
 ///
-/// This is why AuthApi uses 'https://www.memverse.com' as base URL, not '/api/v1/'
+/// This is why AuthApi uses different base URLs for web vs native platforms
 class AuthService {
   /// Create a new AuthService
   AuthService({FlutterSecureStorage? secureStorage, Dio? dio, AuthApi? authApi})
     : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
       _authApi =
           authApi ??
-          // CRITICAL: OAuth endpoint is at root level (/oauth/token), not /api/v1/oauth/token
-          // This was discovered through debugging 500 errors when using versioned path
-          AuthApi(_createDioWithLogging(dio), baseUrl: 'https://www.memverse.com');
+          // CRITICAL: OAuth endpoint routing depends on platform:
+          // - Web: Uses Netlify proxy at /oauth/token (relative URL)
+          // - Native: Uses direct HTTPS at https://www.memverse.com/oauth/token
+          AuthApi(
+            _createDioWithLogging(dio),
+            baseUrl: kIsWeb ? webOAuthPrefix : 'https://www.memverse.com',
+          );
 
   static Dio _createDioWithLogging(Dio? dio) {
     final dioInstance = dio ?? Dio();

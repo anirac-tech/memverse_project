@@ -24,6 +24,14 @@ publish = "build/web"
 [functions]
 directory = "netlify/functions"
 
+# OAuth endpoint redirect - goes to root level /oauth/token  
+[[redirects]]
+from = "/oauth/*"
+to = "/.netlify/functions/oauth/:splat"
+status = 200
+force = true
+
+# Regular API endpoints redirect - goes to /api/v1/*
 [[redirects]]
 from = "/api/*"
 to = "/.netlify/functions/api/:splat"
