@@ -36,7 +36,7 @@ class ApiUserRepository implements UserRepository {
     required Dio dio,
     required String clientId,
     required String clientSecret,
-    String baseUrl = 'https://www.memverse.com/api',
+    String baseUrl = 'https://www.memverse.com/api/v1',
   }) : _dio = dio,
        _baseUrl = baseUrl,
        _clientId = clientId,
@@ -53,6 +53,10 @@ class ApiUserRepository implements UserRepository {
     // Generate bearer token credentials like the Kotlin/Java code
     final credentials = _generateEncodedBearerTokenCredentials();
     final basicAuth = 'Basic $credentials';
+
+    // Configure Dio to handle redirects properly
+    _dio.options.followRedirects = true;
+    _dio.options.maxRedirects = 5;
 
     // Add curl logging interceptor for debugging
     _dio.interceptors.add(CurlLoggingInterceptor());
@@ -84,9 +88,7 @@ class ApiUserRepository implements UserRepository {
 
     // Try multiple endpoint patterns commonly used in Rails APIs
     final endpointsToTry = [
-      '$_baseUrl/v1/users', // Most common Rails API pattern
-      '$_baseUrl/1/users', // Original swagger endpoint
-      '$_baseUrl/users', // Simple endpoint
+      '$_baseUrl/users', // Standard API pattern (becomes /api/v1/users)
     ];
 
     for (final endpoint in endpointsToTry) {

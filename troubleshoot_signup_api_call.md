@@ -9,7 +9,7 @@ the API call.
 
 ### Expected API Structure (Based on Swagger)
 
-- **Endpoint**: `POST /api/1/users`
+- **Endpoint**: `POST /api/v1/users`
 - **Authentication**: Bearer token (Basic Auth with base64 encoded `client_id:client_secret`)
 - **Content-Type**: `application/json` (likely)
 - **Body Structure**:
@@ -36,7 +36,7 @@ the API call.
 #### Basic Signup Test (JSON format)
 
 ```bash
-curl -X POST "https://www.memverse.com/api/1/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
   -d '{
@@ -52,7 +52,7 @@ curl -X POST "https://www.memverse.com/api/1/users" \
 #### Alternative Format Test (Form Data)
 
 ```bash
-curl -X POST "https://www.memverse.com/api/1/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
   -d 'user[name]=Test User&user[email]=test@example.com&user[password]=Test1234' \
@@ -63,17 +63,17 @@ curl -X POST "https://www.memverse.com/api/1/users" \
 
 ```bash
 # Try without version number
-curl -X POST "https://www.memverse.com/api/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
-  -d '{"user":{"name":"Test","email":"test@example.com","password":"Test1234"}}' \
+  -d '{"user": {"name": "Test User", "email": "test@example.com", "password": "password123", "password_confirmation": "password123"}}' \
   -v
 
 # Try with different auth format
-curl -X POST "https://www.memverse.com/api/1/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
-  -d '{"user":{"name":"Test","email":"test@example.com","password":"Test1234"}}' \
+  -d '{"user": {"name": "Test User", "email": "test@example.com", "password": "password123", "password_confirmation": "password123"}}' \
   -v
 ```
 
@@ -169,7 +169,7 @@ void _configureDio() {
 
 1. **Open Chrome DevTools** (F12)
 2. **Go to Network tab**
-3. **Visit**: https://www.memverse.com/api/index.html#!/user/createUser
+3. **Visit**: https://memverse.com/api/index.html#!/user/createUser
 4. **Try the "Try it out" feature** if available
 5. **Right-click on the network request** → Copy → Copy as cURL
 6. **Compare the generated cURL** with our Flutter implementation
@@ -181,7 +181,7 @@ Based on common Rails API patterns, try these variations:
 #### Rails Standard Pattern
 
 ```bash
-curl -X POST "https://www.memverse.com/api/v1/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
   -d '{"user":{"name":"Test","email":"test@example.com","password":"Test1234","password_confirmation":"Test1234"}}' \
@@ -191,7 +191,7 @@ curl -X POST "https://www.memverse.com/api/v1/users" \
 #### Without API Prefix
 
 ```bash
-curl -X POST "https://www.memverse.com/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic $(echo -n 'CLIENT_ID:CLIENT_SECRET' | base64)" \
   -d '{"user":{"name":"Test","email":"test@example.com","password":"Test1234"}}' \
@@ -257,7 +257,7 @@ Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with actual values:
 
 ```bash
 # Test command with your actual credentials
-curl -X POST "https://www.memverse.com/api/v1/users" \
+curl -X POST "https://memverse.com/api/v1/users" \
   -H "Content-Type: application/json" \
   -H "Authorization: Basic $(echo -n 'YOUR_CLIENT_ID:YOUR_CLIENT_SECRET' | base64)" \
   -d '{

@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 // Configuration - Set to your actual API base URL
-const API_BASE_URL = 'https://www.memverse.com';
+const API_BASE_URL = 'https://www.memverse.com/api/v1';
 
 exports.handler = async function(event, context) {
   // Extract the path part after /api/ from the incoming request

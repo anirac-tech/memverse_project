@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:memverse/src/app/app.dart';
 import 'package:memverse/src/bootstrap.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 void main() async {
   const clientId = String.fromEnvironment('CLIENT_ID');
@@ -12,8 +13,8 @@ void main() async {
   }
   // Log details
   if (kDebugMode) {
-    print('[PRODUCTION] Launching Memverse App');
-    print('[PRODUCTION] CLIENT_ID: $clientId');
+    AppLogger.i('[PRODUCTION] Launching Memverse App');
+    AppLogger.i('[PRODUCTION] CLIENT_ID: $clientId');
   }
   bootstrap(() => const App());
 }

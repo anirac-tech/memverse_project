@@ -47,13 +47,15 @@ final authServiceProvider = Provider<AuthService>((ref) {
     return MockAuthService();
   }
   final dio = Dio();
-  dio.options.baseUrl = 'https://memverse.com/api/';
+  dio.options.baseUrl = 'https://www.memverse.com/'; // Root URL for OAuth endpoint
   dio.options.headers[Headers.contentTypeHeader] = Headers.jsonContentType;
   dio.options.headers[Headers.acceptHeader] = Headers.jsonContentType;
   dio.options.headers['User-Agent'] = 'Memverse-Flutter/1.0.0';
-  String urlEncodedClientId = Uri.encodeComponent(clientId);
-  String urlEncodedClientSecret = Uri.encodeComponent(clientSecret);
-  var credentials = '$urlEncodedClientId:$urlEncodedClientSecret';
+  dio.options.followRedirects = true; // Enable redirect following
+  dio.options.maxRedirects = 5; // Allow up to 5 redirects
+  final urlEncodedClientId = Uri.encodeComponent(clientId);
+  final urlEncodedClientSecret = Uri.encodeComponent(clientSecret);
+  final credentials = '$urlEncodedClientId:$urlEncodedClientSecret';
   final List<int> credentialsBytes = utf8.encode(credentials);
   final base64Credentials = base64.encode(credentialsBytes);
   final authorizationHeader = 'Basic $base64Credentials';

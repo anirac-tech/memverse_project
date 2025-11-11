@@ -8,6 +8,7 @@ class PasswordTokenRequest {
     required this.username,
     required this.password,
     required this.clientId,
+    required this.clientSecret,
     this.grantType = 'password',
   });
 
@@ -22,6 +23,9 @@ class PasswordTokenRequest {
 
   @JsonKey(name: 'client_id')
   final String clientId;
+
+  @JsonKey(name: 'client_secret')
+  final String clientSecret;
 
   Map<String, dynamic> toJson() => _$PasswordTokenRequestToJson(this);
 }

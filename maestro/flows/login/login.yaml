@@ -11,7 +11,7 @@ tags:
 
 env:
   USERNAME: njwandroid@gmail.com
-  PASSWORD: Help4App!
+  PASSWORD: ${MEMVERSE_PASSWORD}
 
 onFlowStart:
   - launchApp:

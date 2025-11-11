@@ -1,22 +1,69 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:memverse/src/constants/api_constants.dart';
+import 'package:memverse/src/common/interceptors/curl_logging_interceptor.dart';
 import 'package:memverse/src/features/auth/data/auth_api.dart';
 import 'package:memverse/src/features/auth/domain/auth_token.dart';
-import 'package:memverse/src/features/auth/domain/password_token_request.dart';
 import 'package:memverse/src/utils/app_logger.dart';
 
 const String clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
 
 /// Authentication service for handling login, token storage, and session management
+///
+/// IMPORTANT: Memverse API has different base URLs for different endpoints:
+/// - OAuth endpoint: https://www.memverse.com/oauth/token (root level)
+/// - Other API endpoints: https://www.memverse.com/api/v1/* (versioned path)
+///
+/// This is why AuthApi uses 'https://www.memverse.com' as base URL, not '/api/v1/'
 class AuthService {
   /// Create a new AuthService
   AuthService({FlutterSecureStorage? secureStorage, Dio? dio, AuthApi? authApi})
     : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
-      _authApi = authApi ?? AuthApi(dio ?? Dio(), baseUrl: kIsWeb ? webApiPrefix : apiBaseUrl);
+      _authApi =
+          authApi ??
+          // CRITICAL: OAuth endpoint is at root level (/oauth/token), not /api/v1/oauth/token
+          // This was discovered through debugging 500 errors when using versioned path
+          AuthApi(_createDioWithLogging(dio), baseUrl: 'https://www.memverse.com');
+
+  static Dio _createDioWithLogging(Dio? dio) {
+    final dioInstance = dio ?? Dio();
+
+    // Add curl logging to see exactly what's sent
+    dioInstance.interceptors.add(CurlLoggingInterceptor());
+
+    // Add detailed request/response logging
+    dioInstance.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          AppLogger.i('🚀 OAuth Request: ${options.method} ${options.uri}');
+          AppLogger.i('📝 Headers: ${options.headers}');
+          AppLogger.i('📦 Data: ${options.data}');
+          AppLogger.i('📋 Content-Type: ${options.contentType}');
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          AppLogger.i('✅ OAuth Response: ${response.statusCode}');
+          AppLogger.i('📝 Response Headers: ${response.headers}');
+          AppLogger.i('📦 Response Data: ${response.data}');
+          handler.next(response);
+        },
+        onError: (error, handler) {
+          AppLogger.e('❌ OAuth Error: ${error.message}');
+          AppLogger.e('🔍 Request: ${error.requestOptions.method} ${error.requestOptions.uri}');
+          AppLogger.e('📝 Request Headers: ${error.requestOptions.headers}');
+          AppLogger.e('📦 Request Data: ${error.requestOptions.data}');
+          if (error.response != null) {
+            AppLogger.e('📥 Error Response: ${error.response?.data}');
+            AppLogger.e('🔢 Status Code: ${error.response?.statusCode}');
+          }
+          handler.next(error);
+        },
+      ),
+    );
+
+    return dioInstance;
+  }
 
   final FlutterSecureStorage _secureStorage;
   final AuthApi _authApi;
@@ -46,9 +93,13 @@ class AuthService {
         'LOGIN - Attempting to log in with username: $username and clientId is non-empty: ${clientId.isNotEmpty} and apiKey is non-empty: ${clientSecret.isNotEmpty}',
       );
 
-      final req = PasswordTokenRequest(username: username, password: password, clientId: clientId);
-
-      final authToken = await _authApi.getBearerToken(req);
+      final authToken = await _authApi.getBearerToken(
+        'password',
+        username,
+        password,
+        clientId,
+        clientSecret,
+      );
       AppLogger.d('LOGIN - Received successful response with token $authToken');
       AppLogger.d('LOGIN - Raw token type: ${authToken.tokenType}');
       await saveToken(authToken);

@@ -56,7 +56,10 @@ class LiveVerseRepository implements VerseRepository {
       _dio.options.connectTimeout = const Duration(seconds: 5);
       _dio.options.receiveTimeout = const Duration(seconds: 5);
       _dio.options.contentType = 'application/json';
+      _dio.options.followRedirects = true; // Enable redirect following
+      _dio.options.maxRedirects = 5; // Allow up to 5 redirects
       _dio.options.validateStatus = (status) {
+        // Accept 2xx success codes and 3xx redirect codes
         return status != null && status >= 200 && status < 400;
       };
     }
@@ -75,7 +78,7 @@ class LiveVerseRepository implements VerseRepository {
   }
 
   /// The URL to fetch Bible verses from
-  static const String _apiUrl = 'https://www.memverse.com/1/memverses';
+  static const String _apiUrl = 'https://www.memverse.com/api/v1/memverses';
 
   /// The private authentication token from environment variables
   //static const String _privateToken = String.fromEnvironment('MEMVERSE_API_TOKEN');

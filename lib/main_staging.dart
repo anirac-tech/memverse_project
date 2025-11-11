@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:memverse/src/app/app.dart';
 import 'package:memverse/src/bootstrap.dart';
 import 'package:memverse/src/constants/api_constants.dart';
+import 'package:memverse/src/utils/app_logger.dart';
 
 void main() async {
   const clientId = String.fromEnvironment('CLIENT_ID');
@@ -13,9 +14,9 @@ void main() async {
   }
   // Log details
   if (kDebugMode) {
-    print('[STAGING] Launching Memverse App');
-    print('[STAGING] API Base URL: $apiBaseUrl');
-    print('[STAGING] CLIENT_ID: $clientId');
+    AppLogger.i('[STAGING] Launching Memverse App');
+    AppLogger.i('[STAGING] API Base URL: $apiBaseUrl');
+    AppLogger.i('[STAGING] CLIENT_ID: $clientId');
   }
   bootstrap(() => const App());
 }

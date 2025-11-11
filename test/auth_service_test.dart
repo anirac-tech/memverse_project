@@ -31,7 +31,7 @@ void main() {
 
         registerFallbackValue(Options());
         registerFallbackValue(Uri());
-        registerFallbackValue(Uri.parse('https://www.memverse.com/oauth/token'));
+        registerFallbackValue(Uri.parse('https://memverse.com/api/v1/oauth/token'));
         registerFallbackValue(
           FormData.fromMap({
             'grant_type': 'password',

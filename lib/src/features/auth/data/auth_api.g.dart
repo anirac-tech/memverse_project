@@ -18,15 +18,23 @@ class _AuthApi implements AuthApi {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<AuthToken> getBearerToken(PasswordTokenRequest request) async {
+  Future<AuthToken> getBearerToken(
+    String grantType,
+    String username,
+    String password,
+    String clientId,
+    String clientSecret,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{
-      r'Content-Type': 'application/x-www-form-urlencoded',
+    final _headers = <String, dynamic>{};
+    final _data = {
+      'grant_type': grantType,
+      'username': username,
+      'password': password,
+      'client_id': clientId,
+      'client_secret': clientSecret,
     };
-    _headers.removeWhere((k, v) => v == null);
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
     final _options = _setStreamType<AuthToken>(
       Options(
             method: 'POST',
@@ -34,12 +42,7 @@ class _AuthApi implements AuthApi {
             extra: _extra,
             contentType: 'application/x-www-form-urlencoded',
           )
-          .compose(
-            _dio.options,
-            '/oauth/token',
-            queryParameters: queryParameters,
-            data: _data,
-          )
+          .compose(_dio.options, '/oauth/token', queryParameters: queryParameters, data: _data)
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);

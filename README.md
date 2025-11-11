@@ -5,7 +5,7 @@
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 [![License: MIT][license_badge]][license_link]
 
-Scripture Memory mobile front end for www.memverse.com
+Scripture Memory mobile front end for memverse.com
 
 ---
 
@@ -19,6 +19,16 @@ Scripture Memory mobile front end for www.memverse.com
 These should be set in your shell profile (e.g., `.zshrc`) or via your secrets manager.
 
 **Reference:** See `setup.md` for detailed environment setup.
+
+### ⚠️ Important: Memverse API Endpoint Structure
+
+The Memverse API uses different base URLs for different types of endpoints:
+
+- **OAuth endpoint**: `https://www.memverse.com/oauth/token` (root level)
+- **Other API endpoints**: `https://www.memverse.com/api/v1/*` (versioned path)
+
+This distinction is critical for authentication to work properly. The OAuth token endpoint does NOT
+use the `/api/v1/` prefix that other endpoints use.
 
 ### Run and Build Commands (Android, development flavor)
 
@@ -58,7 +68,6 @@ flutter run \
 ```sh
 flutter run --flavor development --target lib/main_development.dart \
   --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
-  --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY \
   --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY \
   --dart-define=AUTOSIGNIN=true
 ```
@@ -68,7 +77,6 @@ flutter run --flavor development --target lib/main_development.dart \
 ```sh
 flutter run --flavor development --target lib/main_development.dart \
   --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
-  --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY \
   --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY \
   --dart-define=AUTOSIGNIN=false
 ```
