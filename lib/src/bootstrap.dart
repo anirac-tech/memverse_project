@@ -110,12 +110,14 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
     if (clientSecret.isEmpty) {
       const errorMessage =
-          'clientSecret (MEMVERSE_CLIENT_API_KEY) environment variable is not dart-defined. '
+          'MEMVERSE_CLIENT_API_KEY environment variable is not dart-defined. '
           'This is required for authentication with the Memverse API.';
       AppLogger.e('ERROR: $errorMessage');
       runApp(
         const ConfigurationErrorWidget(
-          error: 'Missing required MEMVERSE_CLIENT_API_KEY configuration for authentication.',
+          error:
+              'Missing required MEMVERSE_CLIENT_API_KEY environment variable.\n\n'
+              'Please run with: --dart-define=MEMVERSE_CLIENT_API_KEY=your_api_key',
         ),
       );
       return;

@@ -1,6 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="development" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="additionalArgs" value="--dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID" />
+  <configuration default="false" name="Dev - Autosignin (Demo/QA)" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="additionalArgs" value="--dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY --dart-define=AUTOSIGNIN=true" />
+    <option name="buildFlavor" value="development" />
+    <option name="filePath" value="$PROJECT_DIR$/lib/main_development.dart" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="Dev - Real Login" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="additionalArgs" value="--dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY --dart-define=AUTOSIGNIN=false" />
     <option name="buildFlavor" value="development" />
     <option name="filePath" value="$PROJECT_DIR$/lib/main_development.dart" />
     <method v="2" />

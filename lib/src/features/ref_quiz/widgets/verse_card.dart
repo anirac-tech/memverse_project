@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 
 class VerseCard extends StatelessWidget {
+  // This card is used by the reference-quiz feature. The reference is intentionally
+  // hidden here because users are expected to type the reference for the quiz.
   const VerseCard({required this.verse, super.key});
 
   final Verse verse;
@@ -30,11 +32,10 @@ class VerseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            verse.reference,
-            style: const TextStyle(color: colorGreen, fontWeight: FontWeight.bold, fontSize: 17.2),
-          ),
+          // Reference intentionally omitted in reference-quiz flow.
           const SizedBox(height: 4),
+          // Show the full verse text and allow the parent to size the card so the
+          // verse is not clipped. The parent `QuestionSection` controls maxHeight.
           Text(
             verse.text,
             style: const TextStyle(
@@ -55,7 +56,7 @@ class VerseCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
-                  verse.translation ?? 'NIV',
+                  verse.translation,
                   style: const TextStyle(
                     fontSize: 12.6,
                     color: colorGreen,
