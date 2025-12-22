@@ -124,7 +124,7 @@ class LiveVerseRepository implements VerseRepository {
   }
 
   // Define path separately
-  static const String _memversesPath = '/1/memverses';
+  static const String _memversesPath = '/api/v1/memverses';
 
   /// Get a list of verses from the remote API
   @override
