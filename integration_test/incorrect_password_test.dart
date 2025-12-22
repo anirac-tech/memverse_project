@@ -72,11 +72,12 @@ void main() {
       await tester.pumpAndSettle();
 
       final passwordField = find.byType(TextFormField).last;
-      // Use environment variable for the CORRECT password
+      // CRITICAL: Use environment variable REFERENCE only - NEVER commit the actual password value!
+      // The environment variable MEMVERSE_CORRECT_PASSWORD_DO_NOT_COMMIT contains the valid password
       await tester.enterText(
         passwordField,
         const String.fromEnvironment(
-          'MEMVERSE_PASSWORD',
+          'MEMVERSE_CORRECT_PASSWORD_DO_NOT_COMMIT',
           defaultValue: 'dummysigninuser@dummy.com',
         ),
       );
