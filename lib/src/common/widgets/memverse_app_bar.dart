@@ -56,11 +56,6 @@ class MemverseAppBar extends ConsumerWidget implements PreferredSizeWidget {
               );
         }),
       ),
-      IconButton(
-        icon: Icon(Icons.logout, color: iconAndTitleColor),
-        tooltip: 'Logout',
-        onPressed: () => Navigator.of(context).maybePop(),
-      ),
     ];
     return AppBar(
       backgroundColor: bgColor,
