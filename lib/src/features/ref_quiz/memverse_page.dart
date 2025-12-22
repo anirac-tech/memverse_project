@@ -1,18 +1,15 @@
-import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
 import 'package:memverse/src/common/services/analytics_service.dart';
-import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
+import 'package:memverse/src/common/widgets/memverse_app_bar.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/question_section.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/stats_and_history_section.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
 import 'package:memverse/src/features/verse/domain/verse_reference_validator.dart';
-import 'package:memverse/src/features/verse/presentation/feedback_service.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
-import 'package:memverse/src/utils/app_logger.dart';
 
 // Key constants for Patrol tests
 const memversePageScaffoldKey = ValueKey('memverse_page_scaffold');
@@ -24,6 +21,12 @@ const feedbackButtonKey = ValueKey('feedback_button');
 final verseListProvider = FutureProvider<List<Verse>>(
   (ref) async => ref.watch(verseRepositoryProvider).getVerses(),
 );
+
+const colorGreen = Color(0xFF80BC00);
+const colorLightGreen = Color(0xFFC8F780);
+const colorBg = Color(0xFFF8FFF0);
+const colorHintBg = Color(0xFFF1FDE9);
+const colorYellow = Color(0xFFFFF7CD);
 
 class MemversePage extends HookConsumerWidget {
   const MemversePage({super.key});
@@ -176,49 +179,20 @@ class MemversePage extends HookConsumerWidget {
 
     return Scaffold(
       key: memversePageScaffoldKey,
-      appBar: AppBar(
-        title: Text(isSmallScreen ? pageTitle : 'Memverse $pageTitle'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          // coverage:ignore-start
-          IconButton(
-            key: feedbackButtonKey,
-            icon: const Icon(Icons.feedback_outlined),
-            tooltip: 'Send Feedback',
-            onPressed: () {
-              AppLogger.d('Feedback button pressed');
-
-              // Track feedback trigger
-              analyticsService.trackFeedbackTrigger();
-
-              final feedbackService = ref.read(feedbackServiceProvider);
-              BetterFeedback.of(context).show((feedback) async {
-                await feedbackService.handleFeedbackSubmission(context, feedback);
-              });
-            },
-          ),
-          // coverage:ignore-end
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authStateProvider.notifier).logout();
-            },
-            tooltip: 'Logout',
-          ),
-        ],
-      ),
+      appBar: const MemverseAppBar(suffix: 'Ref'),
+      backgroundColor: colorBg,
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(9),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withAlpha(77),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
+                color: Colors.grey.withAlpha(40),
+                blurRadius: 16,
+                spreadRadius: 3,
+                offset: const Offset(0, 6),
               ),
             ],
           ),

@@ -31,9 +31,9 @@ security restrictions (CORS), we set up a proxy using Netlify Functions. This in
    `/api/`.
 3. **Netlify Function Execution**: The `netlify/functions/api.js` function executes.
     * It reconstructs the original intended target API URL (e.g.,
-      `https://your-actual-api.com/users/1`) using the path information passed from the redirect and
+      `https://memverse.com/api/v1/users/1`) using the path information passed from the redirect and
       the `API_BASE_URL` constant defined within the function. **Remember to set this constant
-      correctly!**
+      correctly to `https://memverse.com/api/v1`!**
     * It uses `axios` to make the actual request to the target API.
     * It receives the response from the target API.
 4. **Response Modification**: Before sending the response back to the browser, the function modifies
@@ -131,7 +131,8 @@ redirect rules for the Netlify platform.
 ## Next Steps & Considerations
 
 * **Set `API_BASE_URL`:** Ensure the `API_BASE_URL` constant in `netlify/functions/api.js` is
-  correctly set to the base URL of the API you are proxying (should be `https://www.memverse.com`).
+  correctly set to the base URL of the API you are proxying (should be
+  `https://memverse.com/api/v1`).
 * **Dependencies:** Netlify automatically runs `npm install` in the `netlify/functions` directory
   during deployment based on `package.json`. Manual local installation is only needed for local
   testing.

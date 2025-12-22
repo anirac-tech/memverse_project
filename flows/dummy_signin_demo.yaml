@@ -1,0 +1,10 @@
+appId: com.spiritflightapps.memverse.dev
+---
+- launchApp
+- takeScreenshot: after_login.png
+- tapOn:
+    text: "Ref"
+- takeScreenshot: ref_quiz.png
+- tapOn:
+    text: "Verse"
+- takeScreenshot: verse_quiz.png

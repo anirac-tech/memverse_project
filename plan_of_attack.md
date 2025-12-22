@@ -59,7 +59,7 @@ Implement New User Signup (Happy Path) with complete BDD test coverage
 ## 🚨 Critical Success Factors
 
 1. **Test-First:** All Maestro tests written before implementation
-2. **API Integration:** Successful POST to memverse.com/api createUser
+2. **API Integration:** Successful POST to memverse.com/api/v1 createUser
 3. **Happy Path:** Complete flow from signup to dashboard
 4. **Time Management:** 28-minute window for completion
 
@@ -68,7 +68,7 @@ Implement New User Signup (Happy Path) with complete BDD test coverage
 - **Entry Point:** lib/main_development.dart
 - **Flavor:** Development
 - **Environment:** CLIENT_ID required
-- **API Endpoint:** https://www.memverse.com/api/index.html#!/user/createUser
+- **API Endpoint:** https://memverse.com/api/v1/user/createUser
 - **Test Framework:** Maestro BDD
 
 ## 🎯 Acceptance Criteria Checklist

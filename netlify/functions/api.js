@@ -1,9 +1,23 @@
 const axios = require('axios');
 
 // Configuration - Set to your actual API base URL
-const API_BASE_URL = 'https://www.memverse.com';
+const API_BASE_URL = 'https://www.memverse.com/api/v1';
 
 exports.handler = async function(event, context) {
+  // Handle CORS preflight OPTIONS request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Max-Age": "86400", // 24 hours
+      },
+      body: ''
+    };
+  }
+
   // Extract the path part after /api/ from the incoming request
   const apiPath = event.path.replace(/^\/\.netlify\/functions\/api/, '').replace(/^\/api/, '');
   const queryString = new URLSearchParams(event.queryStringParameters || {}).toString();
@@ -13,15 +27,6 @@ exports.handler = async function(event, context) {
     // Build the target URL
     const targetUrl = `${API_BASE_URL}${apiPath}${queryPart}`;
     console.log(`[${event.httpMethod}] Proxying request to: ${targetUrl}`);
-
-    // Debug request details
-    if (apiPath.includes('oauth/token')) {
-      console.log('OAuth request detected');
-      console.log('Headers:', JSON.stringify(event.headers));
-      console.log('Content-Type:', event.headers['content-type']);
-      // Don't log actual body to avoid leaking credentials
-      console.log('Body present:', !!event.body);
-    }
 
     // Forward necessary headers
     const headersToForward = {};
@@ -67,18 +72,6 @@ exports.handler = async function(event, context) {
     });
 
     console.log(`Response status: ${response.status}`);
-    
-    // If this is an OAuth response, log it (without sensitive data)
-    if (apiPath.includes('oauth/token')) {
-      console.log('OAuth response headers:', JSON.stringify(response.headers));
-      if (response.status !== 200) {
-        // Only log error responses
-        const responseText = Buffer.from(response.data, 'binary').toString();
-        console.log('OAuth error response:', responseText);
-      } else {
-        console.log('OAuth successful response (token not shown)');
-      }
-    }
 
     // Convert ArrayBuffer to base64 string for Netlify Function response
     const responseBody = Buffer.from(response.data, 'binary').toString('base64');
@@ -107,6 +100,7 @@ exports.handler = async function(event, context) {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({

@@ -1,0 +1,3 @@
+2025-07-16 06:06:39 PM
+PROMPT: remove all usages of http and just use dio
+RESPONSE SUMMARY: Refactored AuthService to eliminate all usage of http in favor of Dio only. Cleaned up all imports, applied dart fix, ensured no unused variables, ran flutter analyze and all tests. Ran ./scripts/check_before_commit.sh to ensure formatting, lint, and fixes. No new auth-related errors introduced, but the test suite may still have unrelated issues that need further attention.

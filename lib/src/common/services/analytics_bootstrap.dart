@@ -26,7 +26,7 @@ class AnalyticsBootstrap {
       final apiKey = customApiKey ?? _getPostHogApiKey(entryPoint, flavor);
 
       AppLogger.i(
-        '🔑 API Key check: ${apiKey?.isNotEmpty == true ? "API key provided" : "NO API KEY FOUND"}',
+        '🔑 API Key check: ${apiKey?.isNotEmpty ?? false ? "API key provided" : "NO API KEY FOUND"}',
       );
 
       if (apiKey?.isEmpty ?? true) {

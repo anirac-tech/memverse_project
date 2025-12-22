@@ -1,0 +1,99 @@
+appId: com.spiritflightapps.memverse
+env:
+  MEMVERSE_USERNAME: ${MEMVERSE_USERNAME}
+  MEMVERSE_PASSWORD: ${MEMVERSE_PASSWORD}
+---
+# MVP Manual Testing - Core Features Validation
+
+- launchApp
+- extendedWaitUntil:
+    visible: "Welcome to Memverse|Memverse Login"
+    timeout: 10000
+
+# Dismiss any system dialogs (bluetooth, etc)
+- tapOn:
+    text: "Close app"
+    optional: true
+- runFlow:
+    when:
+      visible: "Close app"
+    commands:
+      - tapOn: "Close app"
+
+- extendedWaitUntil:
+    visible: "Login|Sign in"
+    timeout: 3000
+
+- takeScreenshot: ~/Desktop/memverse_01_login_screen.png
+
+# Scroll to reveal email/password fields
+- scroll
+
+# Test 1: Login Flow - Tap on Login button to show fields
+- tapOn: "Login"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+
+- scroll
+- takeScreenshot: ~/Desktop/memverse_02_login_form.png
+
+# Enter email
+- tapOn:
+    text: "Email"
+    index: 0
+- inputText: "${MEMVERSE_USERNAME}"
+- hideKeyboard
+
+# Enter password  
+- tapOn:
+    text: "Password"
+    index: 0
+- inputText: "${MEMVERSE_PASSWORD}"
+- hideKeyboard
+
+- takeScreenshot: ~/Desktop/memverse_03_credentials_entered.png
+
+# Tap Sign In
+- tapOn: "Sign In|LOG IN|SIGN IN"
+- extendedWaitUntil:
+    visible: "Verses|Practice|Settings|Reference|Verse Text"
+    timeout: 20000
+
+- takeScreenshot: ~/Desktop/memverse_04_logged_in.png
+
+# Test 2: Navigate to Settings
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Dark Mode|Theme"
+    timeout: 5000
+- takeScreenshot: ~/Desktop/memverse_05_settings.png
+
+# Test 3: Toggle Dark Mode ON
+- tapOn:
+    text: "Dark Mode"
+    enabled: true
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 2000
+- takeScreenshot: ~/Desktop/memverse_06_dark_mode.png
+
+# Test 4: Navigate between tabs
+- tapOn: "Verses"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+- takeScreenshot: ~/Desktop/memverse_07_verses_tab.png
+
+- tapOn: "Practice"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+- takeScreenshot: ~/Desktop/memverse_08_practice_tab.png
+
+# Test 5: Verify theme persistence - go back to Settings
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Dark Mode"
+    timeout: 3000
+- takeScreenshot: ~/Desktop/memverse_09_settings_dark_persisted.png

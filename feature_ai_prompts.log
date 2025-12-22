@@ -1,0 +1,1 @@
+2025-07-16 04:34:34 PM | [Dark mode, RenderFlex, link, appbar icons fix] | Refactored dark mode backgrounds (nav, scaffold, cards); ensured appbar and icon contrast; fixed HomeTab scroll/renderflex; made link fully clickable. Ran dart fix, analyze, and checks. Remaining test errors are unrelated missing/renamed widgets.

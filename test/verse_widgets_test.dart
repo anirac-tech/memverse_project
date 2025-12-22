@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/ref_quiz/question_history_widget.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/ref_quiz/verse_card.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/question_history_widget.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/verse_card.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
@@ -15,7 +15,7 @@ void main() {
       const verseReference = 'Genesis 1:1';
       const verseTranslation = 'NLT';
 
-      final verse = Verse(text: verseText, reference: verseReference);
+      const verse = Verse(text: verseText, reference: verseReference);
 
       await tester.pumpWidget(
         MaterialApp(

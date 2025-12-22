@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/verse_card.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/verse_reference_form.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/verse_card.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/verse_reference_form.dart';
 
 class QuestionSection extends HookConsumerWidget {
   const QuestionSection({
@@ -32,11 +32,17 @@ class QuestionSection extends HookConsumerWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
     children: <Widget>[
-      // Verse text container
+      // Verse text container - allow a dynamic maxHeight (60% of screen) so
+      // long verses can be displayed fully without clipping. The card itself
+      // will size to its content up to this max.
       Flexible(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 50, maxHeight: 150),
+          constraints: BoxConstraints(
+            minHeight: 50,
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
           child: versesAsync.when(
+            // Render the verse card for the reference quiz (reference is hidden by design)
             data: (verses) => VerseCard(verse: verses[currentVerseIndex]),
             loading: () => const Center(child: CircularProgressIndicator.adaptive()),
             error: (error, stackTrace) => Center(

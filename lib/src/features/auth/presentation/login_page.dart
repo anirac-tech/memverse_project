@@ -67,28 +67,34 @@ class LoginPage extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 32),
-                Column(
-                  children: [
-                    const Icon(Icons.menu_book, size: 80, color: Colors.blue),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: const LinearGradient(
-                          colors: [Colors.blue, Colors.lightBlueAccent],
+                Image.network(
+                  'https://www.memverse.com/assets/quill-writing-on-scroll-f758c31d9bfc559f582fcbb707d04b01a3fa11285f1157044cc81bdf50137086.png',
+                  height: 100,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Column(
+                      children: [
+                        const Icon(Icons.menu_book, size: 80, color: Colors.green),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: const LinearGradient(
+                              colors: [Colors.green, Colors.lightGreenAccent],
+                            ),
+                          ),
+                          child: const Text(
+                            'Memverse',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'Memverse',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 32),
                 const Text(
@@ -147,11 +153,32 @@ class LoginPage extends HookConsumerWidget {
                     onVisibilityToggle: analyticsService.trackPasswordVisibilityToggle,
                   ),
                 ),
+                if (kDebugMode)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.lightGreen[50],
+                        borderRadius: BorderRadius.circular(7),
+                        border: Border.all(color: Colors.green.shade100, width: 0.8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      child: const Text(
+                        'Development Demo:\nTo skip sign-in and view a full mock UI, copy & paste:\n\nEmail: dummysigninuser@dummy.com\nPassword: (any)\nThen tap Sign in.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 32),
                 Semantics(
                   identifier: 'login_button',
                   button: true,
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     key: loginButtonKey,
                     onPressed: authState.isLoading
                         ? null
@@ -162,9 +189,6 @@ class LoginPage extends HookConsumerWidget {
                                   .login(usernameController.text, passwordController.text);
                             }
                           },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
                     child: authState.isLoading
                         ? const CircularProgressIndicator()
                         : Text(l10n.login, style: const TextStyle(fontSize: 16)),

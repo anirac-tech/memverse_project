@@ -8,7 +8,6 @@ import 'package:memverse/src/utils/app_logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-// Provider for the FeedbackService
 final feedbackServiceProvider = Provider<FeedbackService>((ref) {
   return FeedbackService();
 });

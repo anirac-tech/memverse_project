@@ -12,24 +12,16 @@
 .swiftpm/
 migrate_working_dir/
 
-# AI Prompts logs
-!*_ai_prompts.log
-!*_ai_prompts_and_responses.log
-
 # IntelliJ related
 *.iml
 *.ipr
 *.iws
-.idea/*
+.idea/
 
-# Visual Studio Code related
-.classpath
-.project
-.settings/
-.vscode/*
-
-# packages file containing multi-root paths
-.packages.generated
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -40,63 +32,7 @@ migrate_working_dir/
 .packages
 .pub-cache/
 .pub/
-build/
-flutter_*.png
-linked_*.ds
-unlinked.ds
-unlinked_spec.ds
-.fvm/
-
-# Android related
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
-**/android/.idea/
-**/android/app/debug
-**/android/app/.cxx
-**/android/app/profile
-**/android/app/release
-*.jks
-
-# iOS/XCode related
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
-**/ios/**/Pods/
-**/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
-
-# Coverage
-coverage/
-
-# Submodules
-packages/**/pubspec.lock
-
-# Web related
-lib/generated_plugin_registrant.dart
+/build/
 
 # Symbolication related
 app.*.symbols
@@ -104,21 +40,47 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Android build cache and CMake artifacts
+**/android/app/.cxx/
+**/android/.gradle/
+android/app/.cxx/
+android/.gradle/
+
+# Environment variables and secrets
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets.json
+
+# Never commit passwords or API keys
+*password*
+*secret*
+*token*
+# Exception: allow test files to exist
+!*_test.dart
+!test/**
+!integration_test/**
+
+# Maestro test outputs
+.maestro/tests/
+
+# Test coverage reports
+coverage/
+test/coverage/
+*.lcov
+
 # Node.js dependencies specific to Netlify functions
 netlify/functions/node_modules/
 
 # Netlify build artifacts
 .netlify/
 
-# Exceptions to the above rules.
-!**/ios/**/default.mode1v3
-!**/ios/**/default.mode2v3
-!**/ios/**/default.pbxuser
-!**/ios/**/default.perspectivev3
-!/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-!/dev/ci/**/Gemfile.lock
-!.vscode/extensions.json
-!.vscode/launch.json
-!.idea/codeStyles/
-!.idea/dictionaries/
-!.idea/runConfigurations/
+# Local configuration
+local.properties

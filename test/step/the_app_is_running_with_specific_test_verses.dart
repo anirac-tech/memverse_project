@@ -15,12 +15,12 @@ class HappyPathVerseRepository implements VerseRepository {
 
     return [
       // First verse for testing "Col 1:17" (correct answer)
-      Verse(
+      const Verse(
         text: 'He is before all things, and in him all things hold together.',
         reference: 'Colossians 1:17',
       ),
       // Second verse for testing "Gal 5:1" (almost correct answer)
-      Verse(
+      const Verse(
         text:
             'It is for freedom that Christ has set us free. Stand firm, then, and do not let yourselves be burdened again by a yoke of slavery.',
         reference: 'Galatians 5:1',

@@ -124,7 +124,7 @@ class LiveVerseRepository implements VerseRepository {
   }
 
   // Define path separately
-  static const String _memversesPath = '/1/memverses';
+  static const String _memversesPath = '/api/v1/memverses';
 
   /// Get a list of verses from the remote API
   @override
@@ -343,29 +343,29 @@ class FakeVerseRepository implements VerseRepository {
 
     return [
       // First verse for testing "Col 1:17" (correct answer)
-      Verse(
+      const Verse(
         text: 'He is before all things, and in him all things hold together.',
         reference: 'Colossians 1:17',
       ),
       // Second verse for testing "Gal 5:1" (almost correct answer)
-      Verse(
+      const Verse(
         text:
             'It is for freedom that Christ has set us free. Stand firm, then, and do not let yourselves be burdened again by a yoke of slavery.',
         reference: 'Galatians 5:1',
       ),
       // Additional verses for variety
-      Verse(
+      const Verse(
         text: 'In the beginning God created the heavens and the earth.',
         reference: 'Genesis 1:1',
       ),
-      Verse(
+      const Verse(
         text:
             'For God so loved the world that he gave his one and only Son, '
             'that whoever believes in him shall not perish '
             'but have eternal life.',
         reference: 'John 3:16',
       ),
-      Verse(
+      const Verse(
         text:
             'Trust in the LORD with all your heart; do not depend on your own '
             'understanding.',

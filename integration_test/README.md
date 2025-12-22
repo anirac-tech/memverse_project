@@ -39,9 +39,23 @@ flutter test integration_test/signup_test.dart
 
 ## Test Files
 
+### BDD Tests
+- `theme_toggle_test.dart` - BDD tests for light/dark theme toggling
+- `theme_toggle.feature` - Feature file for theme functionality
+- `quiz_features_test.dart` - BDD tests for quiz functionality
+- `quiz_features.feature` - Feature file for quiz features
 - `signup_test.dart` - BDD-style test for the signup flow
 - `features/signup.feature` - Gherkin feature file for signup
+
+### Integration Tests
+- `app_integration_test.dart` - Comprehensive app integration tests
+- `comprehensive_app_test.dart` - Full user flow tests
+- `live_login_test.dart` - Real API login testing
+- `password_visibility_test.dart` - Password field visibility toggle tests
+
+### Utilities
 - `util/test_app_wrapper.dart` - Utility for creating test app instances
+- `step/` - Reusable BDD step implementations
 
 ## Testing Strategy
 

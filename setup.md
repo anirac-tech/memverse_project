@@ -92,7 +92,7 @@ The app requires three environment variables for proper functionality:
 Once you've set up your environment variables, you can run the app using:
 
 ```bash
-flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor development --target lib/main_development.dart
+flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor production --target lib/main_production.dart --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY
 ```
 
 This command will pass your MEMVERSE_CLIENT_ID, MEMVERSE_CLIENT_API_KEY, and

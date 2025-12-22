@@ -60,5 +60,9 @@
   "pleaseEnterYourPassword": "Please enter your password",
   "username": "Username",
   "pleaseEnterYourUsername": "Please enter your username",
-  "login": "Login"
+  "login": "Login",
+  "home": "Home",
+  "verse": "Verse",
+  "ref": "Ref",
+  "settings": "Settings"
 }

@@ -30,7 +30,6 @@ void main() {
 
     repository = ApiUserRepository(
       dio: mockDio,
-      baseUrl: 'https://api.memverse.com',
       clientId: 'test_client_id',
       clientSecret: 'test_client_secret',
     );
@@ -66,7 +65,7 @@ void main() {
         // Verify correct API call was made
         verify(
           () => mockDio.post<dynamic>(
-            'https://api.memverse.com/1/users',
+            'https://memverse.com/api/v1/users',
             data: any(named: 'data'),
             options: any(named: 'options'),
           ),

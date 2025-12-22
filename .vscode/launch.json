@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch development",
+      "name": "Dev - Autosignin (Demo/QA)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_development.dart",
@@ -14,11 +14,30 @@
         "development",
         "--target",
         "lib/main_development.dart",
-        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}"
+        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}",
+        "--dart-define=POSTHOG_MEMVERSE_API_KEY=${env:POSTHOG_MEMVERSE_API_KEY}",
+        "--dart-define=MEMVERSE_CLIENT_API_KEY=${env:MEMVERSE_CLIENT_API_KEY}",
+        "--dart-define=AUTOSIGNIN=true"
       ]
     },
     {
-      "name": "Launch staging",
+      "name": "Dev - Real Login",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_development.dart",
+        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}",
+        "--dart-define=POSTHOG_MEMVERSE_API_KEY=${env:POSTHOG_MEMVERSE_API_KEY}",
+        "--dart-define=MEMVERSE_CLIENT_API_KEY=${env:MEMVERSE_CLIENT_API_KEY}",
+        "--dart-define=AUTOSIGNIN=false"
+      ]
+    },
+    {
+      "name": "Staging",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_staging.dart",
@@ -27,11 +46,13 @@
         "staging",
         "--target",
         "lib/main_staging.dart",
-        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}"
+        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}",
+        "--dart-define=POSTHOG_MEMVERSE_API_KEY=${env:POSTHOG_MEMVERSE_API_KEY}",
+        "--dart-define=MEMVERSE_CLIENT_API_KEY=${env:MEMVERSE_CLIENT_API_KEY}"
       ]
     },
     {
-      "name": "Launch production",
+      "name": "Production",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_production.dart",
@@ -40,7 +61,9 @@
         "production",
         "--target",
         "lib/main_production.dart",
-        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}"
+        "--dart-define=CLIENT_ID=${env:MEMVERSE_CLIENT_ID}",
+        "--dart-define=POSTHOG_MEMVERSE_API_KEY=${env:POSTHOG_MEMVERSE_API_KEY}",
+        "--dart-define=MEMVERSE_CLIENT_API_KEY=${env:MEMVERSE_CLIENT_API_KEY}"
       ]
     }
   ]

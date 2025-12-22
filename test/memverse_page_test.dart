@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:memverse/l10n/arb/app_localizations.dart';
+import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/question_section.dart';
+import 'package:memverse/src/features/ref_quiz/widgets/stats_and_history_section.dart';
+import 'package:memverse/src/features/signed_in/presentation/signed_in_nav_scaffold.dart';
 import 'package:memverse/src/features/verse/data/verse_repository.dart';
 import 'package:memverse/src/features/verse/domain/verse.dart';
-import 'package:memverse/src/features/verse/presentation/memverse_page.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/question_section.dart';
-import 'package:memverse/src/features/verse/presentation/widgets/stats_and_history_section.dart';
+import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
@@ -14,7 +16,7 @@ class MockAppLocalizations extends Mock implements AppLocalizations {}
 class FakeVerseRepository extends VerseRepository {
   @override
   Future<List<Verse>> getVerses() async {
-    return [Verse(reference: 'John 3:16', text: 'For God so loved the world...')];
+    return [const Verse(reference: 'John 3:16', text: 'For God so loved the world...')];
   }
 }
 
@@ -101,7 +103,7 @@ void main() {
 
       // Setup mock repository
       when(() => mockRepository.getVerses()).thenAnswer(
-        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
+        (_) async => [const Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
       );
 
       // Setup localizations
@@ -275,8 +277,8 @@ void main() {
     testWidgets('handles end of verse list correctly', (WidgetTester tester) async {
       when(() => mockRepository.getVerses()).thenAnswer(
         (_) async => [
-          Verse(reference: 'Genesis 1:1', text: 'In the beginning...'),
-          Verse(reference: 'John 3:16', text: 'For God so loved the world...'),
+          const Verse(reference: 'Genesis 1:1', text: 'In the beginning...'),
+          const Verse(reference: 'John 3:16', text: 'For God so loved the world...'),
         ],
       );
 
@@ -314,7 +316,7 @@ void main() {
     setUp(() {
       mockVerseRepository = MockVerseRepository();
       when(() => mockVerseRepository.getVerses()).thenAnswer(
-        (_) async => [Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
+        (_) async => [const Verse(reference: 'John 3:16', text: 'For God so loved the world...')],
       );
     });
 
@@ -338,5 +340,28 @@ void main() {
     });
 
     // More tests can be added here for feedback functionality
+  });
+
+  group('SignedInNavScaffold tab navigation', () {
+    testWidgets('shows Ref quiz screen when Ref tab is selected', (WidgetTester tester) async {
+      await tester.pumpWidget(const MaterialApp(home: SignedInNavScaffold()));
+      await tester.pumpAndSettle();
+      // Default is Home, tap "Ref" tab
+      await tester.tap(find.text('Ref'));
+      await tester.pumpAndSettle();
+      // Expects a Ref quiz field to be present
+      expect(find.textContaining('Reference'), findsWidgets);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+    testWidgets('shows the static Verse quiz UI when Verse tab is selected', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SignedInNavScaffold()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Verse'));
+      await tester.pumpAndSettle();
+      expect(find.byType(VerseTextQuizScreen), findsOneWidget);
+      expect(find.textContaining('Gal 5:22'), findsOneWidget); // static screen check
+    });
   });
 }

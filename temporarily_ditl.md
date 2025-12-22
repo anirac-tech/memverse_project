@@ -1,115 +1,76 @@
-# 🔔 READY FOR MANUAL TESTING 🔔
+# Memverse DITL - Maestro Dummy Sign-In UI Validation (GREEN STATUS TRACKER)
 
-The signup functionality is ready for manual testing. Use "dummynewuser@dummy.com" to test the dummy
-implementation. API implementation is in progress.
+## STATUS: WIP - Working through Maestro automated UI/screenshot validation for dummy sign-in user with mock data and pretty theming.
 
-# DITL Progress Tracker - MEM-160 Signup Implementation
+### Dummy user: `dummysigninuser@dummy.com` (any password)
 
-## 🚀 Current Session: MEM-160 Signup Implementation with Testing
+### Flow: Automated UI screenshots for Home, Ref Quiz, Verse Quiz tabs
 
-### 🧪 Maestro BDD Tests
+## TASK PLAN - GoRouter + Provider Mock/Testing for Tabs (Manual+Emulator Validation)
 
-- ✅ Created Maestro tests for memverse.com website
-- ✅ Implemented account creation, login, and deletion flows
-- ✅ Added screenshots for debugging
-- ✅ Created tracking file for test accounts
+### WHAT I'M DOING
 
-### 🧪 BDD Test Generation Strategy
+- Refactor main.dart to use GoRouter (with tabs, ShellRoute, and deep navigation).
+- Ensure mocking is active for integration/dev/test (NoOpAnalyticsService, FakeVerseRepository,
+  dummy user).
+- Provide robust ProviderScope overrides for tests and manual runs (by
+  --dart-define=INTEGRATION_TEST=true).
+- Guide both emulator (me) and physical device (you) for UI validation with hot reload.
 
-- ✅ Updated signup page to use "Name" field to match website
-- ✅ Generated BDD widget test Gherkin files for signup
-- ✅ Created integration test scenarios
-- ✅ Created modular BDD-style test with reusable step functions
-- ✅ Fixed package dependency conflicts by using manual BDD approach
-- ✅ Mocked widget test scenarios
-- ✅ Created charlatan_vs_mockdio_analysis.md for future consideration
+### CHECKLIST FOR MANUAL+EMULATOR TEST
 
-### 🎯 3-Tiered Testing Coverage Plan
+- [ ] App launches with new GoRouter/navigation structure and tab ShellRoute.
+- [ ] "Verse" tab is default (first screen).
+- [ ] Navigation between Home, Verse, Ref, Settings tabs works and preserves state.
+- [ ] Analytics/logging is disabled in dummy/integration mode.
+- [ ] Verse fetching is mocked in dummy/integration mode.
+- [ ] Hot reload works without navigation or provider crashes.
+- [ ] adb screenshot yields correct UI snapshot (for emulator testing).
+- [ ] Physical device: Use standard device screenshots to compare with expected tabs/UI states.
 
-- ✅ **Maestro E2E Testing**: Website testing for real-world validation
-- ✅ **Integration Tests**: BDD-style feature validation
-- ✅ **Widget Tests**: Component-level functionality verification
+### HOW TO MONITOR/MANUALLY TEST
 
-## Current Status
+1. Launch app with:
+   ```sh
+   flutter run --dart-define=INTEGRATION_TEST=true
+   ```
+   or using your flavor as appropriate (see setup.md).
+2. Switch between tabs and verify correct UI and mock content for "Verse" tab.
+3. Trigger hot reload (`r` in terminal or IDE action) and verify tab state and content persist.
+4. On emulator, take screenshot via:
+   ```sh
+   adb exec-out screencap -p > emulator_screen.png
+   ```
+5. Compare appearance/state with expected design and mark checkboxes above.
+6. If anything is wrong (tab order, navigation, mock data, etc.), fix and re-run/hot reload.
 
-✅ **SESSION COMPLETED**: All tests passing with documentation
-📊 **Session Grade**: A (92/100) - Comprehensive testing with documentation
+#### Checklist (Updated at each run)
 
-### ✅ COMPLETED: Hardcoded Part Implementation
+- [x] Build debug APK, install on device/emulator -- success
+- [x] Maestro YAML flows fixed, appId matches installed APK -- success
+- [x] Dummy login returns instant success and mock data -- success
+- [x] Maestro test launches app, scripts fields/buttons/tabs, expects Home/Ref/Verse visible --
+  running
+- [ ] Screenshots generated for:
+    - [ ] after_login.png (Home)
+    - [ ] ref_quiz.png (Ref/Review tab, with reference quiz UI, not blue, should match green/yellow
+      theme)
+    - [ ] verse_quiz.png (Verse quiz tab, Gal 5:22 display, green/yellow theme, with AppBar and
+      pretty
+      container)
+- [ ] UI prettiness: Compare Maestro run screenshots against attached PNG (all must show matching
+  green, AppBar, cards, tabs)
+- [ ] If any screenshot/step fails, update selectors, themes, or widgets and rerun Maestro
+- [ ] Once all boxes above are checked, finalize artifact review for user
 
-**User Interface Components:**
+## Troubleshooting
 
-- ✅ **Form Fields**: Email, Name, Password with validation
-- ✅ **Submission**: Loading state and success screen
-- ✅ **Error Handling**: Validation messages and error states
-- ✅ **Dummy Logic**: Hardcoded success for "dummynewuser@dummy.com"
+- If Maestro cannot find a field, adjust the placeholder/text value to match the actual UI widget
+  label/hint.
+- If app UI has unexpected blue or wrong theme, patch that widget+rerun test
+- Use `maestro studio` for visual selector inspection if stuck
+- Always ensure device/emulator has com.spiritflightapps.memverse.dev installed, not old package
+  name
 
-**Testing Infrastructure (All 4 Types):**
-
-- ✅ Maestro test for memverse.com website with modular components
-- ✅ Widget tests with provider overrides
-- ✅ Integration tests with full flow
-- ✅ BDD feature file structure
-- ✅ Manual BDD-style test implementation without build_runner issues
-
-**Documentation:**
-
-- ✅ README files for all test directories
-- ✅ Account tracking system for website tests
-- ✅ Test guidelines and best practices
-
-**Architecture:**
-
-- ✅ Fake JSON pattern implementation
-- ✅ User domain model and repository interface
-- ✅ FakeUserRepository with JSON literals
-- ✅ No internet connection required
-- ✅ Modular test components for reusability
-
-### 🔜 NEXT STEPS:
-
-- ⏳ Convert tests from Mockito to Mocktail
-- ⏳ Implement real API integration using Swagger docs
-- Add more comprehensive BDD scenarios
-- Setup CI/CD pipeline for automated testing
-
----
-
-## 🔧 Quick Reference Commands
-
-### App Building
-
-```bash
-flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --flavor development --target lib/main_development.dart
-```
-
-### Run Tests
-
-```bash
-# Integration test
-flutter test integration_test/signup_test.dart --reporter expanded
-
-# Widget tests
-flutter test test/features/auth/signup_page_test.dart --reporter expanded
-
-# Run with coverage
-flutter test --coverage
-genhtml coverage/lcov.info -o coverage/html
-open coverage/html/index.html
-```
-
-### Maestro Testing
-
-```bash
-# Memverse.com website test
-maestro test maestro/flows/memverse_dot_com/create_login_delete_flow.yaml
-
-# Run test on specific account
-maestro test maestro/flows/memverse_dot_com/delete_account_only.yaml --env name="Test User" password="MemverseTest123!"
-```
-
----
-
-## Previous Completed Sessions
-
-(previous sessions content preserved...)
+**Progress will be updated after each Maestro run or theming/selector tweak until UI matches
+screenshot.**

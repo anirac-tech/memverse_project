@@ -1,5 +1,11 @@
 {
   "rules": [
+    "CRITICAL SECURITY: NEVER EVER commit passwords, API keys, or secrets in code. Always use environment variables or secure storage",
+    "CRITICAL SECURITY: The environment variable MEMVERSE_CORRECT_PASSWORD_DO_NOT_COMMIT contains a valid password - ONLY commit the REFERENCE to this variable, NEVER commit its actual VALUE",
+    "CRITICAL SECURITY: Before committing, scan for patterns like 'password=', 'pwd:', 'pass:', API keys, tokens, or credentials - if found, REJECT the commit",
+    "CRITICAL SECURITY: Use ${ENVIRONMENT_VARIABLE} or String.fromEnvironment('VAR_NAME') syntax in config files and tests for ALL sensitive data",
+    "CRITICAL SECURITY: If a password or credential VALUE appears in code during development, immediately redact it and mark as [REDACTED] or OUTDATED",
+    "CRITICAL SECURITY: In tests, always use String.fromEnvironment('MEMVERSE_CORRECT_PASSWORD_DO_NOT_COMMIT') - never hardcode the password value",
     "Always run dart fix --apply before flutter analyze to automatically fix issues",
     "Always make sure tests pass at the end",
     "always remove unused imports",

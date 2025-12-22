@@ -5,17 +5,94 @@
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 [![License: MIT][license_badge]][license_link]
 
-Scripture Memory mobile front end for www.memverse.com
+Scripture Memory mobile front end for memverse.com
 
 ---
 
 ## Getting Started
 
-This project contains 3 flavors:
+**This project requires you to set several environment variables before building or running:**
 
-- development
-- staging
-- production
+- `CLIENT_ID` (required for all builds and app functionality)
+- `POSTHOG_MEMVERSE_API_KEY` (required for analytics)
 
-To run the desired flavor either use the launch configuration in VSCode/Android Studio or use the
-following commands:
+These should be set in your shell profile (e.g., `.zshrc`) or via your secrets manager.
+
+**Reference:** See `setup.md` for detailed environment setup.
+
+### ⚠️ Important: Memverse API Endpoint Structure
+
+The Memverse API uses different base URLs for different types of endpoints:
+
+- **OAuth endpoint**: `https://www.memverse.com/oauth/token` (root level)
+- **Other API endpoints**: `https://www.memverse.com/api/v1/*` (versioned path)
+
+This distinction is critical for authentication to work properly. The OAuth token endpoint does NOT
+use the `/api/v1/` prefix that other endpoints use.
+
+### Run and Build Commands (Android, development flavor)
+
+```sh
+# Build debug APK:
+flutter build apk --debug \
+  --flavor development \
+  --target lib/main_development.dart \
+  --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
+  --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY
+
+# Install to connected device:
+flutter install --debug \
+  --flavor development \
+  --target lib/main_development.dart \
+  --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
+  --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY
+
+# Run (use these dart-defines, with your env vars!):
+flutter run \
+  --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
+  --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY \
+  --flavor development \
+  --target lib/main_development.dart \
+  --dart-define=AUTOSIGNIN=true
+```
+
+**AUTOSIGNIN FOR DEMOING**
+
+- By default (AUTOSIGNIN=true), the app skips login and shows a fully interactive mock/dummy UI for
+  the account dummysigninuser@dummy.com. Use this for QA, Maestro tests, and visual review.
+- For real authentication (testing actual backend login), set `--dart-define=AUTOSIGNIN=false` when
+  running, building, or installing the app.
+
+## Demo/QA Example - Autosignin
+
+```sh
+flutter run --flavor development --target lib/main_development.dart \
+  --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
+  --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY \
+  --dart-define=AUTOSIGNIN=true
+```
+
+## Real-World Use - No Autosignin
+
+```sh
+flutter run --flavor development --target lib/main_development.dart \
+  --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID \
+  --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY \
+  --dart-define=AUTOSIGNIN=false
+```
+
+**Note:**
+
+- Never use `lib/main.dart` as your target; always use `main_development.dart` for development.
+- All Android builds must use `--flavor development` for proper configuration.
+- App will not function if required env variables are missing.
+- Production and staging use different entrypoints and vars.
+
+## Maestro Testing
+
+- The included Maestro flows will work out of the box with `AUTOSIGNIN=true`, so the login screen
+  will be skipped and dummy/mock UI will be shown for screenshot and tab navigation tests.
+- For login form tests, run Maestro with `--dart-define=AUTOSIGNIN=false`.
+
+For Maestro testing or more platform-specific notes, see `maestro_rules.txt` and `setup.md`.
+

@@ -70,5 +70,9 @@
   "pleaseEnterYourPassword": "Por favor ingrese su contraseña",
   "username": "Nombre de usuario",
   "pleaseEnterYourUsername": "Por favor ingrese su nombre de usuario",
-  "login": "Iniciar sesión"
+  "login": "Iniciar sesión",
+  "home": "Inicio",
+  "verse": "Verso",
+  "ref": "Referencia",
+  "settings": "Configuración"
 }

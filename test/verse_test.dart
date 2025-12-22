@@ -7,7 +7,7 @@ void main() {
       const text = 'In the beginning God created the heavens and the earth.';
       const reference = 'Genesis 1:1';
 
-      final verse = Verse(text: text, reference: reference);
+      const verse = Verse(text: text, reference: reference);
 
       expect(verse.text, equals(text));
       expect(verse.reference, equals(reference));
@@ -19,7 +19,7 @@ void main() {
       const reference = 'John 3:16';
       const translation = 'NIV';
 
-      final verse = Verse(text: text, reference: reference, translation: translation);
+      const verse = Verse(text: text, reference: reference);
 
       expect(verse.text, equals(text));
       expect(verse.reference, equals(reference));
