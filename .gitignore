@@ -45,6 +45,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android build cache and CMake artifacts
+**/android/app/.cxx/
+**/android/.gradle/
+android/app/.cxx/
+android/.gradle/
+
 # Environment variables and secrets
 .env
 .env.*
@@ -64,6 +70,11 @@ secrets.json
 
 # Maestro test outputs
 .maestro/tests/
+
+# Test coverage reports
+coverage/
+test/coverage/
+*.lcov
 
 # Node.js dependencies specific to Netlify functions
 netlify/functions/node_modules/
