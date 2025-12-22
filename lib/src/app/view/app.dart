@@ -6,6 +6,7 @@ import 'package:memverse/src/constants/themes.dart';
 import 'package:memverse/src/features/auth/data/auth_service.dart';
 import 'package:memverse/src/features/auth/presentation/auth_wrapper.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
+import 'package:memverse/src/features/settings/presentation/theme_provider.dart';
 import 'package:memverse/src/features/signed_in/presentation/signed_in_nav_scaffold.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -13,38 +14,39 @@ late ProviderContainer container;
 
 Talker get talker => container.read(talkerProvider);
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) => UncontrolledProviderScope(
-    // Builder widget is needed here to access the MediaQuery and subsequently the platformBrightness
-    // from the context provided by the MaterialApp widget that is a child of BetterFeedback.
-    // Without the Builder, the MediaQuery.of(context) would use the context from above ProviderScope,
-    // which doesn't have the necessary information.
-    container: container,
-    child: Builder(
-      builder: (context) => BetterFeedback(
-        theme: forceLightMode
-            ? AppThemes.feedbackTheme
-            : (MediaQuery.of(context).platformBrightness == Brightness.dark
-                  ? AppThemes.feedbackDarkTheme
-                  : AppThemes.feedbackTheme),
-        // TODO: Styling etc.
-        child: TalkerWrapper(
-          talker: container.read(talkerProvider),
-          options: const TalkerWrapperOptions(enableErrorAlerts: true),
-          child: MaterialApp(
-            theme: AppThemes.light,
-            darkTheme: AppThemes.dark,
-            themeMode: forceLightMode ? ThemeMode.light : ThemeMode.system,
-            // Set forceLightMode=false in themes.dart to re-enable true dark mode when ready
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: AuthService.isDummyUser ? const SignedInNavScaffold() : const AuthWrapper(),
-          ),
-        ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
+    return UncontrolledProviderScope(
+      container: container,
+      child: Builder(
+        builder: (context) {
+          final isDarkMode =
+              themeMode == ThemeMode.dark ||
+              (themeMode == ThemeMode.system &&
+                  MediaQuery.of(context).platformBrightness == Brightness.dark);
+
+          return BetterFeedback(
+            theme: isDarkMode ? AppThemes.feedbackDarkTheme : AppThemes.feedbackTheme,
+            child: TalkerWrapper(
+              talker: container.read(talkerProvider),
+              options: const TalkerWrapperOptions(enableErrorAlerts: true),
+              child: MaterialApp(
+                theme: AppThemes.light,
+                darkTheme: AppThemes.dark,
+                themeMode: themeMode,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: AuthService.isDummyUser ? const SignedInNavScaffold() : const AuthWrapper(),
+              ),
+            ),
+          );
+        },
       ),
-    ),
-  );
+    );
+  }
 }

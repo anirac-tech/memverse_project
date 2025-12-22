@@ -7,7 +7,7 @@
 // For custom widget padding/spacings: use pagePadding / cardRadius, etc.
 // Typography: ALWAYS use Theme.of(context).textTheme, or the role-specific text style below.
 // Colors: reference only the tokens below (e.g., mvLightGreen), never Colors.* in other files.
-// Button/Card/Snackbar/Dialog/etc. themes: update the relevant ThemeData section here, not individual widgets.
+// Button/Card/Snackbar/Dialog/etc. themes: update the relevant ThemeData section here, not individual widgets.
 // This keeps the UI consistent and makes future rebrands super easy!
 // ===========================
 
@@ -123,7 +123,7 @@ const TextTheme customDarkTextTheme = TextTheme(
 
 /// Set to true to globally force light mode everywhere (MaterialApp and BetterFeedback theme).
 /// Set to false to let the app respect the user's system dark mode preference.
-const bool forceLightMode = true;
+const bool forceLightMode = false;
 // Set to false to respect system dark mode preference.
 
 class AppThemes {
@@ -232,6 +232,7 @@ class AppThemes {
         padding: verticalPadding,
         textStyle: const TextStyle(fontWeight: fontWeightBold),
         backgroundColor: mvDarkGreen,
+        foregroundColor: mvDarkScaffoldBg,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(

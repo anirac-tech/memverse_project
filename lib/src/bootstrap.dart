@@ -4,20 +4,7 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart'; // for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:memverse/src/app/app.dart';
-import 'package:memverse/src/features/auth/data/auth_service.dart';
-import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/utils/app_logger.dart';
-import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
-
-/// Class to hold bootstrap configuration
-class BootstrapConfig {
-  /// Constructor
-  const BootstrapConfig({required this.clientId});
-
-  /// The client ID used for authentication
-  final String clientId;
-}
 
 /// Error widget shown when required configuration is missing
 class ConfigurationErrorWidget extends StatelessWidget {
@@ -69,27 +56,12 @@ class ConfigurationErrorWidget extends StatelessWidget {
   );
 }
 
-// TODO: cleanup what is not needed
-/// Provider for bootstrap configuration
-final bootstrapProvider = Provider<BootstrapConfig>((ref) {
-  // Get the CLIENT_ID from dart-define, using debug fallback if needed
-  var clientId = const String.fromEnvironment('CLIENT_ID');
-  if (clientId.isEmpty && kDebugMode) {
-    clientId = 'debug';
-  }
-  if (clientId.isEmpty) {
-    throw Exception(
-      'CLIENT_ID environment variable is not defined. '
-      'Please run with --dart-define=CLIENT_ID=your_client_id',
-    );
-  }
-  return BootstrapConfig(clientId: clientId);
-});
-
 /// with env variables in .zshrc or CI/CD
 /// flutter run --dart-define=CLIENT_ID=$MEMVERSE_CLIENT_ID --dart-define=POSTHOG_MEMVERSE_API_KEY=$POSTHOG_MEMVERSE_API_KEY --flavor production --target lib/main_production.dart --dart-define=MEMVERSE_CLIENT_API_KEY=$MEMVERSE_CLIENT_API_KEY
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
-  try {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
     // Debug: Auto-fake a client ID for dev/test
     var clientId = const String.fromEnvironment('CLIENT_ID');
     if (clientId.isEmpty && kDebugMode) {
@@ -108,6 +80,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       return;
     }
 
+    const clientSecret = String.fromEnvironment('MEMVERSE_CLIENT_API_KEY');
     if (clientSecret.isEmpty) {
       const errorMessage =
           'MEMVERSE_CLIENT_API_KEY environment variable is not dart-defined. '
@@ -123,11 +96,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       return;
     }
 
-    container = ProviderContainer(overrides: []);
-    container.observers.add(TalkerRiverpodObserver(talker: container.read(talkerProvider)));
-    runApp(BetterFeedback(child: await builder()));
-  } catch (e, stackTrace) {
-    AppLogger.e('Error during bootstrap: $e', e, stackTrace);
-    runApp(ConfigurationErrorWidget(error: 'Error during app initialization: $e'));
-  }
+    final app = await builder();
+
+    runApp(ProviderScope(child: BetterFeedback(child: app)));
+  }, (error, stack) => AppLogger.e('Error during bootstrap: $error', error, stack));
 }
