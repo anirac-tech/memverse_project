@@ -1,4 +1,7 @@
 appId: com.spiritflightapps.memverse
+env:
+  MEMVERSE_USERNAME: ${MEMVERSE_USERNAME}
+  MEMVERSE_PASSWORD: ${MEMVERSE_PASSWORD}
 ---
 # MVP Manual Testing - Core Features Validation
 

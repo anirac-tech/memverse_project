@@ -4,10 +4,11 @@ appId: com.spiritflightapps.memverse
 
 # Test 1: Login Flow
 - launchApp
+# NOTE: Use environment variables for credentials, never hardcode passwords
 - tapOn: "Email"
 - inputText: "njwandroid@gmail.com"
 - tapOn: "Password"
-- inputText: "Help4App"
+- inputText: "OUTDATED_PASSWORD_DO_NOT_USE"  # This is intentionally incorrect
 - tapOn: "Sign In"
 - assertVisible: "Verses|Practice|Settings"
 

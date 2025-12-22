@@ -29,7 +29,7 @@ This document outlines what should be verified before considering the app ready 
 ```
 
 - [ ] **Login Flow**
-  - [ ] Login with valid credentials (njwandroid@gmail.com / Help4App)
+  - [ ] Login with valid credentials (use environment variables - never commit passwords!)
   - [ ] See proper error message for invalid credentials
   - [ ] Password visibility toggle works
   - [ ] "Remember me" functionality (if applicable)

@@ -5,6 +5,12 @@
 **Build**: Development Debug APK  
 **Tester**: AI-Assisted Manual Testing
 
+## ⚠️ SECURITY NOTE
+**All passwords in this codebase have been redacted or marked as OUTDATED.**
+- Use environment variables for credentials: `$MEMVERSE_USERNAME` and `$MEMVERSE_PASSWORD`
+- Never commit passwords to version control
+- See `integration_test/incorrect_password_test.dart` for secure testing practices
+
 ---
 
 ## Executive Summary

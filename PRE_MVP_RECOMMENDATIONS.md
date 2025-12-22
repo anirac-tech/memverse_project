@@ -30,7 +30,7 @@ flutter run \
 ```
 
 **Test these flows:**
-- ✅ Login with njwandroid@gmail.com / Help4App
+- ✅ Login with njwandroid@gmail.com / [REDACTED - outdated password, do not use]
 - ✅ Reference Quiz works (see verse, enter reference, get feedback)
 - ✅ Verse Text Quiz works (see reference, type verse, get feedback)
 - ✅ Theme toggle in settings (switches between light/dark)

@@ -1,5 +1,6 @@
 /// Base URL for the Memverse API.
-const String apiBaseUrl = 'https://www.memverse.com/api/v1';
+/// Per Swagger docs: basePath is "/1", not "/api/v1"
+const String apiBaseUrl = 'https://www.memverse.com/1';
 
 /// Prefix for API calls when using the Netlify proxy (for web).
 const String webApiPrefix = '/api';

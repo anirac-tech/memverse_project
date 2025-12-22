@@ -123,8 +123,8 @@ class LiveVerseRepository implements VerseRepository {
     );
   }
 
-  // Define path separately
-  static const String _memversesPath = '/1/memverses';
+  // Define path separately (no user ID - API returns verses for authenticated user)
+  static const String _memversesPath = '/memverses';
 
   /// Get a list of verses from the remote API
   @override
