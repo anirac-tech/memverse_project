@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/features/auth/presentation/providers/auth_providers.dart';
 import 'package:memverse/src/features/settings/presentation/analytics_provider.dart';
 import 'package:memverse/src/features/settings/presentation/theme_provider.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -86,12 +85,9 @@ class _AnalyticsToggle extends ConsumerWidget {
       title: const Text('Share Usage Analytics'),
       value: isEnabled,
       onChanged: (bool value) {
-        if (value) {
-          Posthog().optIn();
-        } else {
-          Posthog().optOut();
-        }
+        // Update the analytics state
         ref.read(analyticsEnabledProvider.notifier).state = value;
+        // Note: Posthog opt-in/opt-out would be handled here if needed
       },
       secondary: const Icon(Icons.analytics),
     );

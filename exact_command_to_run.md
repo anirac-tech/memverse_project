@@ -10,7 +10,7 @@ Changes made:
    `CLIENT_API_KEY`, while `auth_service.dart` requires `MEMVERSE_CLIENT_API_KEY`.
 3. Kept `AUTOSIGNIN=false` as requested.
 
-# Note: in Intellij you can press the green triangle to run the below command in terminal and it should work
+# Note: in Intellij you can press the green triangle to run the below command in terminal and	806799 it should work
 
 ```bash
 flutter run \
