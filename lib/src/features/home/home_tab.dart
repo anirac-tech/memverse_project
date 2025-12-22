@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:memverse/src/common/widgets/memverse_app_bar.dart';
@@ -59,48 +60,78 @@ class HomeTab extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 22),
-                    Text(
-                      'Demo Sign-In/Sign-Up Accounts:',
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 7),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          const SelectableText(
-                            'Username: ',
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                    if (kDebugMode)
+                      Card(
+                        color: Colors.amber.shade50,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.amber.shade200),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.bug_report, color: Colors.orange),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Debug Mode Only',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.labelLarge?.copyWith(color: Colors.orange.shade800),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Demo Sign-In/Sign-Up Accounts:',
+                                style: Theme.of(context).textTheme.labelMedium,
+                              ),
+                              const SizedBox(height: 7),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    const SelectableText(
+                                      'Username: ',
+                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                    const SelectableText(demoEmail),
+                                    IconButton(
+                                      tooltip: 'Copy email',
+                                      onPressed: () =>
+                                          Clipboard.setData(const ClipboardData(text: demoEmail)),
+                                      icon: const Icon(Icons.copy, size: 18),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    const SelectableText(
+                                      'Password: ',
+                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                    const SelectableText(demoPass),
+                                    IconButton(
+                                      tooltip: 'Copy password',
+                                      onPressed: () =>
+                                          Clipboard.setData(const ClipboardData(text: demoPass)),
+                                      icon: const Icon(Icons.copy, size: 18),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          const SelectableText(demoEmail),
-                          IconButton(
-                            tooltip: 'Copy email',
-                            onPressed: () =>
-                                Clipboard.setData(const ClipboardData(text: demoEmail)),
-                            icon: const Icon(Icons.copy, size: 18),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          const SelectableText(
-                            'Password: ',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          const SelectableText(demoPass),
-                          IconButton(
-                            tooltip: 'Copy password',
-                            onPressed: () => Clipboard.setData(const ClipboardData(text: demoPass)),
-                            icon: const Icon(Icons.copy, size: 18),
-                          ),
-                        ],
-                      ),
-                    ),
                     const Spacer(),
-                    const Center(child: Text('💡 This is the Home screen.')),
                   ],
                 ),
               ),

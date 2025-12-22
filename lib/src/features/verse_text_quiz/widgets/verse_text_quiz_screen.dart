@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:memverse/src/common/widgets/memverse_app_bar.dart';
+import 'package:memverse/src/constants/feature_flags.dart';
 import 'package:memverse/src/features/verse/presentation/providers/verse_providers.dart';
+import 'package:memverse/src/features/verse_text_quiz/widgets/quiz_rating_widget.dart';
 
-class VerseTextQuizScreen extends ConsumerWidget {
+class VerseTextQuizScreen extends ConsumerStatefulWidget {
   const VerseTextQuizScreen({super.key});
+
+  @override
+  ConsumerState<VerseTextQuizScreen> createState() => _VerseTextQuizScreenState();
+}
+
+class _VerseTextQuizScreenState extends ConsumerState<VerseTextQuizScreen> {
+  bool _showFullVerse = false;
 
   String _toMnemonic(String text) {
     return text
@@ -30,7 +39,7 @@ class VerseTextQuizScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     const colorGreen = Color(0xFF80BC00);
     const colorLightGreen = Color(0xFFC8F780);
     const colorBg = Color(0xFFF8FFF0);
@@ -87,7 +96,7 @@ class VerseTextQuizScreen extends ConsumerWidget {
                           border: Border.all(color: Colors.green.shade100, width: 1.1),
                         ),
                         child: Text(
-                          hintText,
+                          _showFullVerse ? currentVerse.text : hintText,
                           style: const TextStyle(color: Colors.black87, fontSize: 17),
                         ),
                       ),
@@ -115,20 +124,32 @@ class VerseTextQuizScreen extends ConsumerWidget {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(Icons.visibility_outlined, color: Colors.grey.shade500),
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        color: colorGreen,
-                                        shape: BoxShape.circle,
+                                    IconButton(
+                                      icon: Icon(
+                                        _showFullVerse ? Icons.visibility_off : Icons.visibility,
+                                        color: Colors.grey.shade500,
                                       ),
-                                      child: IconButton(
-                                        icon: const Icon(Icons.add, color: Colors.white),
-                                        onPressed: () {},
-                                        iconSize: 22,
-                                        padding: EdgeInsets.zero,
-                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _showFullVerse = !_showFullVerse;
+                                        });
+                                      },
                                     ),
+                                    if (FeatureFlags.addVerseIsReady) ...[
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          color: colorGreen,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.add, color: Colors.white),
+                                          onPressed: () {},
+                                          iconSize: 22,
+                                          padding: EdgeInsets.zero,
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ],
@@ -180,37 +201,7 @@ class VerseTextQuizScreen extends ConsumerWidget {
                               maxLines: 3,
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(
-                                6,
-                                (i) => Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                                  child: CircleAvatar(
-                                    backgroundColor: i == 2
-                                        ? colorGreen.withOpacity(0.15)
-                                        : Colors.white,
-                                    radius: 22,
-                                    child: i < 5
-                                        ? Text(
-                                            '${i + 1}',
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: i == 2
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                              color: i == 2 ? colorGreen : Colors.grey.shade600,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.info_outline,
-                                            color: colorGreen,
-                                            size: 22,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            if (FeatureFlags.ratingsIsReady) const QuizRatingWidget(),
                           ],
                         ),
                       ),
