@@ -4,7 +4,10 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/foundation.dart'; // for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:memverse/src/app/view/app.dart';
+import 'package:memverse/src/common/providers/talker_provider.dart';
 import 'package:memverse/src/utils/app_logger.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger_observer.dart';
 
 /// Error widget shown when required configuration is missing
 class ConfigurationErrorWidget extends StatelessWidget {
@@ -95,6 +98,10 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       );
       return;
     }
+
+    // Initialize the global container for talker and other global providers
+    container = ProviderContainer(overrides: []);
+    container.observers.add(TalkerRiverpodObserver(talker: container.read(talkerProvider)));
 
     final app = await builder();
 

@@ -1,0 +1,38 @@
+appId: com.spiritflightapps.memverse
+---
+# Manual Testing Script - MVP Core Features
+
+# Test 1: Login Flow
+- launchApp
+- tapOn: "Email"
+- inputText: "njwandroid@gmail.com"
+- tapOn: "Password"
+- inputText: "Help4App"
+- tapOn: "Sign In"
+- assertVisible: "Verses|Practice|Settings"
+
+# Test 2: Navigation - Go to Practice tab
+- tapOn: "Practice"
+- assertVisible: "Reference Quiz|Verse Text Quiz"
+
+# Test 3: Navigation - Go to Settings
+- tapOn: "Settings"
+- assertVisible: "Dark Mode|Theme"
+
+# Test 4: Theme Toggle
+- tapOn: 
+    text: "Dark Mode"
+    index: 0
+- takeScreenshot: ~/Desktop/memverse_dark_theme.png
+
+# Test 5: Navigate back and verify persistence
+- tapOn: "Verses"
+- assertVisible: "Verses"
+- tapOn: "Settings"
+- assertVisible: "Dark Mode"
+
+# Test 6: Toggle theme back
+- tapOn:
+    text: "Dark Mode"
+    index: 0
+- takeScreenshot: ~/Desktop/memverse_light_theme.png

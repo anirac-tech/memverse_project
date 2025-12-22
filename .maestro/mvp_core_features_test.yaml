@@ -1,0 +1,103 @@
+appId: com.spiritflightapps.memverse
+env:
+  MEMVERSE_USERNAME: ${MEMVERSE_USERNAME}
+  MEMVERSE_PASSWORD: ${MEMVERSE_PASSWORD}
+---
+# MVP Core Features Test
+# Tests the critical user flows for MVP launch
+#
+# Required environment variables:
+# - MEMVERSE_USERNAME: Email for login
+# - MEMVERSE_PASSWORD: Password for login
+#
+# Run with:
+# maestro test .maestro/mvp_core_features_test.yaml
+
+# Launch the app
+- launchApp
+- extendedWaitUntil:
+    visible: "Welcome to Memverse|Memverse Login"
+    timeout: 10000
+
+# Take initial screenshot
+- takeScreenshot: ~/Desktop/memverse_01_login_screen.png
+
+# Test 1: Login Flow
+- tapOn: "Username"
+- inputText: ${MEMVERSE_USERNAME}
+- hideKeyboard
+
+- tapOn: "Password"
+- inputText: ${MEMVERSE_PASSWORD}
+- hideKeyboard
+
+- takeScreenshot: ~/Desktop/memverse_02_credentials_entered.png
+
+- tapOn: "Login"
+- extendedWaitUntil:
+    visible: "Verses|Practice|Settings"
+    timeout: 20000
+
+- takeScreenshot: ~/Desktop/memverse_03_logged_in.png
+
+# Test 2: Navigation - Settings Tab
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Dark Mode|Theme"
+    timeout: 5000
+
+- takeScreenshot: ~/Desktop/memverse_04_settings_light.png
+
+# Test 3: Theme Toggle - Enable Dark Mode
+- tapOn:
+    text: "Dark Mode"
+    enabled: true
+
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 2000
+
+- takeScreenshot: ~/Desktop/memverse_05_dark_mode_enabled.png
+
+# Test 4: Navigation - Verses Tab
+- tapOn: "Verses"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+
+- takeScreenshot: ~/Desktop/memverse_06_verses_tab_dark.png
+
+# Test 5: Navigation - Practice Tab
+- tapOn: "Practice"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+
+- takeScreenshot: ~/Desktop/memverse_07_practice_tab_dark.png
+
+# Test 6: Theme Persistence - Return to Settings
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Dark Mode"
+    timeout: 3000
+
+- takeScreenshot: ~/Desktop/memverse_08_settings_dark_persisted.png
+
+# Test 7: Theme Toggle - Disable Dark Mode
+- tapOn:
+    text: "Dark Mode"
+    enabled: true
+
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 2000
+
+- takeScreenshot: ~/Desktop/memverse_09_light_mode_restored.png
+
+# Test 8: Final Navigation Check
+- tapOn: "Verses"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+
+- takeScreenshot: ~/Desktop/memverse_10_final_verses_light.png

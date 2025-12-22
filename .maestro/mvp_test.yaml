@@ -1,0 +1,85 @@
+appId: com.spiritflightapps.memverse
+---
+# MVP Manual Testing - Core Features Validation
+
+- launchApp
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 10000
+
+# Take screenshot of initial screen
+- takeScreenshot: ~/Desktop/memverse_01_initial.png
+
+# Test 1: Login Flow
+- tapOn:
+    id: ".*email.*"
+    index: 0
+- inputText: "njwandroid@gmail.com"
+- hideKeyboard
+
+- tapOn:
+    id: ".*password.*"
+    index: 0
+- inputText: "redacted"
+- hideKeyboard
+
+- takeScreenshot: ~/Desktop/memverse_02_login_filled.png
+
+- tapOn: "Sign In|LOG IN|Login"
+- extendedWaitUntil:
+    visible: "Verses|Practice|Settings|Quiz"
+    timeout: 15000
+
+- takeScreenshot: ~/Desktop/memverse_03_logged_in.png
+
+# Test 2: Navigate to Settings
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Dark Mode|Theme|Analytics"
+    timeout: 5000
+- takeScreenshot: ~/Desktop/memverse_04_settings_light.png
+
+# Test 3: Toggle Dark Mode ON
+- scroll
+- tapOn:
+    text: "Dark Mode"
+    index: 0
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 2000
+- takeScreenshot: ~/Desktop/memverse_05_dark_mode_on.png
+
+# Test 4: Navigate to Verses/Home
+- tapOn: "Verses|Home"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+- takeScreenshot: ~/Desktop/memverse_06_verses_tab.png
+
+# Test 5: Navigate to Practice
+- tapOn: "Practice"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+- takeScreenshot: ~/Desktop/memverse_07_practice_tab.png
+
+# Test 6: Go back to Settings and toggle Dark Mode OFF
+- tapOn: "Settings"
+- extendedWaitUntil:
+    visible: "Dark Mode"
+    timeout: 3000
+- scroll
+- tapOn:
+    text: "Dark Mode"
+    index: 0
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 2000
+- takeScreenshot: ~/Desktop/memverse_08_dark_mode_off.png
+
+# Test 7: Verify theme persists - check Verses tab in light mode
+- tapOn: "Verses|Home"
+- extendedWaitUntil:
+    visible: ".*"
+    timeout: 3000
+- takeScreenshot: ~/Desktop/memverse_09_final_verses.png
