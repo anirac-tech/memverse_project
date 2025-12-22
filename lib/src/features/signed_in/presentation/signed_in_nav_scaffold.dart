@@ -3,10 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:memverse/l10n/l10n.dart';
 import 'package:memverse/src/features/home/home_tab.dart';
 import 'package:memverse/src/features/ref_quiz/memverse_page.dart';
-import 'package:memverse/src/features/settings/settings_tab.dart';
+import 'package:memverse/src/features/settings/presentation/settings_screen.dart';
 import 'package:memverse/src/features/verse_text_quiz/widgets/verse_text_quiz_screen.dart';
 
-const _tabs = <Widget>[HomeTab(), VerseTextQuizScreen(), MemversePage(), SettingsTab()];
+const _tabs = <Widget>[HomeTab(), VerseTextQuizScreen(), MemversePage(), SettingsScreen()];
 
 class SignedInNavScaffold extends HookWidget {
   const SignedInNavScaffold({super.key});
