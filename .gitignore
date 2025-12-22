@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -62,6 +64,12 @@ secrets.json
 
 # Maestro test outputs
 .maestro/tests/
+
+# Node.js dependencies specific to Netlify functions
+netlify/functions/node_modules/
+
+# Netlify build artifacts
+.netlify/
 
 # Local configuration
 local.properties
